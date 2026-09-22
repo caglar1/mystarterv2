@@ -231,13 +231,30 @@ def test_deploy_check_catches_console_email_in_production():
 
 
 def test_production_uses_hashed_compressed_static_storage():
-    from django.conf import settings as django_settings
+    from whitenoise.storage import CompressedManifestStaticFilesStorage
+
+    from apps.core.storage import StaticFilesStorage
 
     # test_settings sade depolama kullanır; asıl ayarı kaynak koddan doğrula
     source = (BASE_DIR / "config" / "settings.py").read_text()
-    assert "whitenoise.storage.CompressedManifestStaticFilesStorage" in source
+    assert '"BACKEND": "apps.core.storage.StaticFilesStorage"' in source
     assert "STATICFILES_STORAGE" not in source  # Django 5.1'de kaldırıldı
-    assert django_settings.STORAGES["staticfiles"]
+    assert issubclass(StaticFilesStorage, CompressedManifestStaticFilesStorage)
+
+
+def test_collectstatic_with_production_storage(tmp_path, settings):
+    """Gerçek storage ile collectstatic: hash'li adlar, brotli/gzip ve vendor dosyaları sorunsuz."""
+    from django.core.management import call_command
+
+    settings.STATIC_ROOT = tmp_path
+    settings.STORAGES = {
+        **settings.STORAGES,
+        "staticfiles": {"BACKEND": "apps.core.storage.StaticFilesStorage"},
+    }
+    call_command("collectstatic", "--noinput", verbosity=0)
+    manifest = (tmp_path / "staticfiles.json").read_text()
+    assert "core/vendor/htmx.min.js" in manifest
+    assert list(tmp_path.glob("core/vendor/htmx.min.*.js.br"))  # brotli ön-sıkıştırılmış
 
 
 @override_settings(DEBUG=False)

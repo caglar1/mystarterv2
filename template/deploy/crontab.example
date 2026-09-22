@@ -1,0 +1,7 @@
+# Periyodik senkronizasyonlar (sunucuda `crontab -e`). Proje dizinini kendi yolunuzla değiştirin.
+# Harita (OpenStreetMap/Overpass): günde bir — Overpass'ı yormayın
+15 4 * * * cd /srv/uygulama && docker compose exec -T worker python manage.py sync places >> /var/log/uygulama-sync.log 2>&1
+# Haberler: 30 dakikada bir (feed değişmediyse 304 döner, maliyet yok)
+*/30 * * * * cd /srv/uygulama && docker compose exec -T worker python manage.py sync news >> /var/log/uygulama-sync.log 2>&1
+# Tamamlanmış görev kayıtlarını temizle (haftalık)
+0 3 * * 0 cd /srv/uygulama && docker compose exec -T worker python manage.py prune_db_task_results >> /var/log/uygulama-sync.log 2>&1

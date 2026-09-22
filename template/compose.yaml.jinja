@@ -1,0 +1,92 @@
+# [[ project_name ]] — canlı ortam
+#   cp .env.example .env   # SECRET_KEY, ALLOWED_HOSTS, e-posta vb. doldurun
+#   docker compose up -d --build
+#   docker compose --profile https up -d   # Caddy ile otomatik HTTPS ([[ domain ]])
+name: [[ project_slug ]]
+
+services:
+  web:
+    build: .
+    image: [[ project_slug ]]:latest
+    env_file: .env
+    environment:
+      DEBUG: "False"
+      RUN_MIGRATIONS: "1"
+      TRUST_X_FORWARDED_FOR: "True"
+      MEDIA_ROOT: /data/media
+[%- if database == 'postgres' %]
+      DATABASE_URL: postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD tanımlayın}@db:5432/${POSTGRES_DB:-app}
+[%- else %]
+      DATABASE_URL: sqlite:////data/db.sqlite3
+[%- endif %]
+    volumes:
+      - appdata:/data
+    ports:
+      - "127.0.0.1:8000:8000"   # yalnızca sunucunun kendisinden erişilir; dışarıya Caddy açar
+[%- if database == 'postgres' %]
+    depends_on:
+      db:
+        condition: service_healthy
+[%- endif %]
+    restart: unless-stopped
+
+  worker:
+    image: [[ project_slug ]]:latest
+    command: ["python", "manage.py", "db_worker"]
+    env_file: .env
+    environment:
+      DEBUG: "False"
+      MEDIA_ROOT: /data/media
+[%- if database == 'postgres' %]
+      DATABASE_URL: postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD tanımlayın}@db:5432/${POSTGRES_DB:-app}
+[%- else %]
+      DATABASE_URL: sqlite:////data/db.sqlite3
+[%- endif %]
+    volumes:
+      - appdata:/data
+    depends_on:
+      web:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    restart: unless-stopped
+[%- if database == 'postgres' %]
+
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD tanımlayın}
+    volumes:
+      # Postgres 18+ veriyi /var/lib/postgresql/<sürüm>/docker altında tutar; üst dizini bağlıyoruz.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+[%- endif %]
+
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["https"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  appdata:
+[%- if database == 'postgres' %]
+  pgdata:
+[%- endif %]
+  caddy_data:
+  caddy_config:

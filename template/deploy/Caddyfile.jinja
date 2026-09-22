@@ -1,0 +1,10 @@
+# Caddy: otomatik Let's Encrypt sertifikası + reverse proxy.
+# DNS'te [[ domain ]] bu sunucuyu göstermeli. .env: ALLOWED_HOSTS=[[ domain ]], CSRF_TRUSTED_ORIGINS=https://[[ domain ]]
+[[ domain ]] {
+	encode zstd gzip
+	reverse_proxy web:8000
+}
+
+www.[[ domain ]] {
+	redir https://[[ domain ]]{uri} permanent
+}

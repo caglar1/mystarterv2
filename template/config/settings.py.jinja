@@ -229,8 +229,8 @@ MEDIA_ROOT = Path(env("MEDIA_ROOT", str(BASE_DIR / "media")))
 
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    # Hash'li dosya adları (uzun süreli cache) + gzip/brotli ön-sıkıştırma.
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    # Hash'li dosya adları (uzun süreli cache) + gzip/brotli ön-sıkıştırma (WhiteNoise).
+    "staticfiles": {"BACKEND": "apps.core.storage.StaticFilesStorage"},
 }
 
 # Tailwind standalone CLI (Node.js yok). Sürüm/sha256: apps/core/tailwind.py
