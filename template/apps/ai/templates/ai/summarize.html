@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static lucide %}
+{% block title %}AI ile özetle · {{ project.name }}{% endblock %}
+{% block extra_js %}<script src="{% static 'ai/vendor/htmx-ext-sse.min.js' %}" defer></script>{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-3xl space-y-6 px-4 py-10">
+  <header>
+    <h1 class="flex items-center gap-2 text-3xl font-bold">{% lucide "sparkles" size=28 class="text-primary" %} AI ile özetle</h1>
+    <p class="mt-2 text-base-content/70">Metni yapıştırın; özet yazıldıkça ekrana akar (Server-Sent Events).</p>
+  </header>
+
+  {% if not configured %}
+    <div role="alert" class="alert alert-warning alert-soft">
+      {% lucide "triangle-alert" size=20 %}
+      <span>LLM yapılandırılmamış. <code>.env</code> içinde <code>LLM_API_KEY</code> ve <code>LLM_MODEL</code> değerlerini girin.</span>
+    </div>
+  {% endif %}
+
+  {% partialdef form inline %}
+    <form id="summary-form" hx-post="{% url 'ai:summarize_start' %}" hx-target="#summary-result" hx-disabled-elt="find button"
+          class="card card-border bg-base-100" {% if not configured %}inert{% endif %}>
+      <div class="card-body gap-2">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit" class="btn btn-primary mt-2 self-start">
+          <span class="loading loading-spinner loading-sm htmx-indicator" aria-hidden="true"></span>
+          Özetle
+        </button>
+      </div>
+    </form>
+  {% endpartialdef %}
+
+  <div id="summary-result" aria-live="polite">
+    {% partialdef stream %}
+      <div class="card card-border bg-base-100" hx-ext="sse" sse-connect="{% url 'ai:summarize_stream' key %}" sse-close="done">
+        <div class="card-body gap-3">
+          <h2 class="card-title text-base">Özet</h2>
+          <div class="whitespace-pre-wrap leading-relaxed" sse-swap="delta" hx-swap="beforeend"></div>
+          <div sse-swap="failure" hx-swap="innerHTML"></div>
+          <div class="text-sm text-base-content/60" sse-swap="done" hx-swap="innerHTML">
+            <span class="loading loading-dots loading-sm"></span> yazılıyor…
+          </div>
+        </div>
+      </div>
+    {% endpartialdef %}
+  </div>
+</section>
+{% endblock %}

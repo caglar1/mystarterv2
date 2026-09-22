@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import connection
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
@@ -31,6 +31,12 @@ def robots_txt(request):
     lines = ["User-agent: *", f"Disallow: /{settings.ADMIN_URL}", "Disallow: /hesap/", ""]
     lines.append(f"Sitemap: {sitemap_url}")
     return HttpResponse("\n".join(lines) + "\n", content_type="text/plain; charset=utf-8")
+
+
+@require_GET
+def favicon(request):
+    """Tarayıcıların kendiliğinden istediği /favicon.ico -> SVG ikon (404 gürültüsünü önler)."""
+    return HttpResponsePermanentRedirect(static("core/icons/favicon.svg"))
 
 
 @require_GET

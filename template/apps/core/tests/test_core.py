@@ -40,6 +40,12 @@ def test_sitemap_lists_pages(client):
     assert "/iletisim/" in response.content.decode()
 
 
+def test_favicon_redirects_to_svg(client):
+    response = client.get("/favicon.ico")
+    assert response.status_code == 301
+    assert response["Location"].endswith("favicon.svg")
+
+
 def test_web_manifest(client):
     response = client.get("/manifest.webmanifest")
     assert response["Content-Type"] == "application/manifest+json"
