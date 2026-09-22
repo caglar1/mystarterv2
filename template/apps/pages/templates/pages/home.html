@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load lucide %}
+{% block content %}
+<section class="bg-gradient-to-b from-base-200/70 to-base-100">
+  <div class="mx-auto max-w-5xl px-4 py-16 text-center sm:py-24">
+    <span class="badge badge-soft badge-primary gap-1">{% lucide "zap" size=14 %} Hızlı, hafif, güvenli</span>
+    <h1 class="mt-6 text-4xl font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">{{ site_name }}</h1>
+    <p class="mx-auto mt-6 max-w-2xl text-lg text-base-content/70 text-pretty">{{ site_description }}</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="{% url 'pages:contact' %}" class="btn btn-primary">Teklif alın {% lucide "arrow-right" size=18 %}</a>
+      <a href="{% url 'pages:services' %}" class="btn btn-outline">Hizmetlerimiz</a>
+    </div>
+  </div>
+</section>
+
+<section class="mx-auto max-w-6xl px-4 py-16">
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {% include "pages/_feature_card.html" with icon="gauge" title="Anında açılan sayfalar" text="Sunucuda render edilen HTML ve HTMX ile gereksiz JavaScript yok; mobilde bile hızlı." %}
+    {% include "pages/_feature_card.html" with icon="shield-check" title="Güvenli varsayılanlar" text="HTTPS, CSP, rate limit ve spam koruması ilk günden açık." %}
+    {% include "pages/_feature_card.html" with icon="smartphone" title="Mobil uyumlu" text="Her ekran boyutunda çalışan, ana ekrana eklenebilir (PWA) arayüz." %}
+    {% if features.maps %}{% url 'places:map' as maps_url %}{% include "pages/_feature_card.html" with icon="map-pin" title="Harita ve konum" text="OpenStreetMap verisiyle yakınınızdaki noktaları keşfedin." href=maps_url %}{% endif %}
+    {% if features.news %}{% url 'news:list' as news_url %}{% include "pages/_feature_card.html" with icon="newspaper" title="Yapay zeka destekli haberler" text="Kaynaklardan derlenen haberler, kısa özetleriyle." href=news_url %}{% endif %}
+    {% if features.kanban %}{% include "pages/_feature_card.html" with icon="square-kanban" title="İş takibi" text="Sürükle-bırak kanban panoları ile işleri takip edin." %}{% endif %}
+  </div>
+</section>
+
+<section class="bg-base-200/50">
+  <div class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 lg:grid-cols-2">
+    <div>
+      <h2 class="text-3xl font-bold">Projenizi konuşalım</h2>
+      <p class="mt-4 text-base-content/70">Formu doldurun, en geç bir iş günü içinde size dönüş yapalım.</p>
+      <ul class="mt-6 space-y-3 text-sm">
+        <li class="flex items-center gap-2">{% lucide "circle-check" size=18 class="text-success" %} Ücretsiz ön görüşme</li>
+        <li class="flex items-center gap-2">{% lucide "circle-check" size=18 class="text-success" %} Net zaman ve bütçe planı</li>
+        <li class="flex items-center gap-2">{% lucide "circle-check" size=18 class="text-success" %} Bilgileriniz KVKK kapsamında korunur</li>
+      </ul>
+    </div>
+    {% include "inquiries/form_card.html" %}
+  </div>
+</section>
+{% endblock %}

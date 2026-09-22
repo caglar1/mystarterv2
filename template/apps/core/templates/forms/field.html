@@ -1,0 +1,21 @@
+{% if field.field.is_honeypot %}
+  {# Bot tuzağı: ekran okuyuculardan ve görsel olarak gizli, botlar doldurur. #}
+  <div class="hidden" aria-hidden="true">{{ field.label_tag }}{{ field }}</div>
+{% elif field.widget_type == "checkbox" %}
+  <fieldset class="fieldset">
+    <label class="label cursor-pointer items-start gap-3 whitespace-normal text-sm text-base-content" for="{{ field.id_for_label }}">
+      {{ field }}<span>{{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}</span>
+    </label>
+    {% if field.help_text %}<p class="label whitespace-normal" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
+    {% for error in field.errors %}<p class="text-sm text-error">{{ error }}</p>{% endfor %}
+  </fieldset>
+{% else %}
+  <fieldset class="fieldset">
+    <label class="fieldset-legend" for="{{ field.id_for_label }}">
+      {{ field.label }}{% if field.field.required %} <span class="text-error">*</span>{% endif %}
+    </label>
+    {{ field }}
+    {% if field.help_text %}<p class="label whitespace-normal" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</p>{% endif %}
+    {% for error in field.errors %}<p class="text-sm text-error">{{ error }}</p>{% endfor %}
+  </fieldset>
+{% endif %}

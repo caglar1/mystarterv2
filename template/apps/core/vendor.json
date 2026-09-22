@@ -1,0 +1,18 @@
+{
+  "files": [
+    {
+      "name": "htmx",
+      "version": "2.0.10",
+      "url": "https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js",
+      "dest": "apps/core/static/core/vendor/htmx.min.js",
+      "sha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de"
+    },
+    {
+      "name": "alpinejs-csp",
+      "version": "3.17.4",
+      "url": "https://cdn.jsdelivr.net/npm/@alpinejs/csp@3.17.4/dist/cdn.min.js",
+      "dest": "apps/core/static/core/vendor/alpine-csp.min.js",
+      "sha256": "0d18d7f8d7910e2e0212f0f056b12f50bebc3abb7d88d2f7c7cb4c336fe4519a"
+    }
+  ]
+}

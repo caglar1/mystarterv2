@@ -1,0 +1,7 @@
+{% for error in errors %}
+  <div role="alert" class="alert alert-error alert-soft text-sm">{{ error }}</div>
+{% endfor %}
+<div class="grid gap-1">
+  {% for field, errors in fields %}{{ field.as_field_group }}{% endfor %}
+</div>
+{% for field in hidden_fields %}{{ field }}{% endfor %}

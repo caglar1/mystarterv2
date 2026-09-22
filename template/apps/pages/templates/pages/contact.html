@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load lucide %}
+{% block title %}İletişim · {{ site_name }}{% endblock %}
+{% block content %}
+<section class="mx-auto grid max-w-6xl gap-10 px-4 py-16 lg:grid-cols-2">
+  <div>
+    <h1 class="text-4xl font-bold">İletişim</h1>
+    <p class="mt-4 text-base-content/70">Sorularınız ve teklif talepleriniz için formu doldurun ya da bize doğrudan ulaşın.</p>
+    <ul class="mt-8 space-y-4">
+      <li class="flex items-center gap-3">{% lucide "mail" size=20 class="text-primary" %} <span>info@example.com</span></li>
+      <li class="flex items-center gap-3">{% lucide "phone" size=20 class="text-primary" %} <span>+90 (212) 000 00 00</span></li>
+      <li class="flex items-center gap-3">{% lucide "map-pin" size=20 class="text-primary" %} <span>İstanbul, Türkiye</span></li>
+    </ul>
+    {% if features.maps %}<a class="btn btn-outline btn-sm mt-6" href="{% url 'places:map' %}">{% lucide "map" size=16 %} Haritada görün</a>{% endif %}
+  </div>
+  {% include "inquiries/form_card.html" %}
+</section>
+{% endblock %}

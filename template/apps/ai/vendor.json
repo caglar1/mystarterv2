@@ -1,0 +1,11 @@
+{
+  "files": [
+    {
+      "name": "htmx-ext-sse",
+      "version": "2.2.4",
+      "url": "https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.4/dist/sse.min.js",
+      "dest": "apps/ai/static/ai/vendor/htmx-ext-sse.min.js",
+      "sha256": "98a46496de0c3605fbffdce9167ba427bdd9553184f83f149c261891a92c0136"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{% load lucide %}
+<header class="navbar sticky top-0 z-40 border-b border-base-200 bg-base-100/90 px-2 backdrop-blur sm:px-4 lg:px-8">
+  <div class="navbar-start gap-1">
+    <div class="dropdown lg:hidden">
+      <button type="button" tabindex="0" class="btn btn-square btn-ghost" aria-label="Menüyü aç">{% lucide "menu" size=22 %}</button>
+      <ul tabindex="0" class="menu dropdown-content z-50 mt-3 w-60 rounded-box border border-base-200 bg-base-100 p-2 shadow-lg">
+        {% include "core/components/nav_links.html" %}
+      </ul>
+    </div>
+    <a href="{% url 'pages:home' %}" class="btn btn-ghost gap-2 px-2 text-lg font-bold">
+      {% lucide "sparkles" size=20 class="text-primary" %}<span>{{ site_name }}</span>
+    </a>
+  </div>
+
+  <nav class="navbar-center hidden lg:flex" aria-label="Ana menü">
+    <ul class="menu menu-horizontal gap-1">
+      {% include "core/components/nav_links.html" %}
+    </ul>
+  </nav>
+
+  <div class="navbar-end gap-1 sm:gap-2">
+    {% include "core/components/theme_toggle.html" %}
+    {% if user.is_authenticated %}
+      <div class="dropdown dropdown-end">
+        <button type="button" tabindex="0" class="btn btn-ghost btn-sm gap-2" aria-label="Hesap menüsü">
+          {% lucide "circle-user" size=18 %}<span class="hidden sm:inline">{{ user.get_short_name|default:user.get_username }}</span>
+        </button>
+        <ul tabindex="0" class="menu dropdown-content z-50 mt-3 w-56 rounded-box border border-base-200 bg-base-100 p-2 shadow-lg">
+          {% if user.is_staff %}<li><a href="{% url 'admin:index' %}">{% lucide "shield" size=16 %} Yönetim paneli</a></li>{% endif %}
+          <li><a href="{% url 'accounts:password_change' %}">{% lucide "key-round" size=16 %} Şifre değiştir</a></li>
+          <li>
+            <form method="post" action="{% url 'accounts:logout' %}" class="p-0">
+              {% csrf_token %}
+              <button type="submit" class="flex w-full items-center gap-2 px-3 py-1.5">{% lucide "log-out" size=16 %} Çıkış yap</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    {% else %}
+      <a href="{% url 'accounts:login' %}" class="btn btn-ghost btn-sm" aria-label="Giriş yap">{% lucide "log-in" size=18 %}<span class="hidden sm:inline">Giriş</span></a>
+    {% endif %}
+    <a href="{% url 'pages:contact' %}" class="btn btn-primary btn-sm">Teklif al</a>
+  </div>
+</header>

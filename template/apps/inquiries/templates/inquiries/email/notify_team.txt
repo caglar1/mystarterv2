@@ -1,0 +1,10 @@
+{% autoescape off %}Yeni teklif talebi
+
+Ad soyad : {{ inquiry.full_name }}
+E-posta  : {{ inquiry.email }}
+Telefon  : {{ inquiry.phone|default:"-" }}
+Tarih    : {{ inquiry.created_at|date:"d.m.Y H:i" }}
+
+Mesaj:
+{{ inquiry.message }}
+{% endautoescape %}

@@ -1,0 +1,8 @@
+{% load lucide %}
+<div class="card card-border bg-base-100 transition-shadow hover:shadow-md">
+  <div class="card-body">
+    <div class="flex size-11 items-center justify-center rounded-box bg-primary/10 text-primary">{% lucide icon size=22 %}</div>
+    <h3 class="card-title mt-2">{% if href %}<a class="link link-hover" href="{{ href }}">{{ title }}</a>{% else %}{{ title }}{% endif %}</h3>
+    <p class="text-sm text-base-content/70">{{ text }}</p>
+  </div>
+</div>

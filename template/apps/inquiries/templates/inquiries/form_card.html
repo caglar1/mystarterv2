@@ -1,0 +1,24 @@
+{% load lucide %}
+<div id="inquiry-form" class="card card-border bg-base-100 shadow-sm">
+  <div class="card-body">
+    {% if sent %}
+      <div class="flex flex-col items-center gap-3 py-8 text-center">
+        <div class="flex size-14 items-center justify-center rounded-full bg-success/15 text-success">{% lucide "circle-check" size=32 %}</div>
+        <h2 class="text-xl font-bold">Teşekkürler, {{ inquiry.full_name }}!</h2>
+        <p class="text-base-content/70">Talebinizi aldık. Onay e-postası {{ inquiry.email }} adresine gönderildi.</p>
+      </div>
+    {% else %}
+      <h2 class="card-title">{% lucide "send" size=20 class="text-primary" %} Hızlı teklif talebi</h2>
+      <form method="post" action="{% url 'inquiries:submit' %}"
+            hx-post="{% url 'inquiries:submit' %}" hx-target="#inquiry-form" hx-swap="outerHTML" hx-disabled-elt="find button"
+            class="grid gap-3" novalidate>
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit" class="btn btn-primary mt-2">
+          <span class="loading loading-spinner loading-sm htmx-indicator" aria-hidden="true"></span>
+          Gönder {% lucide "arrow-right" size=18 %}
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</div>

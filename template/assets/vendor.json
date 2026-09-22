@@ -1,0 +1,18 @@
+{
+  "files": [
+    {
+      "name": "daisyui",
+      "version": "5.7.43",
+      "url": "https://github.com/saadeghi/daisyui/releases/download/v5.7.43/daisyui.mjs",
+      "dest": "assets/vendor/daisyui.mjs",
+      "sha256": "c63d5c8c24920fb9a2a2c501d606ca806ec012ecb14652f25859317b147044ea"
+    },
+    {
+      "name": "daisyui-theme",
+      "version": "5.7.43",
+      "url": "https://github.com/saadeghi/daisyui/releases/download/v5.7.43/daisyui-theme.mjs",
+      "dest": "assets/vendor/daisyui-theme.mjs",
+      "sha256": "28a8142bd7cb1afdade2fa93c33591f82bb0a7019d0e7a170459f73e1b7ecd6a"
+    }
+  ]
+}

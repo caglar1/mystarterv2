@@ -1,0 +1,17 @@
+{% load lucide %}
+{# Kullanım: {% load core_tags %}{% sync_card "news" %} — yalnızca yöneticilere görünür. #}
+{% if user.is_staff %}
+  <div class="card card-border bg-base-100">
+    <div class="card-body flex-col gap-3 p-4 sm:flex-row sm:items-center">
+      <div class="flex-1 text-sm">
+        <div class="font-semibold">{{ label }}</div>
+        <div id="sync-{{ job }}" class="mt-1">
+          {% if last_run %}{% include "core/components/sync_badge.html" with run=last_run %}{% else %}<span class="text-base-content/60">Henüz senkronize edilmedi.</span>{% endif %}
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-sm" hx-post="{% url 'core:sync_trigger' job %}" hx-target="#sync-{{ job }}" hx-disabled-elt="this">
+        {% lucide "refresh-cw" size=16 %} Şimdi senkronize et
+      </button>
+    </div>
+  </div>
+{% endif %}

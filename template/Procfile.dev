@@ -1,0 +1,3 @@
+web: uv run python manage.py runserver 127.0.0.1:8000
+css: uv run python manage.py tailwind watch
+worker: uv run python manage.py db_worker

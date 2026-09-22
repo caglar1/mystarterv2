@@ -1,0 +1,9 @@
+{% autoescape off %}Merhaba {{ inquiry.full_name }},
+
+{{ site_name }} olarak talebinizi aldık. Ekibimiz en kısa sürede size dönüş yapacak.
+
+Mesajınız:
+{{ inquiry.message }}
+
+Bu e-posta otomatik olarak gönderilmiştir.
+{% endautoescape %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="mx-auto flex max-w-md flex-col px-4 py-12 sm:py-20">
+  <div class="card card-border bg-base-100 shadow-sm">
+    <div class="card-body gap-4">
+      <h1 class="card-title text-2xl">{% block heading %}{% endblock %}</h1>
+      {% block body %}{% endblock %}
+    </div>
+  </div>
+  {% block below %}{% endblock %}
+</section>
+{% endblock %}

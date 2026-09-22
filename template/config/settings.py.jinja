@@ -1,0 +1,442 @@
+"""[[ project_name ]] ayarları.
+
+Tek dosya, tüm ortam farkları ortam değişkenleriyle yönetilir (bkz. .env.example).
+Varsayılanlar GÜVENLİ taraftadır: DEBUG kapalı, SECRET_KEY zorunlu, HTTPS ayarları açık.
+"""
+
+import os
+from pathlib import Path
+from urllib.parse import urlsplit
+
+import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.csp import CSP
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+# Ortamdaki gerçek değişkenler her zaman .env'den önceliklidir.
+load_dotenv(os.environ.get("DOTENV_PATH", BASE_DIR / ".env"))
+
+
+def env(name: str, default: str = "") -> str:
+    return os.environ.get(name, default).strip()
+
+
+def env_bool(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None or not value.strip():
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_int(name: str, default: int) -> int:
+    value = os.environ.get(name, "").strip()
+    return int(value) if value else default
+
+
+def env_list(name: str, default: str = "") -> list[str]:
+    return [item.strip() for item in os.environ.get(name, default).split(",") if item.strip()]
+
+
+# ---------------------------------------------------------------------------
+# Çekirdek
+# ---------------------------------------------------------------------------
+DEBUG = env_bool("DEBUG", False)
+
+SECRET_KEY = env("SECRET_KEY")
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured("SECRET_KEY ortam değişkeni zorunludur (DEBUG=False).")
+    SECRET_KEY = "django-insecure-yalnizca-gelistirme-icin"  # noqa: S105
+
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,[::1]" if DEBUG else "")
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
+
+SITE_NAME = env("SITE_NAME", "[[ project_name ]]")
+SITE_DESCRIPTION = env("SITE_DESCRIPTION", "[[ project_description ]]")
+
+# Hangi modüllerin kurulu olduğu. Şablonlar ve URL'ler buna bakar (context processor: `features`).
+FEATURES = {
+    "maps": [[ use_maps ]],
+    "llm": [[ use_llm ]],
+    "news": [[ use_news ]],
+    "kanban": [[ use_kanban ]],
+    "ui_kit": [[ use_ui_kit ]],  # yalnızca DEBUG modunda açılır
+}
+
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
+[%- if database == 'postgres' %]
+    "django.contrib.postgres",
+[%- endif %]
+    "django_htmx",
+    "django_tasks_db",
+    "lucide",
+    "apps.core",
+    "apps.accounts",
+    "apps.pages",
+    "apps.inquiries",
+[%- if use_maps %]
+    "apps.places",
+[%- endif %]
+[%- if use_llm %]
+    "apps.ai",
+[%- endif %]
+[%- if use_news %]
+    "apps.news",
+[%- endif %]
+[%- if use_kanban %]
+    "apps.kanban",
+[%- endif %]
+]
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
+    "apps.core.middleware.HtmxMessagesMiddleware",
+]
+
+# Geliştirmede: kaydedince tarayıcı otomatik yenilenir (dev bağımlılığı kuruluysa).
+if DEBUG and env_bool("BROWSER_RELOAD", True):
+    try:
+        import django_browser_reload  # noqa: F401
+    except ImportError:
+        pass
+    else:
+        INSTALLED_APPS.append("django_browser_reload")
+        MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
+
+ROOT_URLCONF = "config.urls"
+WSGI_APPLICATION = "config.wsgi.application"
+ASGI_APPLICATION = "config.asgi.application"
+ADMIN_URL = env("ADMIN_URL", "admin/")
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.template.context_processors.csp",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "apps.core.context_processors.site",
+            ],
+        },
+    },
+]
+
+# `{{ form }}` DaisyUI sınıflarıyla render edilir (bkz. apps/core/forms.py).
+FORM_RENDERER = "apps.core.forms.DaisyFormRenderer"
+
+# ---------------------------------------------------------------------------
+# Veritabanı
+# ---------------------------------------------------------------------------
+DATABASES = {
+    "default": dj_database_url.parse(
+        env("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        conn_max_age=env_int("DB_CONN_MAX_AGE", 60),
+        conn_health_checks=True,
+    )
+}
+if DATABASES["default"]["ENGINE"] == "django.db.backends.sqlite3":
+    # WAL + IMMEDIATE: SQLite'ı birden fazla worker ile güvenli ve hızlı kullanmak için.
+    DATABASES["default"]["CONN_MAX_AGE"] = 0
+    DATABASES["default"].setdefault("OPTIONS", {}).update(
+        {
+            "init_command": (
+                "PRAGMA journal_mode=WAL;"
+                "PRAGMA synchronous=NORMAL;"
+                "PRAGMA busy_timeout=5000;"
+                "PRAGMA foreign_keys=ON;"
+            ),
+            "transaction_mode": "IMMEDIATE",
+        }
+    )
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Ratelimit sayaçları tüm worker'lar arasında paylaşılsın diye veritabanı önbelleği (Redis gerekmez).
+# Tablo: `python manage.py createcachetable` (make setup ve Docker entrypoint çalıştırır).
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_cache",
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Arka plan görevleri (Django 6 Tasks + veritabanı kuyruğu, Celery/Redis yok)
+# Worker: `python manage.py db_worker`
+# ---------------------------------------------------------------------------
+TASKS = {
+    "default": {
+        "BACKEND": env("TASKS_BACKEND", "django_tasks_db.DatabaseBackend"),
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Kimlik doğrulama
+# ---------------------------------------------------------------------------
+AUTH_USER_MODEL = "accounts.User"
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "pages:home"
+LOGOUT_REDIRECT_URL = "pages:home"
+ACCOUNTS_ALLOW_SIGNUP = env_bool("ACCOUNTS_ALLOW_SIGNUP", False)
+
+# Formun gönderilmesi için gereken minimum süre (sn). Daha hızlı gönderimler bot kabul edilir.
+FORM_MIN_SUBMIT_SECONDS = float(env("FORM_MIN_SUBMIT_SECONDS", "2"))
+
+AUTH_PASSWORD_VALIDATORS = [
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+]
+
+# ---------------------------------------------------------------------------
+# Dil ve saat
+# ---------------------------------------------------------------------------
+LANGUAGE_CODE = "tr"
+TIME_ZONE = env("TIME_ZONE", "Europe/Istanbul")
+USE_I18N = True
+USE_TZ = True
+
+# ---------------------------------------------------------------------------
+# Statik ve medya dosyaları
+# ---------------------------------------------------------------------------
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+MEDIA_URL = "media/"
+MEDIA_ROOT = Path(env("MEDIA_ROOT", str(BASE_DIR / "media")))
+
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    # Hash'li dosya adları (uzun süreli cache) + gzip/brotli ön-sıkıştırma.
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+
+# Tailwind standalone CLI (Node.js yok). Sürüm/sha256: apps/core/tailwind.py
+TAILWIND_INPUT = BASE_DIR / "assets" / "css" / "app.css"
+TAILWIND_OUTPUT = BASE_DIR / "static" / "css" / "app.css"
+
+# ---------------------------------------------------------------------------
+# E-posta (Django 6.1 MAILERS)
+# EMAIL_PROVIDER: console (geliştirme) | smtp | resend
+# ---------------------------------------------------------------------------
+EMAIL_PROVIDER = env("EMAIL_PROVIDER", "console")
+_MAILER_BACKENDS = {
+    "console": ("django.core.mail.backends.console.EmailBackend", {}),
+    "smtp": (
+        "django.core.mail.backends.smtp.EmailBackend",
+        {
+            "host": env("EMAIL_HOST", "localhost"),
+            "port": env_int("EMAIL_PORT", 587),
+            "username": env("EMAIL_HOST_USER"),
+            "password": env("EMAIL_HOST_PASSWORD"),
+            "use_tls": env_bool("EMAIL_USE_TLS", True),
+            "timeout": 20,
+        },
+    ),
+    "resend": ("anymail.backends.resend.EmailBackend", {"api_key": env("RESEND_API_KEY")}),
+}
+if EMAIL_PROVIDER not in _MAILER_BACKENDS:
+    raise ImproperlyConfigured(f"Bilinmeyen EMAIL_PROVIDER: {EMAIL_PROVIDER!r}")
+MAILERS = {
+    "default": {
+        "BACKEND": _MAILER_BACKENDS[EMAIL_PROVIDER][0],
+        "OPTIONS": _MAILER_BACKENDS[EMAIL_PROVIDER][1],
+    }
+}
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "[[ project_name ]] <noreply@[[ domain ]]>")
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+# Yeni teklif talepleri bu adreslere bildirilir.
+NOTIFICATION_EMAILS = env_list("NOTIFICATION_EMAILS", "[[ author_email ]]")
+ADMINS = [("[[ author_name ]]", email) for email in NOTIFICATION_EMAILS]
+
+# ---------------------------------------------------------------------------
+# Güvenlik
+# ---------------------------------------------------------------------------
+# Proxy (Caddy/Nginx) arkasında istemci IP'si için X-Forwarded-For'a güvenilsin mi?
+TRUST_X_FORWARDED_FOR = env_bool("TRUST_X_FORWARDED_FOR", False)
+
+SESSION_COOKIE_HTTPONLY = True
+# CSRF token'ı <body hx-headers> ile sayfaya gömülüyor; JS'in cookie okumasına gerek yok.
+CSRF_COOKIE_HTTPONLY = True
+X_FRAME_OPTIONS = "DENY"
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", True)
+    SECURE_REDIRECT_EXEMPT = [r"^healthz$"]
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Kısa başlayın, her şey HTTPS'te sorunsuzsa 31536000'e (1 yıl) çıkarın.
+    SECURE_HSTS_SECONDS = env_int("SECURE_HSTS_SECONDS", 3600)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", True)
+    # Preload bir taahhüttür (hstspreload.org); bilinçli olarak açın.
+    SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", False)
+
+
+def _origin(url: str) -> str:
+    parts = urlsplit(url)
+    return f"{parts.scheme}://{parts.netloc}" if parts.scheme and parts.netloc else ""
+
+
+# Content Security Policy (Django 6). Inline <script>'ler yalnızca nonce ile çalışır;
+# Alpine'ın CSP build'i kullanıldığı için 'unsafe-eval' gerekmez.
+# Modüller dış kaynak eklerken aşağıdaki listeleri genişletir.
+CSP_IMG_SRC = [CSP.SELF, "data:"]
+CSP_CONNECT_SRC = [CSP.SELF]
+[%- if use_maps %]
+
+# ---------------------------------------------------------------------------
+# Harita modülü (apps.places)
+# ---------------------------------------------------------------------------
+MAP_TILES = env("MAP_TILES", "[[ map_tiles ]]")  # carto | stadia | pmtiles
+MAP_TILE_PROVIDERS = {
+    "carto": {
+        "url": "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        "attribution": (
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
+            '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+        ),
+        "max_zoom": 20,
+        "img_src": ["https://*.basemaps.cartocdn.com"],
+    },
+    "stadia": {
+        # Canlıda Stadia panelinden alan adınızı yetkilendirin (anahtar gerekmez) veya STADIA_API_KEY verin.
+        "url": "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
+        + (f"?api_key={env('STADIA_API_KEY')}" if env("STADIA_API_KEY") else ""),
+        "attribution": (
+            '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> '
+            '&copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> '
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        ),
+        "max_zoom": 20,
+        "img_src": ["https://tiles.stadiamaps.com"],
+    },
+    "pmtiles": {
+        # Ör. Cloudflare R2'deki https://harita.alanadiniz.com/turkiye.pmtiles
+        "url": env("PMTILES_URL"),
+        "attribution": (
+            '&copy; <a href="https://protomaps.com">Protomaps</a> '
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        ),
+        "max_zoom": 16,
+        "img_src": [],
+    },
+}
+if MAP_TILES not in MAP_TILE_PROVIDERS:
+    raise ImproperlyConfigured(f"Bilinmeyen MAP_TILES: {MAP_TILES!r}")
+CSP_IMG_SRC += MAP_TILE_PROVIDERS[MAP_TILES]["img_src"]
+if MAP_TILES == "pmtiles" and _origin(env("PMTILES_URL")):
+    CSP_CONNECT_SRC.append(_origin(env("PMTILES_URL")))
+MAP_DEFAULT_CENTER = (
+    float(env("MAP_CENTER_LAT", "41.0082")),
+    float(env("MAP_CENTER_LNG", "28.9784")),
+)
+MAP_DEFAULT_ZOOM = env_int("MAP_DEFAULT_ZOOM", 12)
+
+# Overpass (OpenStreetMap) senkronizasyonu. Kullanım kuralı: iletişim bilgili User-Agent, makul sıklık.
+OVERPASS_ENDPOINTS = env_list(
+    "OVERPASS_ENDPOINTS",
+    "https://overpass-api.de/api/interpreter,https://overpass.private.coffee/api/interpreter",
+)
+OVERPASS_USER_AGENT = env("OVERPASS_USER_AGENT", "[[ project_slug ]]/1.0 ([[ author_email ]])")
+PLACES_SYNC_RADIUS_KM = float(env("PLACES_SYNC_RADIUS_KM", "5"))
+# OSM etiket filtreleri: https://wiki.openstreetmap.org/wiki/Map_features
+PLACES_SYNC_FILTERS = env_list(
+    "PLACES_SYNC_FILTERS",
+    'amenity~"^(hospital|clinic|doctors|dentist|pharmacy)$"',
+)
+[%- endif %]
+[%- if use_llm %]
+
+# ---------------------------------------------------------------------------
+# LLM gateway (apps.ai) — saf httpx, SDK yok
+# ---------------------------------------------------------------------------
+LLM_PROVIDER = env("LLM_PROVIDER", "[[ llm_provider ]]")  # anthropic | openai
+LLM_BASE_URL = env(
+    "LLM_BASE_URL",
+    "https://api.anthropic.com/v1/messages"
+    if LLM_PROVIDER == "anthropic"
+    else "https://openrouter.ai/api/v1/chat/completions",
+)
+LLM_API_KEY = env("LLM_API_KEY")
+LLM_MODEL = env("LLM_MODEL", "claude-opus-5" if LLM_PROVIDER == "anthropic" else "")
+LLM_EFFORT = env("LLM_EFFORT", "low")  # low | medium | high | xhigh | max
+LLM_MAX_TOKENS = env_int("LLM_MAX_TOKENS", 4096)
+LLM_TIMEOUT = float(env("LLM_TIMEOUT", "120"))
+LLM_MAX_RETRIES = env_int("LLM_MAX_RETRIES", 2)
+# Anthropic: reddedilen isteği sunucu tarafında uygun modele yönlendirir ("default" | "off").
+LLM_FALLBACKS = env("LLM_FALLBACKS", "default")
+# OpenAI uyumlu sağlayıcılar: yalnızca model destekliyorsa açın.
+LLM_OPENAI_REASONING = env_bool("LLM_OPENAI_REASONING", False)
+LLM_OPENAI_JSON_MODE = env("LLM_OPENAI_JSON_MODE", "none")  # none | object | schema
+# Aynı process'te eşzamanlı açık stream sayısı (gunicorn thread'lerini korumak için).
+LLM_MAX_CONCURRENT_STREAMS = env_int("LLM_MAX_CONCURRENT_STREAMS", 4)
+[%- endif %]
+[%- if use_news %]
+
+# ---------------------------------------------------------------------------
+# Haber modülü (apps.news)
+# ---------------------------------------------------------------------------
+NEWS_USER_AGENT = env("NEWS_USER_AGENT", "[[ project_slug ]]-news/1.0 ([[ author_email ]])")
+NEWS_SYNC_LIMIT = env_int("NEWS_SYNC_LIMIT", 10)
+NEWS_ENRICH = env_bool("NEWS_ENRICH", True)
+# Kaynak sitelerin görsellerini doğrudan göstermek (hotlink) KVKK ve telif açısından risklidir.
+NEWS_SHOW_REMOTE_IMAGES = env_bool("NEWS_SHOW_REMOTE_IMAGES", False)
+[%- endif %]
+
+SECURE_CSP = {
+    "default-src": [CSP.SELF],
+    "script-src": [CSP.SELF, CSP.NONCE],
+    "style-src": [CSP.SELF],
+    "img-src": CSP_IMG_SRC,
+    "font-src": [CSP.SELF],
+    "connect-src": CSP_CONNECT_SRC,
+    "worker-src": [CSP.SELF, "blob:"],
+    "object-src": [CSP.NONE],
+    "base-uri": [CSP.SELF],
+    "form-action": [CSP.SELF],
+    "frame-ancestors": [CSP.NONE],
+}
+
+# ---------------------------------------------------------------------------
+# Loglama (stdout; Docker/systemd toplar)
+# ---------------------------------------------------------------------------
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {"format": "{asctime} {levelname} {name}: {message}", "style": "{"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "simple"},
+    },
+    "root": {"handlers": ["console"], "level": env("LOG_LEVEL", "INFO")},
+    "loggers": {
+        "django": {"handlers": ["console"], "level": env("DJANGO_LOG_LEVEL", "INFO"), "propagate": False},
+    },
+}

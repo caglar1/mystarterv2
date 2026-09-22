@@ -1,0 +1,132 @@
+# Starterpack v2 — Copier şablonu
+# Kullanım: uvx copier copy --trust <bu-repo> <hedef-klasör>
+# Güncelleme (üretilmiş projede): uvx copier update --trust
+
+_min_copier_version: "9.4"
+_subdirectory: template
+_templates_suffix: .jinja
+_answers_file: .copier-answers.yml
+
+# Django şablonları {% %} kullandığı için Copier/Jinja ayraçlarını değiştiriyoruz.
+# Zaten yalnızca .jinja uzantılı dosyalar işleniyor; bu ikinci bir güvenlik katmanı.
+_envops:
+  block_start_string: "[%"
+  block_end_string: "%]"
+  variable_start_string: "[["
+  variable_end_string: "]]"
+  comment_start_string: "[#"
+  comment_end_string: "#]"
+  keep_trailing_newline: true
+
+_exclude:
+  - "[% if not use_maps %]apps/places[% endif %]"
+  - "[% if not use_llm %]apps/ai[% endif %]"
+  - "[% if not use_news %]apps/news[% endif %]"
+  - "[% if not use_kanban %]apps/kanban[% endif %]"
+  - "[% if not use_ui_kit %]apps/pages/templates/pages/ui_kit.html[% endif %]"
+  - "__pycache__"
+  - "*.py[co]"
+  - ".DS_Store"
+  - ".venv"
+  - ".bin"
+  - "staticfiles"
+  - "static/css/app.css"
+  - "db.sqlite3*"
+  - ".env"
+  - ".pytest_cache"
+  - ".ruff_cache"
+
+project_name:
+  type: str
+  help: Projenin görünen adı
+  default: Benim Uygulamam
+
+project_slug:
+  type: str
+  help: Python paket / klasör adı (küçük harf, alt çizgi)
+  default: "[[ project_name | lower | replace('ı', 'i') | replace('ş', 's') | replace('ğ', 'g') | replace('ü', 'u') | replace('ö', 'o') | replace('ç', 'c') | replace(' ', '_') | replace('-', '_') ]]"
+  validator: "[% if not (project_slug | regex_search('^[a-z][a-z0-9_]*$')) %]Sadece küçük harf, rakam ve alt çizgi; harfle başlamalı.[% endif %]"
+
+project_description:
+  type: str
+  help: Kısa açıklama (meta description ve README için)
+  default: Django, HTMX ve Alpine.js ile hafif ve hızlı bir iş uygulaması.
+
+author_name:
+  type: str
+  default: Geliştirici
+
+author_email:
+  type: str
+  help: Bildirim e-postaları ve dış API'lere gönderilen User-Agent iletişim adresi
+  default: dev@example.com
+
+domain:
+  type: str
+  help: Canlı ortam alan adı (ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, Caddyfile)
+  default: example.com
+
+database:
+  type: str
+  help: Canlı ortam veritabanı (geliştirmede SQLite her zaman çalışır)
+  choices:
+    PostgreSQL (önerilen): postgres
+    SQLite (tek sunucu, küçük trafik): sqlite
+  default: postgres
+
+use_maps:
+  type: bool
+  help: "Harita modülü: Leaflet + Overpass ile yer senkronizasyonu + yakınımdakiler"
+  default: true
+
+map_tiles:
+  type: str
+  when: "[[ use_maps ]]"
+  help: Varsayılan harita katmanı sağlayıcısı (sonradan MAP_TILES ile değiştirilebilir)
+  choices:
+    "CARTO Positron (API anahtarsız; ücretsiz kullanım ticari olmayan projeler içindir)": carto
+    "Stadia Maps (ticari kullanımda ücretli plan gerekir)": stadia
+    "PMTiles (kendi dosyanız, ör. Cloudflare R2 — ölçekte en ucuz)": pmtiles
+  default: carto
+
+use_llm:
+  type: bool
+  help: "LLM gateway: Anthropic + OpenAI uyumlu sağlayıcılar, streaming demo sayfası"
+  default: true
+
+llm_provider:
+  type: str
+  when: "[[ use_llm ]]"
+  choices:
+    "Anthropic (Claude)": anthropic
+    "OpenAI uyumlu (OpenRouter, DeepSeek, Groq, Gemini, Ollama...)": openai
+  default: anthropic
+
+use_news:
+  type: bool
+  help: "Haber modülü: RSS -> makale çıkarma -> AI zenginleştirme -> arama (LLM modülü gerekir)"
+  default: false
+  validator: "[% if use_news and not use_llm %]Haber modülü LLM modülünü gerektirir (use_llm=true).[% endif %]"
+
+use_kanban:
+  type: bool
+  help: "Kanban modülü: SortableJS ile sürükle-bırak, sıralama veritabanına kaydedilir"
+  default: true
+
+use_ui_kit:
+  type: bool
+  help: "/dev/ui-kit/ bileşen vitrini (yalnızca DEBUG modunda açılır)"
+  default: true
+
+# .env dosyasını rastgele SECRET_KEY ile oluşturur; uv kuruluysa uv.lock üretir.
+_tasks:
+  - "[[ _copier_python ]] scripts/bootstrap_env.py"
+
+_message_after_copy: |
+  [[ project_name ]] hazır.
+
+    cd [[ _copier_conf.dst_path ]]
+    make setup     # bağımlılıklar, Tailwind CLI, vendor doğrulama, migrate, demo veri
+    make dev       # runserver + tailwind --watch + görev worker'ı
+
+  Yapay zeka ajanları için: AGENTS.md

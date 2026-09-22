@@ -1,0 +1,17 @@
+{% load static %}<!DOCTYPE html>
+<html lang="tr" data-theme="marka">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sunucu hatası</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="flex min-h-dvh items-center justify-center bg-base-100 p-4 text-center text-base-content">
+  <main>
+    <div class="text-6xl font-black text-error">500</div>
+    <h1 class="mt-4 text-2xl font-bold">Beklenmeyen bir hata oluştu</h1>
+    <p class="mt-2 text-base-content/70">Ekibimiz bilgilendirildi. Lütfen biraz sonra tekrar deneyin.</p>
+    <a href="/" class="btn btn-primary mt-8">Ana sayfa</a>
+  </main>
+</body>
+</html>

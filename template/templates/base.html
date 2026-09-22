@@ -1,0 +1,62 @@
+{% load static %}<!DOCTYPE html>
+<html lang="tr" data-theme="marka">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site_name }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}{{ site_description }}{% endblock %}">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+
+  {# Sosyal paylaşım önizlemeleri (WhatsApp, LinkedIn, X...) #}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ site_name }}">
+  <meta property="og:title" content="{% block og_title %}{{ site_name }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ site_description }}{% endblock %}">
+  <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'core/icons/og-cover.png' %}{% endblock %}">
+  <meta name="twitter:card" content="summary_large_image">
+
+  {# PWA #}
+  <link rel="manifest" href="{% url 'core:manifest' %}">
+  <meta name="theme-color" content="#1e40af">
+  <link rel="icon" href="{% static 'core/icons/favicon.svg' %}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{% static 'core/icons/apple-touch-icon.png' %}">
+
+  {# htmx: eval kapalı (CSP), gösterge stilleri app.css'te, 422/429 yanıtları da swap edilir #}
+  <meta name="htmx-config" content='{"includeIndicatorStyles":false,"allowEval":false,"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"422","swap":true},{"code":"429","swap":true},{"code":"[45]..","swap":false,"error":true}]}'>
+
+  {# Tema, sayfa çizilmeden önce uygulanır (yanıp sönmeyi önler). CSP nonce ile izinli. #}
+  <script nonce="{{ csp_nonce }}">
+    (function () {
+      var theme = null;
+      try { theme = localStorage.getItem("theme"); } catch (error) {}
+      if (!theme) theme = matchMedia("(prefers-color-scheme: dark)").matches ? "marka-koyu" : "marka";
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
+
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block extra_head %}{% endblock %}
+
+  <script src="{% static 'core/vendor/htmx.min.js' %}" defer></script>
+  <script src="{% static 'core/js/app.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+  {# Alpine en son yüklenir: sayfaya özel bileşenler önce Alpine.data ile kaydolmuş olur. #}
+  <script src="{% static 'core/vendor/alpine-csp.min.js' %}" defer></script>
+</head>
+<body class="flex min-h-dvh flex-col bg-base-100 text-base-content" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 btn btn-sm">İçeriğe geç</a>
+
+  {% include "core/components/navbar.html" %}
+
+  <main id="main" class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "core/components/footer.html" %}
+
+  <div id="toasts" class="toast toast-top toast-end z-50" aria-live="polite">
+    {% include "core/partials/toasts.html" %}
+  </div>
+</body>
+</html>

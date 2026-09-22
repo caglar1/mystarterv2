@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Erişim engellendi · {{ site_name }}{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-xl px-4 py-24 text-center">
+  <div class="text-6xl font-black text-warning">403</div>
+  <h1 class="mt-4 text-2xl font-bold">Bu sayfaya erişim yetkiniz yok</h1>
+  <a href="{% url 'pages:home' %}" class="btn btn-primary mt-8">Ana sayfaya dön</a>
+</section>
+{% endblock %}

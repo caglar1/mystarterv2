@@ -1,0 +1,91 @@
+/* Tailwind v4 + DaisyUI 5 giriş dosyası.
+   Derleme: `python manage.py tailwind build` (prod) / `watch` (geliştirme). Çıktı: static/css/app.css */
+@import "tailwindcss" source(none);
+
+/* Sınıf taranacak yerler: şablonlar + Python (form widget sınıfları) + uygulama JS'leri. */
+@source "../../templates";
+@source "../../apps";
+@source not "../../apps/*/static/*/vendor";
+/* Şablonda dinamik üretilen sınıflar (ör. alert-{{ message.tags }}) */
+@source inline("alert-success alert-error alert-warning alert-info badge-success badge-error badge-info badge-warning");
+
+@plugin "../vendor/daisyui.mjs" {
+  themes: false;
+  logs: false;
+}
+
+/* Marka temaları: renkleri buradan değiştirin (https://daisyui.com/theme-generator/). */
+@plugin "../vendor/daisyui-theme.mjs" {
+  name: "marka";
+  default: true;
+  color-scheme: light;
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97% 0.005 250);
+  --color-base-300: oklch(92% 0.01 250);
+  --color-base-content: oklch(25% 0.03 260);
+  --color-primary: oklch(45% 0.2 264);
+  --color-primary-content: oklch(98% 0.01 264);
+  --color-secondary: oklch(55% 0.15 200);
+  --color-secondary-content: oklch(98% 0.01 200);
+  --color-accent: oklch(70% 0.16 150);
+  --color-accent-content: oklch(20% 0.05 150);
+  --color-neutral: oklch(30% 0.03 260);
+  --color-neutral-content: oklch(96% 0.01 260);
+  --color-info: oklch(65% 0.14 235);
+  --color-info-content: oklch(98% 0.01 235);
+  --color-success: oklch(62% 0.16 150);
+  --color-success-content: oklch(98% 0.01 150);
+  --color-warning: oklch(80% 0.16 80);
+  --color-warning-content: oklch(25% 0.05 80);
+  --color-error: oklch(58% 0.21 25);
+  --color-error-content: oklch(98% 0.01 25);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@plugin "../vendor/daisyui-theme.mjs" {
+  name: "marka-koyu";
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: oklch(22% 0.02 260);
+  --color-base-200: oklch(19% 0.02 260);
+  --color-base-300: oklch(16% 0.02 260);
+  --color-base-content: oklch(92% 0.01 260);
+  --color-primary: oklch(68% 0.16 264);
+  --color-primary-content: oklch(18% 0.05 264);
+  --color-secondary: oklch(70% 0.12 200);
+  --color-secondary-content: oklch(18% 0.04 200);
+  --color-accent: oklch(75% 0.15 150);
+  --color-accent-content: oklch(18% 0.05 150);
+  --color-neutral: oklch(30% 0.02 260);
+  --color-neutral-content: oklch(92% 0.01 260);
+  --color-info: oklch(70% 0.13 235);
+  --color-info-content: oklch(18% 0.04 235);
+  --color-success: oklch(70% 0.15 150);
+  --color-success-content: oklch(18% 0.05 150);
+  --color-warning: oklch(82% 0.15 80);
+  --color-warning-content: oklch(20% 0.05 80);
+  --color-error: oklch(66% 0.19 25);
+  --color-error-content: oklch(18% 0.05 25);
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.75rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/* htmx (includeIndicatorStyles:false olduğu için göstergeler burada) */
+.htmx-indicator { opacity: 0; transition: opacity 150ms ease-in; }
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator { opacity: 1; }
+
+[x-cloak] { display: none !important; }

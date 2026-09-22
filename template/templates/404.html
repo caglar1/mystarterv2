@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load lucide %}
+{% block title %}Sayfa bulunamadı · {{ site_name }}{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-xl px-4 py-24 text-center">
+  <div class="text-6xl font-black text-primary">404</div>
+  <h1 class="mt-4 text-2xl font-bold">Aradığınız sayfa bulunamadı</h1>
+  <p class="mt-2 text-base-content/70">Bağlantı eski olabilir ya da sayfa taşınmış olabilir.</p>
+  <a href="{% url 'pages:home' %}" class="btn btn-primary mt-8">{% lucide "house" size=18 %} Ana sayfaya dön</a>
+</section>
+{% endblock %}

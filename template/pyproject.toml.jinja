@@ -1,0 +1,58 @@
+[project]
+name = "[[ project_slug ]]"
+version = "0.1.0"
+description = "[[ project_description ]]"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=6.1.1,<6.2",
+    "django-htmx>=1.29",
+    "django-tasks-db>=0.13",
+    "django-anymail[resend]>=15.2",
+    "dj-database-url>=3.1",
+    "gunicorn>=26",
+    "httpx>=0.28",
+    "lucide>=1.1",
+    "python-dotenv>=1.1",
+    "whitenoise[brotli]>=6.12",
+[%- if database == 'postgres' %]
+    "psycopg[binary]>=3.3",
+[%- endif %]
+[%- if use_news %]
+    "feedparser>=6.0.14",
+    "newspaper4k>=0.9.6",
+[%- endif %]
+]
+
+[dependency-groups]
+dev = [
+    "django-browser-reload>=1.21",
+    "honcho>=2.0",
+    "pytest>=8.4",
+    "pytest-django>=4.14",
+    "ruff>=0.16",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+extend-exclude = ["**/migrations/*.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ", "S", "SIM", "RUF"]
+# RUF001-003: Türkçe metinlerdeki ı, ş, ğ gibi harfler "belirsiz karakter" sayılmasın
+ignore = ["S101", "RUF001", "RUF002", "RUF003", "RUF012", "S308"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/*.py" = ["S105", "S106"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.test_settings"
+python_files = ["tests.py", "test_*.py"]
+addopts = "--reuse-db -p no:cacheprovider"
+filterwarnings = [
+    "error::django.utils.deprecation.RemovedInNextVersionWarning",
+    "error::django.utils.deprecation.RemovedAfterNextVersionWarning",
+]

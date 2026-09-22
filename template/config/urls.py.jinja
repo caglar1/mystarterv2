@@ -1,0 +1,26 @@
+from django.conf import settings
+from django.contrib import admin
+from django.urls import include, path
+
+urlpatterns = [
+    path(settings.ADMIN_URL, admin.site.urls),
+    path("", include("apps.core.urls")),
+    path("hesap/", include("apps.accounts.urls")),
+    path("teklif/", include("apps.inquiries.urls")),
+[%- if use_maps %]
+    path("harita/", include("apps.places.urls")),
+[%- endif %]
+[%- if use_llm %]
+    path("ai/", include("apps.ai.urls")),
+[%- endif %]
+[%- if use_news %]
+    path("haberler/", include("apps.news.urls")),
+[%- endif %]
+[%- if use_kanban %]
+    path("kanban/", include("apps.kanban.urls")),
+[%- endif %]
+    path("", include("apps.pages.urls")),
+]
+
+if "django_browser_reload" in settings.INSTALLED_APPS:
+    urlpatterns.append(path("__reload__/", include("django_browser_reload.urls")))

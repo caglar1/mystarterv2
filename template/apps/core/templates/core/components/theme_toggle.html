@@ -1,0 +1,5 @@
+{% load lucide %}
+<button type="button" class="btn btn-square btn-ghost btn-sm" x-data="themeToggle" @click="toggle" :aria-pressed="dark" aria-label="Açık/koyu tema">
+  <span x-show="!dark">{% lucide "moon" size=18 %}</span>
+  <span x-show="dark" x-cloak>{% lucide "sun" size=18 %}</span>
+</button>

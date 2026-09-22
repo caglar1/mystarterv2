@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load lucide %}
+{% block title %}UI Kit · {{ site_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-6xl space-y-10 px-4 py-12">
+  <header>
+    <h1 class="flex items-center gap-2 text-3xl font-bold">{% lucide "palette" size=28 class="text-primary" %} UI Kit</h1>
+    <p class="mt-2 text-base-content/70">Projede kullanılan bileşenler. Yeni ekran yazarken buradaki kalıpları kopyalayın (yalnızca DEBUG modunda görünür).</p>
+  </header>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">Butonlar</h2>
+    <div class="flex flex-wrap gap-2">
+      <button class="btn btn-primary">Primary</button>
+      <button class="btn btn-secondary">Secondary</button>
+      <button class="btn btn-accent">Accent</button>
+      <button class="btn btn-neutral">Neutral</button>
+      <button class="btn btn-outline">Outline</button>
+      <button class="btn btn-soft btn-primary">Soft</button>
+      <button class="btn btn-ghost">Ghost</button>
+      <button class="btn btn-primary btn-sm">Küçük</button>
+      <button class="btn btn-primary" disabled>Pasif</button>
+      <button class="btn btn-primary">{% lucide "send" size=18 %} İkonlu</button>
+    </div>
+  </section>
+
+  <section class="space-y-3">
+    <h2 class="text-xl font-semibold">Rozetler ve uyarılar</h2>
+    <div class="flex flex-wrap gap-2">
+      <span class="badge badge-primary">primary</span>
+      <span class="badge badge-soft badge-success">success</span>
+      <span class="badge badge-soft badge-warning">warning</span>
+      <span class="badge badge-soft badge-error">error</span>
+      <span class="badge badge-outline">outline</span>
+    </div>
+    <div class="grid gap-2 md:grid-cols-2">
+      <div role="alert" class="alert alert-success alert-soft">{% lucide "circle-check" size=20 %} İşlem başarılı.</div>
+      <div role="alert" class="alert alert-info alert-soft">{% lucide "info" size=20 %} Bilgilendirme mesajı.</div>
+      <div role="alert" class="alert alert-warning alert-soft">{% lucide "triangle-alert" size=20 %} Dikkat edilmesi gereken durum.</div>
+      <div role="alert" class="alert alert-error alert-soft">{% lucide "circle-alert" size=20 %} Bir hata oluştu.</div>
+    </div>
+  </section>
+
+  <section class="grid gap-6 lg:grid-cols-2">
+    <div class="space-y-3">
+      <h2 class="text-xl font-semibold">Form (<code>{% templatetag openvariable %} form {% templatetag closevariable %}</code>)</h2>
+      <p class="text-sm text-base-content/70">Formlar <code>StyledFormMixin</code> ile otomatik stillenir; ek şablon kodu gerekmez.</p>
+      <div class="card card-border bg-base-100 p-6">{{ form }}</div>
+    </div>
+    <div class="space-y-6">
+      <div class="space-y-3">
+        <h2 class="text-xl font-semibold">Yükleniyor (skeleton)</h2>
+        <div class="space-y-2">
+          <div class="skeleton h-4 w-1/3"></div>
+          <div class="skeleton h-4 w-full"></div>
+          <div class="skeleton h-4 w-2/3"></div>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <h2 class="text-xl font-semibold">Sekmeler (Alpine)</h2>
+        <div x-data="{ tab: 'bir' }">
+          <div role="tablist" class="tabs tabs-box">
+            <button role="tab" class="tab" :class="tab === 'bir' && 'tab-active'" @click="tab = 'bir'">Birinci</button>
+            <button role="tab" class="tab" :class="tab === 'iki' && 'tab-active'" @click="tab = 'iki'">İkinci</button>
+          </div>
+          <div class="p-4" x-show="tab === 'bir'">Birinci sekmenin içeriği.</div>
+          <div class="p-4" x-show="tab === 'iki'" x-cloak>İkinci sekmenin içeriği.</div>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <h2 class="text-xl font-semibold">Modal (native dialog)</h2>
+        <div x-data="{}">
+          <button class="btn" @click="$refs.demo.showModal()">Modalı aç</button>
+          <dialog x-ref="demo" class="modal modal-bottom sm:modal-middle">
+            <div class="modal-box">
+              <h3 class="text-lg font-bold">Merhaba!</h3>
+              <p class="py-4">Mobilde alttan açılır, masaüstünde ortalanır.</p>
+              <div class="modal-action"><form method="dialog"><button class="btn">Kapat</button></form></div>
+            </div>
+            <form method="dialog" class="modal-backdrop"><button>kapat</button></form>
+          </dialog>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <h2 class="text-xl font-semibold">Toast</h2>
+        <div class="alert alert-success alert-soft max-w-sm">{% lucide "circle-check" size=20 %} Toast'lar sağ üstte görünür ve 5 sn sonra kapanır.</div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

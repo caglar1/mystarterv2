@@ -1,0 +1,9 @@
+<div class="flex flex-wrap items-center gap-2"
+     {% if not run.is_finished %}hx-get="{% url 'core:sync_status' run.pk %}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  {% if not run.is_finished %}<span class="loading loading-spinner loading-xs" aria-hidden="true"></span>{% endif %}
+  <span class="badge badge-soft badge-sm {% if run.status == 'success' %}badge-success{% elif run.status == 'failed' %}badge-error{% else %}badge-info{% endif %}">{{ run.get_status_display }}</span>
+  <span class="text-base-content/70">
+    {% if run.is_finished %}{{ run.items }} öge · {% endif %}{{ run.created_at|timesince }} önce
+  </span>
+  {% if run.message %}<span class="w-full text-xs text-base-content/60">{{ run.message|truncatechars:160 }}</span>{% endif %}
+</div>

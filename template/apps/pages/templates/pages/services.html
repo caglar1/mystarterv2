@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load lucide %}
+{% block title %}Hizmetler · {{ site_name }}{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-6xl px-4 py-16">
+  <h1 class="text-4xl font-bold">Hizmetler</h1>
+  <p class="mt-4 max-w-2xl text-base-content/70">Hizmetlerinizi burada listeleyin. Her kart bir hizmeti, faydasını ve başlangıç fiyatını anlatabilir.</p>
+  <div class="mt-10 grid gap-6 md:grid-cols-3">
+    {% include "pages/_feature_card.html" with icon="layout-template" title="Web uygulaması" text="İhtiyacınıza özel, hızlı ve güvenli iş uygulamaları." %}
+    {% include "pages/_feature_card.html" with icon="workflow" title="Süreç otomasyonu" text="Tekrarlayan işleri otomatikleştirerek zaman kazandırıyoruz." %}
+    {% include "pages/_feature_card.html" with icon="life-buoy" title="Bakım ve destek" text="Güncellemeler, yedekler ve izleme ile kesintisiz hizmet." %}
+  </div>
+  <div class="mt-12"><a class="btn btn-primary" href="{% url 'pages:contact' %}">Teklif isteyin {% lucide "arrow-right" size=18 %}</a></div>
+</section>
+{% endblock %}
