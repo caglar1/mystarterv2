@@ -20,6 +20,14 @@
 - Test matrisi son etiketi değil çalışma ağacını test ediyor (`--vcs-ref HEAD`).
 - `AGENTS.md`: çeviri kuralları, widget-tweaks/django-honeypot'un neden kullanılmadığı.
 
+2.0.0'dan yükseltme (`uvx copier update --trust`):
+- Yeni `languages` sorusuna **`tr,en`** cevabını verin. Varsayılan `en,tr` kökü İngilizce yapar; Türkçe sayfalar
+  `/tr/` altına taşınır ve mevcut adresler değişir.
+- Ardından `uv sync` ve `manage.py migrate` çalıştırın. Haber kategorileri migration ile dönüştürülür,
+  veri kaybı olmaz.
+- 2.0.0'daki `project_description` Türkçe olduğu için İngilizce sayfalarda da Türkçe görünür. İsterseniz
+  `.env`'e `SITE_DESCRIPTION` olarak İngilizce bir metin yazın ve Türkçesini `locale/tr/LC_MESSAGES/django.po`'ya ekleyin.
+
 ## 2.0.0 — 2026-09-22
 
 v1'in (`starterpack`, cookiecutter) yerine sıfırdan yazıldı.
