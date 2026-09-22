@@ -414,6 +414,8 @@ NEWS_SYNC_LIMIT = env_int("NEWS_SYNC_LIMIT", 10)
 NEWS_ENRICH = env_bool("NEWS_ENRICH", True)
 # Kaynak sitelerin görsellerini doğrudan göstermek (hotlink) KVKK ve telif açısından risklidir.
 NEWS_SHOW_REMOTE_IMAGES = env_bool("NEWS_SHOW_REMOTE_IMAGES", False)
+if NEWS_SHOW_REMOTE_IMAGES:
+    CSP_IMG_SRC.append("https:")
 [%- endif %]
 
 SECURE_CSP = {
@@ -445,5 +447,8 @@ LOGGING = {
     "root": {"handlers": ["console"], "level": env("LOG_LEVEL", "INFO")},
     "loggers": {
         "django": {"handlers": ["console"], "level": env("DJANGO_LOG_LEVEL", "INFO"), "propagate": False},
+        # Dış HTTP istemcileri her istekte INFO log basar; yalnızca uyarılar görünsün.
+        "httpx": {"level": "WARNING"},
+        "newspaper": {"level": "WARNING"},
     },
 }
