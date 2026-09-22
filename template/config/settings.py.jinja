@@ -101,6 +101,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "apps.core.middleware.PermissionsPolicyMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -237,6 +238,16 @@ LANGUAGES = [(code, LANGUAGE_NAMES.get(code, code)) for code in env_list("LANGUA
 LANGUAGE_CODE = LANGUAGES[0][0]
 LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = env("TIME_ZONE", "Europe/Istanbul")
+# Postgres tam metin aramasının dili (kök bulma), projenin ilk dilinden seçildi. Bilinçli olarak ortam
+# değişkeni değil: GIN index bu ifadeyle oluşturulur; değiştirirseniz index'i yeniden kuran migration yazın.
+[%- set first_language = languages.split(',')[0].split('-')[0] %]
+[%- set search_configs = {'ar': 'arabic', 'ca': 'catalan', 'da': 'danish', 'de': 'german', 'el': 'greek',
+    'en': 'english', 'es': 'spanish', 'eu': 'basque', 'fi': 'finnish', 'fr': 'french', 'ga': 'irish',
+    'hi': 'hindi', 'hu': 'hungarian', 'hy': 'armenian', 'id': 'indonesian', 'it': 'italian',
+    'lt': 'lithuanian', 'nb': 'norwegian', 'ne': 'nepali', 'nl': 'dutch', 'no': 'norwegian',
+    'pt': 'portuguese', 'ro': 'romanian', 'ru': 'russian', 'sr': 'serbian', 'sv': 'swedish', 'ta': 'tamil',
+    'tr': 'turkish', 'yi': 'yiddish'} %]
+SEARCH_CONFIG = "[[ search_configs.get(first_language, 'simple') ]]"
 USE_I18N = True
 USE_TZ = True
 
@@ -291,7 +302,8 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "[[ project_name ]] <noreply@[[ d
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # Yeni teklif talepleri bu adreslere bildirilir.
 NOTIFICATION_EMAILS = env_list("NOTIFICATION_EMAILS", "[[ author_email ]]")
-ADMINS = [("[[ author_name ]]", email) for email in NOTIFICATION_EMAILS]
+# Canlıdaki 500 hataları bu adreslere e-postayla bildirilir (bkz. LOGGING -> mail_admins).
+ADMINS = env_list("ADMINS", "[[ author_email ]]")
 
 # ---------------------------------------------------------------------------
 # Güvenlik
@@ -306,6 +318,8 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+# Tarayıcı özellikleri: yalnızca gerekenler, yalnızca kendi sitemize (apps.core.middleware).
+PERMISSIONS_POLICY = "geolocation=[% if use_maps %](self)[% else %]()[% endif %], camera=(), microphone=(), payment=(), usb=(), browsing-topics=()"
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -465,12 +479,24 @@ LOGGING = {
     "formatters": {
         "simple": {"format": "{asctime} {levelname} {name}: {message}", "style": "{"},
     },
+    "filters": {
+        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
+    },
     "handlers": {
         "console": {"class": "logging.StreamHandler", "formatter": "simple"},
+        # Canlıda yakalanmamış hatalar (500) ADMINS'e e-postayla gider. Aşağıdaki "django" logger'ı
+        # Django'nun varsayılanını ezdiği için bu handler açıkça eklenir.
+        "mail_admins": {
+            "class": "django.utils.log.AdminEmailHandler",
+            "level": "ERROR",
+            "filters": ["require_debug_false"],
+        },
     },
     "root": {"handlers": ["console"], "level": env("LOG_LEVEL", "INFO")},
     "loggers": {
         "django": {"handlers": ["console"], "level": env("DJANGO_LOG_LEVEL", "INFO"), "propagate": False},
+        # Yalnızca istek hataları e-postalanır (django.security'deki DisallowedHost gürültüsü değil).
+        "django.request": {"handlers": ["mail_admins"], "level": "ERROR", "propagate": True},
         # Dış HTTP istemcileri her istekte INFO log basar; yalnızca uyarılar görünsün.
         "httpx": {"level": "WARNING"},
         "newspaper": {"level": "WARNING"},

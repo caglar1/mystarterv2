@@ -1,9 +1,10 @@
-{% load i18n %}{% autoescape off %}{% blocktranslate with name=inquiry.full_name %}Hello {{ name }},{% endblocktranslate %}
+{% load i18n %}{% autoescape off %}{% comment %}
+Bilerek genel bir metin: formdaki ad ve mesaj buraya YAZILMAZ. Form herkese açık ve alıcı adresini ziyaretçi
+giriyor; kullanıcı metni e-postaya konursa form, sizin alan adınızdan başkalarına spam göndermek için kullanılabilir.
+{% endcomment %}{% translate "Hello," %}
 
 {% blocktranslate %}We received your request at {{ site_name }}. Our team will get back to you shortly.{% endblocktranslate %}
 
-{% translate "Your message" %}:
-{{ inquiry.message }}
-
+{% translate "If you did not submit this request, you can ignore this email." %}
 {% translate "This email was sent automatically." %}
 {% endautoescape %}

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.shortcuts import render
 from django.templatetags.static import static
 from django.utils.translation import gettext as _
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
 from .models import Place
 from .services import nearby
@@ -56,16 +56,18 @@ def _coordinate(value: str | None, low: float, high: float) -> float | None:
     return number if low <= number <= high else None
 
 
-@require_GET
+@require_POST
 def nearby_view(request):
-    lat = _coordinate(request.GET.get("lat"), -90, 90)
-    lng = _coordinate(request.GET.get("lng"), -180, 180)
-    radius = _coordinate(request.GET.get("radius"), 0.1, 50) or 2.0
+    # POST: kullanıcının konumu adres satırına ve erişim loglarına düşmesin (KVKK). Sunucuda da ~11 m'ye
+    # yuvarlanır; yakındaki yerleri bulmak için daha hassası gerekmez.
+    lat = _coordinate(request.POST.get("lat"), -90, 90)
+    lng = _coordinate(request.POST.get("lng"), -180, 180)
+    radius = _coordinate(request.POST.get("radius"), 0.1, 50) or 2.0
     context = {"results": None, "radius": radius, "error": None}
     if lat is None or lng is None:
         context["error"] = _("Could not get your location. Make sure your browser allows location access.")
     else:
-        context["results"] = nearby(lat, lng, radius_km=radius)
+        context["results"] = nearby(round(lat, 4), round(lng, 4), radius_km=radius)
     template = "places/map.html#nearby" if request.htmx else "places/map.html"
     if not request.htmx:
         context.update(

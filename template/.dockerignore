@@ -8,6 +8,7 @@ __pycache__
 .ruff_cache
 db.sqlite3*
 media
+backups
 staticfiles
 static/css/app.css
 node_modules

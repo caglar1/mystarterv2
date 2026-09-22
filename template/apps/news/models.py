@@ -1,5 +1,11 @@
+from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+
+def default_feed_language() -> str:
+    # Fonksiyon: migration'a sabit bir dil yazılmasın. newspaper4k iki harfli kod bekler (pt-br -> pt).
+    return settings.LANGUAGE_CODE.split("-")[0]
 
 
 class Category(models.TextChoices):
@@ -21,7 +27,7 @@ class Feed(models.Model):
     )
     # Metin çıkarma dile göre yapılır (stopword'ler); yanlış dil = boş metin.
     language = models.CharField(
-        _("language"), max_length=5, default="tr", help_text=_("ISO code: tr, en, de...")
+        _("language"), max_length=5, default=default_feed_language, help_text=_("ISO code: tr, en, de...")
     )
     is_active = models.BooleanField(_("active"), default=True)
     etag = models.CharField(max_length=255, blank=True, editable=False)

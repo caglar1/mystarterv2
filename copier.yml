@@ -2,7 +2,7 @@
 # Kullanım: uvx copier copy --trust <bu-repo> <hedef-klasör>
 # Güncelleme (üretilmiş projede): uvx copier update --trust
 
-_min_copier_version: "9.4"
+_min_copier_version: "9.6"  # _copier_operation (git init yalnızca ilk kurulumda)
 _subdirectory: template
 _templates_suffix: .jinja
 _answers_file: .copier-answers.yml
@@ -44,7 +44,7 @@ project_name:
 project_slug:
   type: str
   help: Python paket / klasör adı (küçük harf, alt çizgi)
-  default: "[[ project_name | lower | replace('ı', 'i') | replace('ş', 's') | replace('ğ', 'g') | replace('ü', 'u') | replace('ö', 'o') | replace('ç', 'c') | replace(' ', '_') | replace('-', '_') ]]"
+  default: "[[ project_name | replace('İ', 'i') | lower | replace('ı', 'i') | replace('ş', 's') | replace('ğ', 'g') | replace('ü', 'u') | replace('ö', 'o') | replace('ç', 'c') | replace(' ', '_') | replace('-', '_') ]]"
   validator: "[% if not (project_slug | regex_search('^[a-z][a-z0-9_]*$')) %]Sadece küçük harf, rakam ve alt çizgi; harfle başlamalı.[% endif %]"
 
 project_description:
@@ -53,10 +53,6 @@ project_description:
     Kısa açıklama (meta description ve README). Varsayılan metnin Türkçe çevirisi hazır gelir;
     değiştirirseniz çevirisini locale/tr/LC_MESSAGES/django.po'ya ekleyin.
   default: A fast, lightweight business app built with Django, htmx and Alpine.js.
-
-author_name:
-  type: str
-  default: Geliştirici
 
 author_email:
   type: str
@@ -131,8 +127,12 @@ use_ui_kit:
   default: true
 
 # .env dosyasını rastgele SECRET_KEY ile oluşturur; uv kuruluysa uv.lock üretir.
+# İlk kurulumda git deposu açılır ve ilk commit atılır (`copier update` yalnızca git'teki projelerde çalışır).
+# `update` sırasında atlanır: Copier eski/yeni sürümleri geçici klasörlerde kendi git'iyle karşılaştırır.
 _tasks:
   - "[[ _copier_python ]] scripts/bootstrap_env.py"
+  - command: "[[ _copier_python ]] scripts/bootstrap_env.py --git"
+    when: "[[ _copier_operation == 'copy' ]]"
 
 _message_after_copy: |
   [[ project_name ]] hazır.

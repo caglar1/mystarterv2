@@ -14,7 +14,8 @@ dosyaya gidip kalıbı oradan alın.
 | Toast bildirimi | view'da `messages.success(...)`; mekanizma: `apps/core/middleware.py` |
 | Alpine bileşeni (CSP uyumlu) | `apps/core/static/core/js/app.js` (tema, toast) |
 | Modal, sekme | `apps/pages/templates/pages/ui_kit.html` (DEBUG'da `/dev/ui-kit/`) |
-| Arka plan görevi (`@task`) | `apps/inquiries/tasks.py` |
+| Arka plan görevi (`@task`) | `apps/inquiries/tasks.py`, `apps/accounts/tasks.py` (şifre sıfırlama e-postası) |
+| Kişisel veriyi loglara düşürmeden almak (POST + yuvarlama) | [% if use_maps %]`apps/places/views.py` (`nearby_view`), `apps/places/static/places/map.js`[% else %]`apps/inquiries/views.py` (form POST ile gelir)[% endif %] |
 | Periyodik senkronizasyon + HTMX durum kartı | `apps/core/sync.py`, `{% sync_card "iş" %}` |
 | Dış API istemcisi (retry, fallback, mock'lu test) | [% if use_maps %]`apps/places/overpass.py` + `apps/places/tests/test_places.py`[% else %]`apps/core/tailwind.py` (indirme + doğrulama)[% endif %] |
 [%- if use_maps %]

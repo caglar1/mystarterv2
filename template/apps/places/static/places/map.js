@@ -79,8 +79,9 @@ document.addEventListener("alpine:init", () => {
       this.error = "";
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          this.$refs.lat.value = position.coords.latitude.toFixed(6);
-          this.$refs.lng.value = position.coords.longitude.toFixed(6);
+          // ~11 m hassasiyet yeterli; daha fazlası gereksiz kişisel veri.
+          this.$refs.lat.value = position.coords.latitude.toFixed(4);
+          this.$refs.lng.value = position.coords.longitude.toFixed(4);
           this.busy = false;
           htmx.trigger(this.$el, "submit");
         },

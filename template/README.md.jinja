@@ -16,17 +16,22 @@ make dev       # http://127.0.0.1:8000  (runserver + tailwind --watch + görev w
 make check     # lint + test + migration kontrolü
 ```
 
+[#- Adresler ilk dile göre değişir: kök dil Türkçe ise /harita/, değilse /map/ #]
+[%- set tr_root = languages.split(',')[0] == 'tr' %]
 Modüller: çekirdek (sayfalar, hesaplar, teklif formu)
-[%- if use_maps %] · harita (`/harita/`)[% endif %]
-[%- if use_llm %] · AI özet (`/ai/ozet/`)[% endif %]
-[%- if use_news %] · haberler (`/haberler/`)[% endif %]
+[%- if use_maps %] · harita (`[[ '/harita/' if tr_root else '/map/' ]]`)[% endif %]
+[%- if use_llm %] · AI özet (`[[ '/ai/ozet/' if tr_root else '/ai/summary/' ]]`)[% endif %]
+[%- if use_news %] · haberler (`[[ '/haberler/' if tr_root else '/news/' ]]`)[% endif %]
 [%- if use_kanban %] · kanban (`/kanban/`)[% endif %]
 [%- if use_ui_kit %] · UI kit (`/dev/ui-kit/`, yalnızca DEBUG)[% endif %].
 
 ## Diller
 
 Arayüz dilleri: `[[ languages ]]` (ilk dil kökte, diğerleri `/<dil>/` önekli; URL yolları da çevrilir:
-`/about/` ↔ `/tr/hakkimizda/`). Kaynak metinler İngilizce, çeviriler `locale/` ve `apps/*/locale/` altında.
+[% if tr_root %]`/hakkimizda/` ↔ `/en/about/`[% else %]`/about/` ↔ `/tr/hakkimizda/`[% endif %]).
+Kaynak metinler İngilizce, çeviriler `locale/` ve `apps/*/locale/` altında.
+Aramada kök bulma dili `settings.SEARCH_CONFIG` ile sabit (`[[ languages.split(',')[0] ]]` diline göre seçildi);
+değiştirirseniz arama index'ini yeniden kuran bir migration yazın.
 
 - Dil eklemek: `.env` → `LANGUAGES=en,tr,de`, sonra `uv run python scripts/messages.py de` ve `.po` dosyalarını doldurun.
 - Metin ekledikten sonra: `make messages` (GNU gettext gerekir: `brew install gettext` / `apt install gettext`).
@@ -43,8 +48,29 @@ docker compose exec web python manage.py createsuperuser
 ```
 
 - Sağlık kontrolü: `/healthz` · Loglar: `docker compose logs -f web worker`
-- Periyodik işler: `deploy/crontab.example`
+- Periyodik işler (yedek, oturum temizliği, senkronizasyon): `deploy/crontab.example`
 - Yayından önce: `docker compose exec web python manage.py check --deploy`
+- Canlıdaki 500 hataları `.env`'deki `ADMINS` adreslerine e-postayla gider (`EMAIL_PROVIDER` ayarlı olmalı).
+
+### Yedekleme
+
+```bash
+sh deploy/backup.sh              # ./backups altına yedek alır, 14 günden eskileri siler
+```
+
+Yedekleri **sunucu dışına** da kopyalayın (S3/R2, başka bir sunucu). Geri yükleme:
+
+[% if database == 'postgres' -%]
+```bash
+docker compose exec -T db sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists' < backups/db-<tarih>.dump
+```
+[%- else -%]
+```bash
+docker compose stop web worker
+docker compose cp backups/db-<tarih>.sqlite3 web:/data/db.sqlite3
+docker compose start web worker
+```
+[%- endif %]
 [%- if use_maps %]
 
 ### Harita katmanı

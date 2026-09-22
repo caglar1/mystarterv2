@@ -40,6 +40,41 @@ def test_password_reset_sends_email(client, user, settings):
 
 
 @pytest.mark.django_db
+def test_password_reset_email_goes_through_a_task(client, user, monkeypatch):
+    """İstek SMTP'yi beklemez; yanıt süresi adresin kayıtlı olup olmadığını ele vermez."""
+    from apps.accounts import forms
+
+    calls = []
+
+    class Recorder:
+        def enqueue(self, *args):
+            calls.append(args)
+
+    monkeypatch.setattr(forms, "send_email", Recorder())
+    client.post(reverse("accounts:password_reset"), {"email": "ayse@example.com"})
+    assert len(calls) == 1
+    subject, body, _from_email, recipients = calls[0]
+    assert recipients == ["ayse@example.com"] and "/account/password/reset/" in body and subject
+
+
+@pytest.mark.django_db
+def test_signup_requires_email(client, settings):
+    settings.ACCOUNTS_ALLOW_SIGNUP = True
+    page = client.get(reverse("accounts:signup"))
+    response = client.post(
+        reverse("accounts:signup"),
+        {
+            "username": "yeni",
+            "password1": "Cok-Guclu-Sifre-42",
+            "password2": "Cok-Guclu-Sifre-42",
+            "form_ts": page.context["form"]["form_ts"].initial,
+        },
+    )
+    assert response.status_code == 422
+    assert "email" in response.context["form"].errors
+
+
+@pytest.mark.django_db
 def test_signup_disabled_by_default(client):
     assert client.get(reverse("accounts:signup")).status_code == 404
 

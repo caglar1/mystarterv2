@@ -1,0 +1,31 @@
+#!/bin/sh
+# Veritabanı yedeği. Sunucuda proje dizininden çalıştırın:  sh deploy/backup.sh
+# Yedekler ./backups altına yazılır, KEEP_DAYS günden eskiler silinir (varsayılan 14).
+# ÖNEMLİ: yedekleri sunucu dışına da kopyalayın (S3/R2, başka sunucu); aynı diskteki yedek yedek değildir.
+set -eu
+cd "$(dirname "$0")/.."
+KEEP_DAYS="${KEEP_DAYS:-14}"
+mkdir -p backups
+STAMP="$(date +%Y%m%d-%H%M%S)"
+[% if database == 'postgres' -%]
+FILE="backups/db-$STAMP.dump"
+# --format=custom: pg_restore ile seçmeli geri yükleme yapılabilir.
+docker compose exec -T db sh -c 'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom' > "$FILE.tmp"
+mv "$FILE.tmp" "$FILE"
+[%- else -%]
+FILE="backups/db-$STAMP.sqlite3"
+# sqlite3.backup: veritabanı açıkken de tutarlı kopya alır (kilitlemeden, WAL ile uyumlu).
+docker compose exec -T web python -c "
+import shutil, sqlite3, sys
+source = sqlite3.connect('/data/db.sqlite3')
+target = sqlite3.connect('/tmp/backup.sqlite3')
+source.backup(target)
+target.close()
+with open('/tmp/backup.sqlite3', 'rb') as handle:
+    shutil.copyfileobj(handle, sys.stdout.buffer)
+" > "$FILE.tmp"
+docker compose exec -T web rm -f /tmp/backup.sqlite3
+mv "$FILE.tmp" "$FILE"
+[%- endif %]
+find backups -name 'db-*' -type f -mtime +"$KEEP_DAYS" -delete
+echo "$FILE"

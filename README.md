@@ -33,7 +33,8 @@ Tek ön koşul [uv](https://docs.astral.sh/uv/) (`brew install uv`); Python 3.13
 
 **Her projede:** özel User modeli ve giriş/şifre sıfırlama · KVKK onaylı teklif formu (honeypot + zaman
 damgası + rate limit, e-postalar arka plan görevinde) · htmx yanıtlarında otomatik toast · açık/koyu tema ·
-PWA manifest ve ikonlar · OG/Twitter meta · sitemap/robots · `/healthz` · sıkı CSP (nonce) · `check --deploy`
+PWA manifest ve ikonlar · OG/Twitter meta · sitemap/robots · `/healthz` · sıkı CSP (nonce) · `Permissions-Policy` · canlıda 500 hatalarının e-postası · yedekleme betiği
+(`deploy/backup.sh`) ve cron örnekleri · `check --deploy`
 uyarısız · Docker (çok aşamalı, root olmayan kullanıcı) + compose (web / worker / db / Caddy) · GitHub Actions CI ·
 tek kaynak `AGENTS.md` (+ `CLAUDE.md`).
 
@@ -44,7 +45,7 @@ bağımlılıkları birlikte gider (`settings.FEATURES`).
 |---|---|
 | Harita | Overpass istemcisi (çoklu sunucu, geri çekilmeli tekrar deneme, açıklayıcı hatalar), bulk upsert, saf Python haversine, HTMX "yakınımdakiler", Leaflet'i Alpine ile yöneten bileşen |
 | LLM | Anthropic (adaptive thinking + `effort`, refusal, sunucu tarafı fallback, structured output) ve OpenAI uyumlu sağlayıcılar; 429/5xx tekrar deneme; SSE ile akan özet sayfası |
-| Haberler | Koşullu feed çekme (ETag), robots.txt'e uyum, newspaper4k ile metin çıkarma, JSON şemalı AI zenginleştirme, Postgres fonksiyonel GIN index + Türkçe kök bulma, HTMX anlık arama |
+| Haberler | Koşullu feed çekme (ETag), robots.txt'e uyum, newspaper4k ile metin çıkarma, JSON şemalı AI zenginleştirme, Postgres fonksiyonel GIN index + projenin dilinde kök bulma, HTMX anlık arama |
 | Kanban | Kullanıcıya göre izole panolar, transaction içinde sıralama, OOB sayaç güncellemesi |
 
 ## Çok dillilik
@@ -64,6 +65,8 @@ bağımlılıkları birlikte gider (`settings.FEATURES`).
   Yeni metin eklendiğinde `make messages` çalıştırılıyor (GNU gettext gerekir).
 - **Yeni dil eklemek:** `LANGUAGES=en,tr,de` ve ardından `uv run python scripts/messages.py de`.
   Sağdan sola yazılan diller için `dir="rtl"` otomatik ekleniyor.
+- **Arama dili** (Postgres tam metin araması) kurulumda ilk dile göre sabitlenir (`settings.SEARCH_CONFIG`);
+  GIN index bu ifadeyle kurulduğu için sonradan değiştirmek yeni bir migration ister.
 
 ## Ölçümler
 
@@ -85,7 +88,7 @@ Docker imajı: yaklaşık 430 MB (tüm modüller açık; payın çoğu newspaper
 - `scripts/test_matrix.py`: 9 seçenek kombinasyonunu üretir; `tr,en` (Türkçe kökte) ve tek dil de bunlara dahil.
   Her birinde vendor sha256, ruff, `makemigrations --check`, pytest ve Tailwind derlemesi çalışır.
   Ardından projenin gerçek ayarlarıyla her dilde sayfa açılır. Postgres kombinasyonları gerçek Postgres 18'e karşı test edilir.
-- Tüm modüller açık projede 112 test (Postgres'te; index kullanımı `EXPLAIN` ile doğrulanır).
+- Tüm modüller açık projede 122 test (Postgres'te; index kullanımı `EXPLAIN` ile doğrulanır).
 - `docker compose up` ile doğrulananlar: healthz, migration'lar, worker, brotli + `immutable` önbellekli statik dosyalar.
 
 ```bash

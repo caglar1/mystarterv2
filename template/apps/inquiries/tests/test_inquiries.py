@@ -37,6 +37,19 @@ def test_htmx_submit_saves_and_sends_emails(client, settings):
 
 
 @pytest.mark.django_db
+def test_customer_email_never_echoes_user_input(client, settings):
+    """Onay e-postası formdaki metni içermemeli: aksi halde form, spam göndermek için kullanılabilir."""
+    settings.NOTIFICATION_EMAILS = ["ekip@example.com"]
+    client.post(URL, payload(message="Ucuz kredi: spam.example.com"), **HTMX)
+    by_recipient = {message.to[0]: message for message in mail.outbox}
+    customer = by_recipient["ayse@example.com"]
+    assert "spam.example.com" not in customer.body
+    assert "Ayşe Yılmaz" not in customer.body
+    # Ekibe giden bildirimde mesaj elbette var
+    assert "spam.example.com" in by_recipient["ekip@example.com"].body
+
+
+@pytest.mark.django_db
 def test_non_htmx_submit_redirects(client):
     response = client.post(URL, payload())
     assert response.status_code == 302

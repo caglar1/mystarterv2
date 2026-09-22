@@ -81,7 +81,13 @@ def run_sync(fake_llm=None, overrides=None, calls=None):
 
 @pytest.fixture
 def feed(db):
-    return Feed.objects.create(name="Test Haber", url=FEED_URL, category="other")
+    # Örnek HTML Türkçe: metin çıkarma dile göre yapılır (varsayılan dil projeye göre değişir).
+    return Feed.objects.create(name="Test Haber", url=FEED_URL, category="other", language="tr")
+
+
+@pytest.mark.django_db
+def test_feed_language_defaults_to_project_language(settings):
+    assert Feed(name="x", url="https://x.test/rss").language == settings.LANGUAGE_CODE.split("-")[0]
 
 
 def test_parse_entries_strips_html_and_parses_dates():
@@ -223,17 +229,24 @@ def test_remote_images_hidden_by_default(client, feed):
     assert "cdn.test" not in client.get(reverse("news:list")).content.decode()
 
 
+# Kök bulma dili projeye göre değişir (settings.SEARCH_CONFIG): (başlık, aranan kelime)
+SEARCH_SAMPLES = {
+    "turkish": ("Kitaplar ve kütüphaneler", "kitap"),
+    "english": ("Books and libraries", "book"),
+}
+
+
 @pytest.mark.django_db
 @pytest.mark.skipif(connection.vendor != "postgresql", reason="Yalnızca PostgreSQL")
-def test_postgres_search_uses_gin_index(feed):
+def test_postgres_search_uses_gin_index(feed, settings):
     from apps.core.search import hybrid_search
 
-    Article.objects.create(
-        feed=feed, url="https://haber.test/p1", title="Kitaplar ve kütüphaneler", content=""
-    )
+    # Bilinmeyen dillerde 'simple' kullanılır: kök bulma yok, kelimenin tamamı aranır.
+    title, term = SEARCH_SAMPLES.get(settings.SEARCH_CONFIG, ("Kitaplar ve kütüphaneler", "kitaplar"))
+    Article.objects.create(feed=feed, url="https://haber.test/p1", title=title, content="")
     Article.objects.create(feed=feed, url="https://haber.test/p2", title="Futbol", content="maç sonucu")
-    results = hybrid_search(Article.objects.all(), "kitap", fields=["title", "content"])
-    assert [a.title for a in results] == ["Kitaplar ve kütüphaneler"]  # Türkçe kök bulma
+    results = hybrid_search(Article.objects.all(), term, fields=["title", "content"])
+    assert [a.title for a in results] == [title]  # kök bulma çalışıyor
     with connection.cursor() as cursor:
         cursor.execute("SET enable_seqscan = off")
         plan = results.explain()

@@ -38,8 +38,16 @@ COMBOS: dict[str, dict] = {
     "llm-openai": {**OFF, "use_llm": True, "llm_provider": "openai", "database": "sqlite"},
     "news-llm": {**OFF, "use_llm": True, "use_news": True, "database": "sqlite"},
     "kanban-uikit": {**OFF, "use_kanban": True, "use_ui_kit": True, "database": "sqlite"},
-    # Diller: Türkçe kökte (/hakkimizda/, /en/about/) ve tek dil (dil seçici/hreflang yok)
-    "turkish-root": {**OFF, "use_kanban": True, "languages": "tr,en", "database": "sqlite"},
+    # Diller: Türkçe kökte (/hakkimizda/, /en/about/) ve tek dil (dil seçici/hreflang yok).
+    # turkish-root ayrıca Türkçe kök bulmayla (SEARCH_CONFIG=turkish) aramayı da sınar.
+    "turkish-root": {
+        **OFF,
+        "use_kanban": True,
+        "use_llm": True,
+        "use_news": True,
+        "languages": "tr,en",
+        "database": "postgres",
+    },
     "english-only": {**OFF, "languages": "en", "database": "sqlite"},
 }
 

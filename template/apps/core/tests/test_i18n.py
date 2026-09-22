@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core import mail, signing
 from django.urls import reverse
 from django.utils import translation
+from django.utils.translation import to_locale
 
 from conftest import HTMX
 
@@ -124,9 +125,10 @@ def test_translations_are_complete():
     """Kaynak dil dışındaki her dil için boş ya da 'fuzzy' çeviri kalmamalı (`make messages`)."""
     problems = []
     for code in OTHER_LANGUAGES + (["tr"] if "tr" not in OTHER_LANGUAGES else []):
+        locale = to_locale(code)  # pt-br -> pt_BR
         for po in [
-            *BASE_DIR.glob(f"apps/*/locale/{code}/LC_MESSAGES/django.po"),
-            *BASE_DIR.glob(f"locale/{code}/LC_MESSAGES/django.po"),
+            *BASE_DIR.glob(f"apps/*/locale/{locale}/LC_MESSAGES/django.po"),
+            *BASE_DIR.glob(f"locale/{locale}/LC_MESSAGES/django.po"),
         ]:
             for msgid, strs, fuzzy in _po_entries(po):
                 if fuzzy or not all(strs):

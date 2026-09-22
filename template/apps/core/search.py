@@ -1,21 +1,22 @@
 """Hibrit metin araması.
 
 - PostgreSQL: `to_tsvector` fonksiyonel GIN index'i ile tam metin araması (websearch sözdizimi:
-  "tam ifade", -hariç, VEYA), başlığa ağırlık veren sıralama.
+  "tam ifade", -hariç, VEYA), başlığa ağırlık veren sıralama. Kök bulma dili `settings.SEARCH_CONFIG`
+  (projenin ilk dilinden seçilir: english, turkish... ya da kök bulmasız `simple`).
 - SQLite (geliştirme): `icontains` ile basit arama.
 
 Index'in kullanılabilmesi için sorgudaki ifade, migration'da oluşturulan index ifadesiyle aynı
-olmalıdır: `SearchVector(*fields, config=SEARCH_CONFIG)` (bkz. apps/news/migrations/0002_*).
+olmalıdır: `SearchVector(*fields, config=settings.SEARCH_CONFIG)` (bkz. apps/news/migrations/0002_*).
+SEARCH_CONFIG değişirse index kullanılmaz hale gelir: index'i yeni dille yeniden kuran bir migration gerekir.
 Hata yutan `try/except` yok: Postgres tarafında bir sorun varsa görünür şekilde patlar.
 """
 
 from functools import reduce
 from operator import or_
 
+from django.conf import settings
 from django.db import connection
 from django.db.models import Q, QuerySet
-
-SEARCH_CONFIG = "turkish"
 
 
 def uses_postgres_search() -> bool:
@@ -26,7 +27,7 @@ def search_vector(*fields: str):
     """Index ile birebir aynı ifade (Postgres). psycopg yalnızca Postgres projelerinde kurulu."""
     from django.contrib.postgres.search import SearchVector
 
-    return SearchVector(*fields, config=SEARCH_CONFIG)
+    return SearchVector(*fields, config=settings.SEARCH_CONFIG)
 
 
 def hybrid_search(
@@ -39,11 +40,14 @@ def hybrid_search(
     if uses_postgres_search():
         from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
-        query = SearchQuery(term, search_type="websearch", config=SEARCH_CONFIG)
+        query = SearchQuery(term, search_type="websearch", config=settings.SEARCH_CONFIG)
         weights = weights or ["A", "B", "C", "D"][: len(fields)]
         ranked = reduce(
             lambda a, b: a + b,
-            (SearchVector(f, weight=w, config=SEARCH_CONFIG) for f, w in zip(fields, weights, strict=True)),
+            (
+                SearchVector(f, weight=w, config=settings.SEARCH_CONFIG)
+                for f, w in zip(fields, weights, strict=True)
+            ),
         )
         return (
             queryset.annotate(search=search_vector(*fields))

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.template.loader import render_to_string
 
@@ -35,3 +36,19 @@ class HtmxMessagesMiddleware:
         if any(header in response.headers for header in _HTMX_NAVIGATION_HEADERS):
             return False
         return response.get("Content-Type", "").startswith("text/html")
+
+
+class PermissionsPolicyMiddleware:
+    """`Permissions-Policy` başlığı: sayfanın hangi tarayıcı özelliklerini (konum, kamera...) kullanabileceği.
+
+    Django'da karşılığı yok; değer settings.PERMISSIONS_POLICY'de.
+    Bir view kendi başlığını koyduysa dokunulmaz.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        response.headers.setdefault("Permissions-Policy", settings.PERMISSIONS_POLICY)
+        return response

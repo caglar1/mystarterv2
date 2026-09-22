@@ -4,6 +4,7 @@ __pycache__/
 .env
 db.sqlite3*
 /media/
+/backups/
 /staticfiles/
 /static/css/app.css
 /.bin/

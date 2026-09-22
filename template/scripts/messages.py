@@ -15,6 +15,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from django.utils.translation import to_locale  # dil kodu -> klasör adı (pt-br -> pt_BR)
+
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE_LANGUAGE = "en"  # kaynak metinler İngilizce; bu dil için .po gerekmez
 COMMON = ["--no-obsolete", "--no-location"]
@@ -40,7 +42,8 @@ def main() -> None:
     if not codes:
         print("Çevrilecek dil yok (yalnızca kaynak dil tanımlı).")
         return
-    flags = [arg for code in codes for arg in ("-l", code)]
+    # Django klasör adını bekler: makemessages -l pt-br "geçersiz" der ve o dili atlar.
+    flags = [arg for code in codes for arg in ("-l", to_locale(code))]
 
     for app in sorted(p for p in (ROOT / "apps").iterdir() if (p / "apps.py").exists()):
         (app / "locale").mkdir(exist_ok=True)

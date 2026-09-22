@@ -1,6 +1,12 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+# Bu süreden uzun "sırada" bekleyen iş: arka plan worker'ı (db_worker) büyük ihtimalle çalışmıyor.
+STALE_AFTER = timedelta(minutes=1)
 
 
 class SyncRun(models.Model):
@@ -42,6 +48,10 @@ class SyncRun(models.Model):
     @property
     def is_finished(self) -> bool:
         return self.status in {self.Status.SUCCESS, self.Status.FAILED}
+
+    @property
+    def is_stale(self) -> bool:
+        return self.status == self.Status.QUEUED and timezone.now() - self.created_at > STALE_AFTER
 
     @property
     def duration_seconds(self) -> float | None:

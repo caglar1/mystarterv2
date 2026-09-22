@@ -186,7 +186,7 @@ def download_html(url: str, http: httpx.Client) -> str | None:
     return b"".join(chunks).decode(response.encoding or "utf-8", errors="replace")
 
 
-def extract_article(url: str, html: str, language: str = "tr") -> dict:
+def extract_article(url: str, html: str, language: str) -> dict:
     config = Config()
     config.fetch_images = False  # görsel boyutu için ağa çıkmasın
     config.language = language  # dil verilmezse Türkçe metinler boş çıkar (İngilizce stopword'ler)

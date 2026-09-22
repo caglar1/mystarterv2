@@ -1,0 +1,15 @@
+# Periyodik işler (sunucuda `crontab -e`). Proje dizinini kendi yolunuzla değiştirin.
+[%- if use_maps %]
+# Harita (OpenStreetMap/Overpass): günde bir — Overpass'ı yormayın
+15 4 * * * cd /srv/[[ project_slug ]] && docker compose exec -T worker python manage.py sync places >> /var/log/[[ project_slug ]].log 2>&1
+[%- endif %]
+[%- if use_news %]
+# Haberler: 30 dakikada bir (feed değişmediyse 304 döner, maliyet yok)
+*/30 * * * * cd /srv/[[ project_slug ]] && docker compose exec -T worker python manage.py sync news >> /var/log/[[ project_slug ]].log 2>&1
+[%- endif %]
+# Veritabanı yedeği: her gece (yedekleri sunucu dışına da kopyalayın)
+30 2 * * * cd /srv/[[ project_slug ]] && sh deploy/backup.sh >> /var/log/[[ project_slug ]].log 2>&1
+# Süresi dolmuş oturum kayıtlarını sil (haftalık) — yoksa oturum tablosu sürekli büyür
+0 3 * * 0 cd /srv/[[ project_slug ]] && docker compose exec -T web python manage.py clearsessions >> /var/log/[[ project_slug ]].log 2>&1
+# Tamamlanmış görev kayıtlarını temizle (haftalık)
+15 3 * * 0 cd /srv/[[ project_slug ]] && docker compose exec -T worker python manage.py prune_db_task_results >> /var/log/[[ project_slug ]].log 2>&1

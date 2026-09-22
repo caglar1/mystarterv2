@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: starterpack\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-22 16:39+0300\n"
+"POT-Creation-Date: 2026-09-22 20:55+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Turkish\n"
@@ -90,9 +90,8 @@ msgstr "Yeni teklif talebi: %(name)s"
 msgid "%(site)s: we received your request"
 msgstr "%(site)s: talebinizi aldık"
 
-#, python-format
-msgid "Hello %(name)s,"
-msgstr "Merhaba %(name)s,"
+msgid "Hello,"
+msgstr "Merhaba,"
 
 #, python-format
 msgid ""
@@ -102,8 +101,8 @@ msgstr ""
 "%(site_name)s olarak talebinizi aldık. Ekibimiz en kısa sürede size dönüş "
 "yapacak."
 
-msgid "Your message"
-msgstr "Mesajınız"
+msgid "If you did not submit this request, you can ignore this email."
+msgstr "Bu talebi siz göndermediyseniz bu e-postayı yok sayabilirsiniz."
 
 msgid "This email was sent automatically."
 msgstr "Bu e-posta otomatik olarak gönderilmiştir."

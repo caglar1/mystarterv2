@@ -1,15 +1,18 @@
+import logging
 import os
 import subprocess
 import sys
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
 from django import forms
 from django.contrib import messages
-from django.core import signing
+from django.core import mail, signing
 from django.http import HttpResponse
 from django.test import RequestFactory, override_settings
 from django.urls import reverse
+from django.utils import timezone, translation
 
 from apps.core import sync
 from apps.core.forms import SpamProtectedFormMixin, StyledFormMixin
@@ -31,6 +34,41 @@ def test_robots_txt_points_to_sitemap(client):
     response = client.get("/robots.txt")
     assert response.status_code == 200
     assert "Sitemap: http://testserver/sitemap.xml" in response.content.decode()
+
+
+def test_robots_txt_blocks_account_pages_in_every_language_and_hides_admin(client, settings):
+    body = client.get("/robots.txt").content.decode()
+    for code, _name in settings.LANGUAGES:
+        with translation.override(code):
+            login_url = reverse("accounts:login")
+        assert f"Disallow: {login_url.rsplit('/', 2)[0]}/" in body
+    # Yönetim paneli adresi gizli kalmalı (robots.txt herkese açık)
+    assert settings.ADMIN_URL.strip("/") not in body
+
+
+def test_permissions_policy_header(client):
+    policy = client.get("/robots.txt")["Permissions-Policy"]
+    assert "camera=()" in policy and "microphone=()" in policy
+
+
+@pytest.mark.django_db
+def test_server_errors_are_emailed_to_admins(settings):
+    """Canlıda yakalanmamış hatalar sessiz kalmamalı (LOGGING -> mail_admins)."""
+    settings.ADMINS = ["yonetici@example.com"]
+    logging.getLogger("django.request").error("Patlama", exc_info=False)
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == ["yonetici@example.com"]
+
+
+@pytest.mark.django_db
+def test_queued_sync_warns_when_worker_is_not_running(client, django_user_model):
+    staff = django_user_model.objects.create_user("admin", password="x" * 12, is_staff=True)
+    client.force_login(staff)
+    run = SyncRun.objects.create(job="test")
+    SyncRun.objects.filter(pk=run.pk).update(created_at=timezone.now() - timedelta(minutes=5))
+    body = client.get(reverse("sync:status", args=[run.pk]), **HTMX).content.decode()
+    assert "db_worker" in body  # "worker çalışıyor mu?" uyarısı
+    assert "every 10s" in body  # sorgulama yavaşlar
 
 
 @pytest.mark.django_db

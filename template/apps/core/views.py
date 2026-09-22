@@ -5,6 +5,7 @@ from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, Js
 from django.shortcuts import get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
+from django.utils import translation
 from django.utils.translation import gettext
 from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_GET, require_POST
@@ -28,9 +29,15 @@ def healthz(request):
 @require_GET
 @cache_control(max_age=86400, public=True)
 def robots_txt(request):
-    sitemap_url = request.build_absolute_uri(reverse("core:sitemap"))
-    lines = ["User-agent: *", f"Disallow: /{settings.ADMIN_URL}", "Disallow: /hesap/", ""]
-    lines.append(f"Sitemap: {sitemap_url}")
+    # Yönetim paneli (ADMIN_URL) bilerek yazılmaz: robots.txt herkese açıktır, gizli adresi ele verir.
+    # Hesap sayfaları her dilde farklı adreste: /account/..., /tr/hesap/...
+    account_prefixes = []
+    for code, _name in settings.LANGUAGES:
+        with translation.override(code):
+            login_url = reverse("accounts:login")  # "/tr/hesap/giris/" -> "/tr/hesap/"
+        account_prefixes.append(login_url.rsplit("/", 2)[0] + "/")
+    lines = ["User-agent: *", *(f"Disallow: {prefix}" for prefix in dict.fromkeys(account_prefixes)), ""]
+    lines.append(f"Sitemap: {request.build_absolute_uri(reverse('core:sitemap'))}")
     return HttpResponse("\n".join(lines) + "\n", content_type="text/plain; charset=utf-8")
 
 

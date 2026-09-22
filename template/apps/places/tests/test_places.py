@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import httpx
 import pytest
@@ -123,7 +124,7 @@ def test_map_page_embeds_places_and_config(client):
 @pytest.mark.django_db
 def test_nearby_partial_via_htmx(client):
     services.upsert_places(ELEMENTS)
-    response = client.get(reverse("places:nearby"), {"lat": "41.0", "lng": "29.0", "radius": "5"}, **HTMX)
+    response = client.post(reverse("places:nearby"), {"lat": "41.0", "lng": "29.0", "radius": "5"}, **HTMX)
     body = response.content.decode()
     assert response.status_code == 200
     assert "<html" not in body  # yalnızca partial
@@ -132,8 +133,22 @@ def test_nearby_partial_via_htmx(client):
 
 @pytest.mark.django_db
 def test_nearby_rejects_invalid_coordinates(client):
-    response = client.get(reverse("places:nearby"), {"lat": "abc", "lng": "999"}, **HTMX)
+    response = client.post(reverse("places:nearby"), {"lat": "abc", "lng": "999"}, **HTMX)
     assert "Could not get your location" in response.content.decode()
+
+
+def test_nearby_does_not_accept_location_in_url(client):
+    # Konum GET parametresi olarak gelirse erişim loglarına düşer (KVKK); yalnızca POST kabul edilir.
+    response = client.get(reverse("places:nearby"), {"lat": "41.0", "lng": "29.0"}, **HTMX)
+    assert response.status_code == 405
+
+
+@pytest.mark.django_db
+def test_nearby_form_posts_and_rounds_location(client):
+    body = client.get(reverse("places:map")).content.decode()
+    assert 'hx-post="' + reverse("places:nearby") + '"' in body
+    script = (Path(__file__).resolve().parents[1] / "static/places/map.js").read_text()
+    assert "toFixed(4)" in script and "toFixed(6)" not in script
 
 
 @pytest.mark.django_db

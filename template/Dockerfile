@@ -6,7 +6,7 @@ ARG PYTHON_VERSION=3.13
 # ---------------------------------------------------------------------------
 # 1) builder: bağımlılıklar + Tailwind derlemesi + collectstatic
 # ---------------------------------------------------------------------------
-FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
+FROM python:${PYTHON_VERSION}-slim-trixie AS builder
 COPY --from=ghcr.io/astral-sh/uv:0.12.17 /uv /bin/uv
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
@@ -27,7 +27,7 @@ RUN SECRET_KEY=yalnizca-derleme-icin /app/.venv/bin/python manage.py tailwind bu
 # ---------------------------------------------------------------------------
 # 2) runtime: sade Python + uygulama, root olmayan kullanıcı
 # ---------------------------------------------------------------------------
-FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
+FROM python:${PYTHON_VERSION}-slim-trixie AS runtime
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
