@@ -53,7 +53,9 @@ def check_combo(name: str, answers: dict, workdir: Path, *, css: bool) -> list[t
         data += ["--data", f"{key}={str(value).lower() if isinstance(value, bool) else value}"]
     uvx = shutil.which("uvx") or "uvx"
     results = []
-    ok, out = run([uvx, "copier", "copy", "--trust", "--defaults", "--quiet", *data, str(ROOT), str(target)], ROOT)
+    # --vcs-ref HEAD: son etiketi değil çalışma ağacını test et (yayınlanmamış değişiklikler dahil)
+    copier_cmd = [uvx, "copier", "copy", "--trust", "--defaults", "--quiet", "--vcs-ref", "HEAD"]
+    ok, out = run([*copier_cmd, *data, str(ROOT), str(target)], ROOT)
     results.append(("copier copy", ok, out))
     if not ok:
         return results
