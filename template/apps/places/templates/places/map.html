@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static lucide core_tags %}
+{% block title %}Harita · {{ project.name }}{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{% static 'places/vendor/leaflet/leaflet.css' %}">{% endblock %}
+{% block extra_js %}
+  <script src="{% static 'places/vendor/leaflet/leaflet.js' %}" defer></script>
+  {% if map_config.tiles == "pmtiles" %}<script src="{% static 'places/vendor/protomaps-leaflet.js' %}" defer></script>{% endif %}
+  <script src="{% static 'places/map.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+{{ map_config|json_script:"map-config" }}
+{{ places|json_script:"places-data" }}
+<section class="mx-auto max-w-6xl space-y-6 px-4 py-10">
+  <header class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h1 class="text-3xl font-bold">Harita</h1>
+      <p class="text-base-content/70">{{ place_count }} nokta · veri: OpenStreetMap katkıcıları</p>
+    </div>
+  </header>
+
+  {% if missing_tile_config and debug or missing_tile_config and user.is_staff %}
+    <div role="alert" class="alert alert-warning alert-soft text-sm">
+      {% lucide "triangle-alert" size=18 %}
+      <span>Harita katmanı eksik ayarlı: <code>{{ missing_tile_config }}</code> tanımlı değil. Karolar filigranlı ya da boş görünebilir (bkz. .env.example).</span>
+    </div>
+  {% endif %}
+
+  {% sync_card "places" %}
+
+  <div class="grid gap-6 lg:grid-cols-3">
+    <div class="lg:col-span-2">
+      <div id="map" x-data="leafletMap" class="z-0 h-[26rem] w-full overflow-hidden rounded-box border border-base-300 sm:h-[32rem]" role="region" aria-label="Harita"></div>
+    </div>
+
+    <aside class="space-y-4">
+      <form hx-get="{% url 'places:nearby' %}" hx-target="#nearby-results" hx-swap="innerHTML"
+            x-data="nearbyFinder" class="card card-border bg-base-100">
+        <div class="card-body gap-3 p-4">
+          <h2 class="card-title text-base">{% lucide "locate-fixed" size=18 class="text-primary" %} Yakınımdakiler</h2>
+          <input type="hidden" name="lat" x-ref="lat">
+          <input type="hidden" name="lng" x-ref="lng">
+          <label class="fieldset-legend" for="radius">Yarıçap</label>
+          <select id="radius" name="radius" class="select select-sm w-full">
+            <option value="1">1 km</option>
+            <option value="2" selected>2 km</option>
+            <option value="5">5 km</option>
+            <option value="10">10 km</option>
+          </select>
+          <button type="button" class="btn btn-primary btn-sm" @click="locate" :disabled="busy">
+            <span class="loading loading-spinner loading-xs" x-show="busy" x-cloak></span>
+            Konumumu kullan
+          </button>
+          <p class="text-xs text-error" x-show="error" x-text="error" x-cloak></p>
+        </div>
+      </form>
+      <div id="nearby-results" aria-live="polite">
+        {% partialdef nearby inline %}
+          {% if error %}
+            <div role="alert" class="alert alert-warning alert-soft text-sm">{{ error }}</div>
+          {% elif results is not None %}
+            {% if results %}
+              <ul class="menu w-full rounded-box border border-base-200 bg-base-100">
+                {% for place in results %}
+                  <li>
+                    <button type="button" x-data="placeFocus" data-lat="{{ place.lat|stringformat:'f' }}" data-lng="{{ place.lng|stringformat:'f' }}" @click="focus" class="flex items-start justify-between gap-3">
+                      <span><span class="font-medium">{{ place.name }}</span><br><span class="text-xs text-base-content/60">{{ place.category }}</span></span>
+                      <span class="badge badge-soft badge-sm shrink-0">{{ place.distance_km|floatformat:1 }} km</span>
+                    </button>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-sm text-base-content/70">{{ radius|floatformat:"-1" }} km içinde kayıtlı nokta yok.</p>
+            {% endif %}
+          {% endif %}
+        {% endpartialdef %}
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

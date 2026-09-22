@@ -58,7 +58,9 @@ author_name:
 
 author_email:
   type: str
-  help: Bildirim e-postaları ve dış API'lere gönderilen User-Agent iletişim adresi
+  help: >-
+    Bildirim e-postaları ve dış API'lere (Overpass, RSS) gönderilen User-Agent iletişim adresi.
+    Gerçek bir adres olmalı: OpenStreetMap sunucuları example.com gibi adresleri reddeder.
   default: dev@example.com
 
 domain:
@@ -84,10 +86,10 @@ map_tiles:
   when: "[[ use_maps ]]"
   help: Varsayılan harita katmanı sağlayıcısı (sonradan MAP_TILES ile değiştirilebilir)
   choices:
-    "CARTO Positron (API anahtarsız; ücretsiz kullanım ticari olmayan projeler içindir)": carto
-    "Stadia Maps (ticari kullanımda ücretli plan gerekir)": stadia
+    "Stadia Maps (localhost'ta anahtarsız; canlıda alan adı kaydı, ticari kullanımda ücretli plan)": stadia
+    "CARTO Positron (ücretsiz API anahtarı gerekir; ayda 5M karo)": carto
     "PMTiles (kendi dosyanız, ör. Cloudflare R2 — ölçekte en ucuz)": pmtiles
-  default: carto
+  default: stadia
 
 use_llm:
   type: bool
@@ -124,7 +126,10 @@ _tasks:
 
 _message_after_copy: |
   [[ project_name ]] hazır.
-
+  [% if 'example.com' in author_email %]
+  UYARI: author_email hâlâ [[ author_email ]]. .env içinde NOTIFICATION_EMAILS ve
+  (harita/haber modülleri için) OVERPASS_USER_AGENT / NEWS_USER_AGENT değerlerini gerçek adresle güncelleyin.
+  [% endif %]
     cd [[ _copier_conf.dst_path ]]
     make setup     # bağımlılıklar, Tailwind CLI, vendor doğrulama, migrate, demo veri
     make dev       # runserver + tailwind --watch + görev worker'ı

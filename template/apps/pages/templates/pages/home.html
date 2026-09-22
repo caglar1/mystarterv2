@@ -4,8 +4,8 @@
 <section class="bg-gradient-to-b from-base-200/70 to-base-100">
   <div class="mx-auto max-w-5xl px-4 py-16 text-center sm:py-24">
     <span class="badge badge-soft badge-primary gap-1">{% lucide "zap" size=14 %} Hızlı, hafif, güvenli</span>
-    <h1 class="mt-6 text-4xl font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">{{ site_name }}</h1>
-    <p class="mx-auto mt-6 max-w-2xl text-lg text-base-content/70 text-pretty">{{ site_description }}</p>
+    <h1 class="mt-6 text-4xl font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl">{{ project.name }}</h1>
+    <p class="mx-auto mt-6 max-w-2xl text-lg text-base-content/70 text-pretty">{{ project.description }}</p>
     <div class="mt-8 flex flex-wrap justify-center gap-3">
       <a href="{% url 'pages:contact' %}" class="btn btn-primary">Teklif alın {% lucide "arrow-right" size=18 %}</a>
       <a href="{% url 'pages:services' %}" class="btn btn-outline">Hizmetlerimiz</a>

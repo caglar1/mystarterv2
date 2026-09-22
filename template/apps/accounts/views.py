@@ -14,11 +14,14 @@ from . import forms
 
 @method_decorator(ratelimit("login", rate="10/5m"), name="dispatch")
 class LoginView(auth_views.LoginView):
+    # Şablon adları açıkça verilir: django.contrib.admin'in registration/* şablonları gölgelemesin.
+    template_name = "accounts/login.html"
     form_class = forms.LoginForm
     redirect_authenticated_user = True
 
 
 class PasswordChangeView(auth_views.PasswordChangeView):
+    template_name = "accounts/password_change.html"
     form_class = forms.PasswordChangeForm
     success_url = reverse_lazy("pages:home")
 
@@ -29,13 +32,19 @@ class PasswordChangeView(auth_views.PasswordChangeView):
 
 @method_decorator(ratelimit("password-reset", rate="5/h"), name="dispatch")
 class PasswordResetView(auth_views.PasswordResetView):
+    template_name = "accounts/password_reset.html"
     form_class = forms.PasswordResetForm
-    email_template_name = "registration/password_reset_email.txt"
-    subject_template_name = "registration/password_reset_subject.txt"
+    email_template_name = "accounts/password_reset_email.txt"
+    subject_template_name = "accounts/password_reset_subject.txt"
     success_url = reverse_lazy("accounts:password_reset_done")
+
+    @property
+    def extra_email_context(self):
+        return {"project_name": settings.SITE_NAME}
 
 
 class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    template_name = "accounts/password_reset_confirm.html"
     form_class = forms.SetPasswordForm
     success_url = reverse_lazy("accounts:password_reset_complete")
 

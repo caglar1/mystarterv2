@@ -4,10 +4,13 @@ from django.urls import reverse
 
 
 @pytest.mark.django_db
-def test_login_page_renders_styled_form(client):
+def test_login_page_renders_styled_form(client, settings):
     response = client.get(reverse("accounts:login"))
     assert response.status_code == 200
-    assert 'class="input w-full' in response.content.decode()
+    body = response.content.decode()
+    assert 'class="input w-full' in body
+    # Django'nun auth view'ları kendi site_name'ini koyar; başlık yine proje adını göstermeli
+    assert f"<title>Giriş yap · {settings.SITE_NAME}</title>" in body
 
 
 @pytest.mark.django_db
@@ -28,11 +31,12 @@ def test_login_is_rate_limited(client, user):
 
 
 @pytest.mark.django_db
-def test_password_reset_sends_email(client, user):
+def test_password_reset_sends_email(client, user, settings):
     response = client.post(reverse("accounts:password_reset"), {"email": "ayse@example.com"})
     assert response.status_code == 302
     assert len(mail.outbox) == 1
     assert "/hesap/sifre/sifirla/" in mail.outbox[0].body
+    assert mail.outbox[0].subject.startswith(settings.SITE_NAME)
 
 
 @pytest.mark.django_db

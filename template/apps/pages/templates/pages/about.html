@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Hakkımızda · {{ site_name }}{% endblock %}
+{% block title %}Hakkımızda · {{ project.name }}{% endblock %}
 {% block content %}
 <article class="mx-auto max-w-3xl px-4 py-16">
   <h1 class="text-4xl font-bold">Hakkımızda</h1>
-  <p class="mt-6 text-lg text-base-content/80">{{ site_name }}, işletmelerin dijital süreçlerini sade ve hızlı araçlarla yönetmesine yardımcı olur.</p>
+  <p class="mt-6 text-lg text-base-content/80">{{ project.name }}, işletmelerin dijital süreçlerini sade ve hızlı araçlarla yönetmesine yardımcı olur.</p>
   <p class="mt-4 text-base-content/70">Bu metni kendi hikâyenizle değiştirin: kim olduğunuz, neyi neden yaptığınız ve müşterilerinize ne vaat ettiğiniz.</p>
 </article>
 {% endblock %}

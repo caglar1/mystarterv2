@@ -13,7 +13,7 @@ urlpatterns = [
     path("sifre/sifirla/", views.PasswordResetView.as_view(), name="password_reset"),
     path(
         "sifre/sifirla/gonderildi/",
-        auth_views.PasswordResetDoneView.as_view(),
+        auth_views.PasswordResetDoneView.as_view(template_name="accounts/password_reset_done.html"),
         name="password_reset_done",
     ),
     path(
@@ -23,7 +23,7 @@ urlpatterns = [
     ),
     path(
         "sifre/sifirla/tamam/",
-        auth_views.PasswordResetCompleteView.as_view(),
+        auth_views.PasswordResetCompleteView.as_view(template_name="accounts/password_reset_complete.html"),
         name="password_reset_complete",
     ),
 ]

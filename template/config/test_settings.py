@@ -4,6 +4,7 @@ import os
 
 os.environ.update(
     {
+        "DOTENV_PATH": "/dev/null",  # yerel .env testleri etkilemesin
         "DEBUG": "False",
         "SECRET_KEY": "test-" + "x" * 60,
         "ALLOWED_HOSTS": "testserver,localhost",

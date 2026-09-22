@@ -315,17 +315,9 @@ CSP_CONNECT_SRC = [CSP.SELF]
 # ---------------------------------------------------------------------------
 MAP_TILES = env("MAP_TILES", "[[ map_tiles ]]")  # carto | stadia | pmtiles
 MAP_TILE_PROVIDERS = {
-    "carto": {
-        "url": "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-        "attribution": (
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
-            '&copy; <a href="https://carto.com/attributions">CARTO</a>'
-        ),
-        "max_zoom": 20,
-        "img_src": ["https://*.basemaps.cartocdn.com"],
-    },
     "stadia": {
-        # Canlıda Stadia panelinden alan adınızı yetkilendirin (anahtar gerekmez) veya STADIA_API_KEY verin.
+        # localhost'ta anahtarsız çalışır. Canlıda Stadia panelinden alan adınızı yetkilendirin
+        # (anahtar gerekmez) veya STADIA_API_KEY verin. Ticari kullanım ücretli plan gerektirir.
         "url": "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
         + (f"?api_key={env('STADIA_API_KEY')}" if env("STADIA_API_KEY") else ""),
         "attribution": (
@@ -335,6 +327,20 @@ MAP_TILE_PROVIDERS = {
         ),
         "max_zoom": 20,
         "img_src": ["https://tiles.stadiamaps.com"],
+        "missing_config": "",
+    },
+    "carto": {
+        # Eylül 2026 itibarıyla CARTO anahtar istiyor (ücretsiz, anında): https://carto.com/basemaps/apikey
+        # Ayda 5M karo; öncelikle ticari olmayan kullanım. Anahtarsız karolar filigranlı gelir.
+        "url": "https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png?key="
+        + env("CARTO_API_KEY"),
+        "attribution": (
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
+            '&copy; <a href="https://carto.com/attributions">CARTO</a>'
+        ),
+        "max_zoom": 20,
+        "img_src": ["https://*.basemaps.cartocdn.com"],
+        "missing_config": "" if env("CARTO_API_KEY") else "CARTO_API_KEY",
     },
     "pmtiles": {
         # Ör. Cloudflare R2'deki https://harita.alanadiniz.com/turkiye.pmtiles
@@ -345,6 +351,7 @@ MAP_TILE_PROVIDERS = {
         ),
         "max_zoom": 16,
         "img_src": [],
+        "missing_config": "" if env("PMTILES_URL") else "PMTILES_URL",
     },
 }
 if MAP_TILES not in MAP_TILE_PROVIDERS:
@@ -361,7 +368,7 @@ MAP_DEFAULT_ZOOM = env_int("MAP_DEFAULT_ZOOM", 12)
 # Overpass (OpenStreetMap) senkronizasyonu. Kullanım kuralı: iletişim bilgili User-Agent, makul sıklık.
 OVERPASS_ENDPOINTS = env_list(
     "OVERPASS_ENDPOINTS",
-    "https://overpass-api.de/api/interpreter,https://overpass.private.coffee/api/interpreter",
+    "https://overpass-api.de/api/interpreter,https://maps.mail.ru/osm/tools/overpass/api/interpreter",
 )
 OVERPASS_USER_AGENT = env("OVERPASS_USER_AGENT", "[[ project_slug ]]/1.0 ([[ author_email ]])")
 PLACES_SYNC_RADIUS_KM = float(env("PLACES_SYNC_RADIUS_KM", "5"))
