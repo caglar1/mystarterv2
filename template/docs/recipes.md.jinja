@@ -1,0 +1,42 @@
+# Tarifler
+
+Yeni bir özellik yazarken kopyalanacak **gerçek, test edilmiş** örnekler. Kod burada tekrar edilmez;
+dosyaya gidip kalıbı oradan alın.
+
+| İhtiyaç | Örnek dosya |
+|---|---|
+| HTMX ile form gönderme, 422 ile hata gösterme, başarıda partial | `apps/inquiries/views.py`, `apps/inquiries/templates/inquiries/form_card.html` |
+| Aynı şablonda sayfa + partial (`{% partialdef %}`) | [% if use_news %]`apps/news/templates/news/list.html` (arama + "daha fazla")[% elif use_maps %]`apps/places/templates/places/map.html` (yakınımdakiler)[% elif use_llm %]`apps/ai/templates/ai/summarize.html`[% else %]Django belgeleri: *Template partials*[% endif %] |
+| Stilli form (`{{ form }}`), spam koruması | `apps/core/forms.py`, `apps/inquiries/forms.py` |
+| Rate limit | `apps/core/ratelimit.py`, kullanım: `apps/inquiries/views.py` |
+| Toast bildirimi | view'da `messages.success(...)`; mekanizma: `apps/core/middleware.py` |
+| Alpine bileşeni (CSP uyumlu) | `apps/core/static/core/js/app.js` (tema, toast) |
+| Modal, sekme | `apps/pages/templates/pages/ui_kit.html` (DEBUG'da `/dev/ui-kit/`) |
+| Arka plan görevi (`@task`) | `apps/inquiries/tasks.py` |
+| Periyodik senkronizasyon + HTMX durum kartı | `apps/core/sync.py`, `{% sync_card "iş" %}` |
+| Dış API istemcisi (retry, fallback, mock'lu test) | [% if use_maps %]`apps/places/overpass.py` + `apps/places/tests/test_places.py`[% else %]`apps/core/tailwind.py` (indirme + doğrulama)[% endif %] |
+[%- if use_maps %]
+| Leaflet haritası (Alpine ile yaşam döngüsü) | `apps/places/static/places/map.js`, `apps/places/templates/places/map.html` |
+[%- endif %]
+[%- if use_llm %]
+| LLM çağrısı / JSON çıktı / streaming (SSE) | `apps/ai/llm.py`, `apps/ai/views.py`, testler: `apps/ai/tests/` |
+[%- endif %]
+[%- if use_news %]
+| Tam metin arama (Postgres FTS + SQLite yedek) | `apps/core/search.py`, index: `apps/news/migrations/0002_*` |
+[%- endif %]
+[%- if use_kanban %]
+| Sürükle-bırak + sunucuda sıralama | `apps/kanban/static/kanban/kanban.js`, `apps/kanban/services.py` |
+[%- endif %]
+
+## Yeni bir modül eklemek
+
+1. `uv run python manage.py startapp ad apps/ad` ve `apps.py` içinde `name = "apps.ad"`.
+2. `config/settings.py` → `INSTALLED_APPS`, gerekiyorsa `FEATURES["ad"] = True`.
+3. `config/urls.py` → `path("ad/", include("apps.ad.urls"))`; navbar: `apps/core/templates/core/components/nav_links.html`.
+4. Sayfaya özel JS: `apps/ad/static/ad/ad.js` (`Alpine.data`), şablonda `{% block extra_js %}`.
+5. Testler: `apps/ad/tests/test_ad.py`; `make check`.
+
+## Tema ve marka
+
+Renkler `assets/css/app.css` içindeki `marka` / `marka-koyu` temalarında. İkonları değiştirmek için
+`apps/core/static/core/icons/` altındaki dosyaların üzerine yazın (192, 512, maskable, apple-touch, og-cover).

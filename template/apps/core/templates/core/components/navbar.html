@@ -1,14 +1,14 @@
 {% load lucide %}
 <header class="navbar sticky top-0 z-40 border-b border-base-200 bg-base-100/90 px-2 backdrop-blur sm:px-4 lg:px-8">
-  <div class="navbar-start gap-1">
+  <div class="navbar-start w-auto min-w-0 flex-1 gap-1">
     <div class="dropdown lg:hidden">
       <button type="button" tabindex="0" class="btn btn-square btn-ghost" aria-label="Menüyü aç">{% lucide "menu" size=22 %}</button>
       <ul tabindex="0" class="menu dropdown-content z-50 mt-3 w-60 rounded-box border border-base-200 bg-base-100 p-2 shadow-lg">
         {% include "core/components/nav_links.html" %}
       </ul>
     </div>
-    <a href="{% url 'pages:home' %}" class="btn btn-ghost gap-2 px-2 text-lg font-bold">
-      {% lucide "sparkles" size=20 class="text-primary" %}<span>{{ project.name }}</span>
+    <a href="{% url 'pages:home' %}" class="btn btn-ghost min-w-0 shrink gap-2 px-2 text-lg font-bold">
+      {% lucide "sparkles" size=20 class="shrink-0 text-primary" %}<span class="truncate">{{ project.name }}</span>
     </a>
   </div>
 
@@ -18,7 +18,7 @@
     </ul>
   </nav>
 
-  <div class="navbar-end gap-1 sm:gap-2">
+  <div class="navbar-end w-auto flex-none gap-1 sm:gap-2">
     {% include "core/components/theme_toggle.html" %}
     {% if user.is_authenticated %}
       <div class="dropdown dropdown-end">

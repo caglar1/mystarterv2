@@ -1,0 +1,96 @@
+# AGENTS.md — [[ project_name ]]
+
+Bu dosya yapay zeka kodlama ajanları (Claude Code, Cursor, Copilot, Codex...) ve yeni geliştiriciler için
+**tek kaynaktır**. Kısa tutulur; ayrıntılı kalıplar gerçek dosyalarda yaşar (bkz. `docs/recipes.md`).
+
+## Stack
+
+| Katman | Teknoloji |
+|---|---|
+| Backend | Python 3.13, Django 6.1 (partials, tasks, CSP, MAILERS dahili) |
+| Etkileşim | htmx 2 (sunucudan HTML), Alpine.js 3 **CSP build** (yalnızca yerel UI durumu) |
+| Stil | Tailwind CSS 4 + DaisyUI 5, standalone CLI ile derlenir (Node.js yok) |
+| İkonlar | `{% load lucide %}{% lucide "send" size=18 %}` — sunucuda SVG, JS yok |
+| Veritabanı | [% if database == 'postgres' %]PostgreSQL (canlı), SQLite (geliştirme)[% else %]SQLite (WAL); istenirse PostgreSQL[% endif %] |
+| Arka plan işleri | `django.tasks` + `django-tasks-db` (`manage.py db_worker`), Celery/Redis yok |
+| Sunucu | gunicorn gthread + WhiteNoise (brotli, hash'li dosyalar), Docker + Caddy |
+[%- if use_maps %]
+| Harita | Leaflet 1.9 + Overpass (OSM) senkronizasyonu — `apps/places` |
+[%- endif %]
+[%- if use_llm %]
+| LLM | Saf httpx gateway (`apps/ai/llm.py`), SDK yok — `apps/ai` |
+[%- endif %]
+[%- if use_news %]
+| Haberler | feedparser + newspaper4k + AI zenginleştirme + Postgres FTS — `apps/news` |
+[%- endif %]
+[%- if use_kanban %]
+| Kanban | SortableJS + htmx — `apps/kanban` |
+[%- endif %]
+
+## Komutlar
+
+```bash
+make setup      # ilk kurulum (uv sync, .env, Tailwind, migrate, demo veri)
+make dev        # runserver + tailwind --watch + db_worker (honcho)
+make check      # ruff + pytest + makemigrations --check  ← her değişiklikten sonra çalıştır
+uv run python manage.py sync <iş>      # senkronizasyon işini hemen çalıştır (liste: `sync`)
+uv run python scripts/vendor.py check  # vendor JS/CSS dosyalarının sha256 doğrulaması
+```
+
+## Dizinler
+
+```
+config/            settings.py (tek dosya, ortam değişkenleriyle), urls.py, test_settings.py
+apps/core/         base altyapı: middleware, ratelimit, formlar, sync işleri, arama, tailwind komutu
+apps/accounts/     özel User modeli + giriş/şifre akışları
+apps/pages/        statik sayfalar (+ DEBUG'da /dev/ui-kit/)
+apps/inquiries/    teklif formu + task ile e-posta
+templates/         base.html ve hata sayfaları; uygulama şablonları apps/<app>/templates/<app>/
+assets/css/app.css Tailwind girişi (tema renkleri burada)
+static/css/app.css derlenmiş çıktı (git'e girmez)
+```
+
+## Kurallar
+
+1. **HTML sunucuda üretilir.** Etkileşim için htmx kullan; `fetch()`/axios yazma. JSON API yalnızca gerçekten gerekiyorsa.
+2. **HTMX yanıtları partial döner.** Aynı şablonda `{% partialdef isim %}` tanımla, view'da
+   `render(request, "app/sayfa.html#isim", ...)` kullan. `request.htmx` django-htmx'ten gelir.
+3. **Geri bildirim `messages` ile.** `messages.success(request, "...")` yeter; HTMX yanıtlarına toast'ı
+   `HtmxMessagesMiddleware` ekler. Toast için ayrıca kod yazma.
+4. **Form geçersizse 422 dön** (htmx 422'yi swap eder). Başarılı normal POST'tan sonra redirect (PRG).
+5. **Formlar `StyledFormMixin`** ile stillenir, şablonda sadece `{{ form }}`. Herkese açık formlara
+   `SpamProtectedFormMixin` ve view'a `@ratelimit(...)` ekle.
+6. **Alpine yalnızca yerel UI durumu** (modal, sekme, dropdown, harita/sortable yaşam döngüsü) içindir; HTTP isteği yapmaz.
+   CSP build kullanıldığı için mantığı `static/<app>/*.js` içinde `Alpine.data("ad", ...)` ile tanımla,
+   şablonda yalnızca basit ifadeler yaz (`x-data="toast"`, `@click="close"`).
+7. **CSP sıkı:** inline `<script>` yalnızca `nonce="{{ csp_nonce }}"` ile; `onclick=`, `style=` niteliği,
+   `hx-on:*` ve `eval` kullanma. Yeni dış kaynak gerekiyorsa `settings.SECURE_CSP` / `CSP_*_SRC` listesine ekle.
+8. **Yavaş işler (>1 sn, dış API, e-posta) istek içinde yapılmaz:** `@task` tanımla, `.enqueue()` ile kuyruğa al.
+   Periyodik işler için `apps.core.sync.register_job()` + `manage.py sync <iş>` (cron).
+9. **Dış HTTP her zaman `httpx` ile, timeout'lu ve iletişim bilgili User-Agent ile.** Testlerde `httpx.MockTransport`.
+10. **Sayfaya özel JS/CSS sadece o sayfada** yüklenir: `{% block extra_js %}` / `{% block extra_head %}`.
+11. **Yeni vendor dosyası** `apps/<app>/vendor.json`'a eklenir, `python scripts/vendor.py lock` ile indirilir. CDN'den `<script>` ekleme.
+12. **Her özellik testiyle gelir** (pytest-django, `apps/<app>/tests/`). Bitti demeden önce `make check`.
+13. **Modüller `settings.FEATURES` ile açılır/kapanır.** Başka modüle link verirken `{% if features.x %}` ile koru.
+[%- if use_llm %]
+14. **LLM çağrıları yalnızca `apps.ai.llm.get_client()`** üzerinden. Anthropic için `temperature` ve
+    `budget_tokens` gönderme (güncel modellerde 400); derinlik `effort` ile ayarlanır. Model çıktısını
+    şablona basarken escape et.
+[%- endif %]
+
+## Stack genişletme onayı
+
+Yeni bir paket, JS kütüphanesi ya da harici servis eklemeden önce **dur ve kullanıcıya sor**:
+
+> **[STACK GENİŞLETME ONAYI]** Önerilen: `paket>=sürüm` · Neden gerekli: … · Mevcut stack ile alternatif: …
+> `pyproject.toml` / `vendor.json`'a eklememi onaylıyor musunuz?
+
+Onay gelmeden ekleme. Yasaklar: React/Vue/Svelte, jQuery, Node.js/npm derleme adımı, Bootstrap/Flowbite,
+ağır LLM çatıları (langchain, litellm), Elasticsearch gibi ayrı arama servisleri, Celery/Redis (önce `django.tasks`).
+
+## Güvenlik notları
+
+- `DEBUG` varsayılanı `False`; `SECRET_KEY` olmadan uygulama açılmaz. Canlıda `check --deploy` uyarısız olmalı
+  (testi: `apps/core/tests/test_core.py`).
+- Kullanıcıya ait veriyi daima sahibine göre filtrele (`get_object_or_404(Model, pk=pk, owner=request.user)`).
+- Kişisel veri toplayan formlarda KVKK onayı (`apps/inquiries/forms.py` örneği).

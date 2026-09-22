@@ -1,0 +1,55 @@
+# [[ project_name ]]
+
+[[ project_description ]]
+
+Starterpack v2 ile üretildi: Django 6.1 + htmx 2 + Alpine.js (CSP) +
+Tailwind 4 / DaisyUI 5. Yapay zeka ajanları ve yeni geliştiriciler için: **[AGENTS.md](AGENTS.md)**.
+
+## Geliştirme
+
+Gereken tek araç [uv](https://docs.astral.sh/uv/) (Python'u da o kurar). Node.js gerekmez.
+
+```bash
+make setup     # bağımlılıklar, .env, Tailwind CLI, migrate, demo veri
+make superuser # yönetici hesabı
+make dev       # http://127.0.0.1:8000  (runserver + tailwind --watch + görev worker'ı)
+make check     # lint + test + migration kontrolü
+```
+
+Modüller: çekirdek (sayfalar, hesaplar, teklif formu)
+[%- if use_maps %] · harita (`/harita/`)[% endif %]
+[%- if use_llm %] · AI özet (`/ai/ozet/`)[% endif %]
+[%- if use_news %] · haberler (`/haberler/`)[% endif %]
+[%- if use_kanban %] · kanban (`/kanban/`)[% endif %]
+[%- if use_ui_kit %] · UI kit (`/dev/ui-kit/`, yalnızca DEBUG)[% endif %].
+
+## Canlıya alma (Docker)
+
+```bash
+cp .env.example .env
+# Doldurun: SECRET_KEY, ALLOWED_HOSTS=[[ domain ]], CSRF_TRUSTED_ORIGINS=https://[[ domain ]],
+# EMAIL_PROVIDER=smtp|resend (+ anahtarlar)[% if database == 'postgres' %], POSTGRES_PASSWORD[% endif %]
+docker compose --profile https up -d --build   # Caddy ile otomatik HTTPS
+docker compose exec web python manage.py createsuperuser
+```
+
+- Sağlık kontrolü: `/healthz` · Loglar: `docker compose logs -f web worker`
+- Periyodik işler: `deploy/crontab.example`
+- Yayından önce: `docker compose exec web python manage.py check --deploy`
+[%- if use_maps %]
+
+### Harita katmanı
+
+`MAP_TILES` ile seçilir: `stadia` (localhost'ta anahtarsız; canlıda alan adını Stadia panelinde yetkilendirin,
+ticari kullanım ücretli), `carto` (ücretsiz `CARTO_API_KEY` gerekir, ayda 5M karo), `pmtiles` (kendi dosyanız,
+ör. Cloudflare R2 — trafiği yüksek projelerde en ucuzu). Overpass senkronizasyonu için `OVERPASS_USER_AGENT`
+içinde gerçek bir iletişim adresi olmalı.
+[%- endif %]
+
+## Şablon güncellemeleri
+
+Starterpack'e gelen düzeltmeleri bu projeye almak için:
+
+```bash
+uvx copier update --trust
+```
