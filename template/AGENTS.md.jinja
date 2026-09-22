@@ -88,6 +88,13 @@ Yeni bir paket, JS kütüphanesi ya da harici servis eklemeden önce **dur ve ku
 Onay gelmeden ekleme. Yasaklar: React/Vue/Svelte, jQuery, Node.js/npm derleme adımı, Bootstrap/Flowbite,
 ağır LLM çatıları (langchain, litellm), Elasticsearch gibi ayrı arama servisleri, Celery/Redis (önce `django.tasks`).
 
+**Bilinçli olarak kullanılmayan "standart" paketler** (geri ekleme):
+- `django-widget-tweaks`: form stili Django'nun kendi form render API'si ile verilir (`FORM_RENDERER` +
+  `StyledFormMixin`, `apps/core/forms.py`); şablonlarda alan alan sınıf yazılmaz, `{{ form }}` yeter.
+- `django-honeypot`: gizli alanı satır içi `style` ile gizler, sıkı CSP bunu engeller ve alan gerçek kullanıcıya
+  görünür olur; ayrıca 400 döndürdüğü için htmx hatayı göstermez. Yerine `SpamProtectedFormMixin`
+  (honeypot + minimum doldurma süresi, 422 ile form hatası). Daha güçlü koruma gerekirse Cloudflare Turnstile önerilir.
+
 ## Güvenlik notları
 
 - `DEBUG` varsayılanı `False`; `SECRET_KEY` olmadan uygulama açılmaz. Canlıda `check --deploy` uyarısız olmalı
