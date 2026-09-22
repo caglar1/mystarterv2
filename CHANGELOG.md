@@ -12,21 +12,15 @@
 - E-postalar formun dilinde (`Inquiry.language`); AI özetleri sayfanın dilinde, haber özetleri
   `NEWS_SUMMARY_LANGUAGE` ile belirlenen dilde.
 - Senkronizasyon uçları ayrı `sync` namespace'ine taşındı (i18n_patterns içinde, yanıtlar sayfanın dilinde).
-- Haber kategori kodları İngilizce oldu (`technology`, `world`...); eski Türkçe kodlar migration ile dönüştürülüyor.
+- Haber kategori kodları İngilizce oldu (`technology`, `world`...).
 - Kanban durumları bağlamlı çeviriyle (`pgettext`).
 - `make messages` / `scripts/messages.py`; eksik çeviriyi yakalayan test; matriste dil kombinasyonları ve
   gerçek ayarlarla smoke adımı.
-- Her uygulamada `0002_i18n` migration'ı var: alan etiketleri çevrilebilir oldu, talepte `language` alanı eklendi.
+- Talepte `language` alanı. Migration'lar ilk migration'lara katıldı: 2.0.0 ile başlatılmış proje olmadığı için
+  2.0.0 → 2.1.0 `copier update` yolu desteklenmiyor.
 - Test matrisi son etiketi değil çalışma ağacını test ediyor (`--vcs-ref HEAD`).
 - `AGENTS.md`: çeviri kuralları, widget-tweaks/django-honeypot'un neden kullanılmadığı.
 
-2.0.0'dan yükseltme (`uvx copier update --trust`):
-- Yeni `languages` sorusuna **`tr,en`** cevabını verin. Varsayılan `en,tr` kökü İngilizce yapar; Türkçe sayfalar
-  `/tr/` altına taşınır ve mevcut adresler değişir.
-- Ardından `uv sync` ve `manage.py migrate` çalıştırın. Haber kategorileri migration ile dönüştürülür,
-  veri kaybı olmaz.
-- 2.0.0'daki `project_description` Türkçe olduğu için İngilizce sayfalarda da Türkçe görünür. İsterseniz
-  `.env`'e `SITE_DESCRIPTION` olarak İngilizce bir metin yazın ve Türkçesini `locale/tr/LC_MESSAGES/django.po`'ya ekleyin.
 
 ## 2.0.0 — 2026-09-22
 
