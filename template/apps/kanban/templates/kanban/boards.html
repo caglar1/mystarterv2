@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load lucide %}
+{% block title %}Kanban · {{ project.name }}{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-5xl space-y-8 px-4 py-10">
+  <header>
+    <h1 class="text-3xl font-bold">Panolarım</h1>
+    <p class="text-base-content/70">İşlerinizi sütunlar arasında sürükleyerek takip edin.</p>
+  </header>
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {% for board in boards %}
+      <a href="{% url 'kanban:board' board.pk %}" class="card card-border bg-base-100 transition-shadow hover:shadow-md">
+        <div class="card-body">
+          <h2 class="card-title">{% lucide "square-kanban" size=20 class="text-primary" %} {{ board.name }}</h2>
+          <p class="text-sm text-base-content/60">{{ board.card_count }} kart</p>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+  <form method="post" class="card card-border max-w-md bg-base-100">
+    <div class="card-body gap-2">
+      <h2 class="card-title text-base">Yeni pano</h2>
+      {% csrf_token %}
+      {{ form }}
+      <button type="submit" class="btn btn-primary self-start">{% lucide "plus" size=16 %} Oluştur</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

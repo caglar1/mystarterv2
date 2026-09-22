@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static lucide %}
+{% block title %}{{ board.name }} · {{ project.name }}{% endblock %}
+{% block extra_js %}
+  <script src="{% static 'kanban/vendor/Sortable.min.js' %}" defer></script>
+  <script src="{% static 'kanban/kanban.js' %}" defer></script>
+{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-7xl space-y-6 px-4 py-8" data-kanban>
+  <header class="flex flex-wrap items-center gap-3">
+    <a href="{% url 'kanban:boards' %}" class="btn btn-ghost btn-sm">{% lucide "arrow-left" size=16 %} Panolar</a>
+    <h1 class="text-2xl font-bold">{{ board.name }}</h1>
+  </header>
+  <div class="grid gap-4 md:grid-cols-3">
+    {% for column in columns %}
+      <div class="flex flex-col gap-3 rounded-box border border-base-300 bg-base-200/50 p-3">
+        <div class="flex items-center justify-between px-1">
+          <h2 class="font-semibold">{{ column.label }}</h2>
+          {% include "kanban/_count.html" with status=column.value count=column.cards|length %}
+        </div>
+        <ul id="column-{{ column.value }}" data-status="{{ column.value }}" x-data="kanbanColumn"
+            class="flex min-h-24 flex-col gap-2" aria-label="{{ column.label }} sütunu">
+          {% for card in column.cards %}{% include "kanban/_card.html" %}{% endfor %}
+        </ul>
+        <form hx-post="{% url 'kanban:card_create' board.pk %}" hx-target="#column-{{ column.value }}" hx-swap="beforeend"
+              x-data="cardForm" @htmx:after-request="reset" class="join w-full">
+          <input type="hidden" name="status" value="{{ column.value }}">
+          <input type="text" name="title" required maxlength="200" placeholder="Yeni kart" aria-label="{{ column.label }} için yeni kart"
+                 class="input input-sm join-item w-full">
+          <button type="submit" class="btn btn-sm join-item" aria-label="Kart ekle">{% lucide "plus" size=16 %}</button>
+        </form>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
