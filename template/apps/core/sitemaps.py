@@ -6,6 +6,10 @@ from django.urls import reverse
 class StaticViewSitemap(Sitemap):
     changefreq = "weekly"
     priority = 0.6
+    # Her dil için ayrı adres + hreflang alternatifleri (settings.LANGUAGES)
+    i18n = True
+    alternates = True
+    x_default = True
 
     def items(self):
         names = ["pages:home", "pages:about", "pages:services", "pages:contact"]

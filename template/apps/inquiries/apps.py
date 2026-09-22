@@ -1,6 +1,7 @@
 from django.apps import AppConfig
+from django.utils.translation import gettext_lazy as _
 
 
 class InquiriesConfig(AppConfig):
     name = "apps.inquiries"
-    verbose_name = "Talepler"
+    verbose_name = _("Inquiries")

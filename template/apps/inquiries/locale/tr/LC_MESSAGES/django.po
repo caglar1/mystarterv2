@@ -1,0 +1,151 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: starterpack\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-22 16:39+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Inquiries"
+msgstr "Talepler"
+
+msgid "Read the privacy notice"
+msgstr "Aydınlatma metnini okuyun"
+
+msgid ""
+"I consent to the processing of my personal data in order to respond to my "
+"request."
+msgstr ""
+"Kişisel verilerimin talebime yanıt verilmesi amacıyla işlenmesini kabul "
+"ediyorum."
+
+msgid "Please give your consent to continue."
+msgstr "Devam etmek için onay vermeniz gerekiyor."
+
+msgid "e.g. Jane Doe"
+msgstr "Örn. Ayşe Yılmaz"
+
+msgid "Tell us briefly about your project"
+msgstr "Projenizden kısaca bahsedin"
+
+msgid "New"
+msgstr "Yeni"
+
+msgid "In progress"
+msgstr "İşlemde"
+
+msgid "Closed"
+msgstr "Kapandı"
+
+msgid "full name"
+msgstr "ad soyad"
+
+msgid "email"
+msgstr "e-posta"
+
+msgid "phone"
+msgstr "telefon"
+
+msgid "message"
+msgstr "mesaj"
+
+msgid "language"
+msgstr "dil"
+
+msgid "consent given at"
+msgstr "KVKK onay zamanı"
+
+msgid "status"
+msgstr "durum"
+
+msgid "internal notes"
+msgstr "iç notlar"
+
+msgid "created at"
+msgstr "oluşturulma"
+
+msgid "inquiry"
+msgstr "talep"
+
+msgid "inquiries"
+msgstr "talepler"
+
+#, python-format
+msgid "New quote request: %(name)s"
+msgstr "Yeni teklif talebi: %(name)s"
+
+#, python-format
+msgid "%(site)s: we received your request"
+msgstr "%(site)s: talebinizi aldık"
+
+#, python-format
+msgid "Hello %(name)s,"
+msgstr "Merhaba %(name)s,"
+
+#, python-format
+msgid ""
+"We received your request at %(site_name)s. Our team will get back to you "
+"shortly."
+msgstr ""
+"%(site_name)s olarak talebinizi aldık. Ekibimiz en kısa sürede size dönüş "
+"yapacak."
+
+msgid "Your message"
+msgstr "Mesajınız"
+
+msgid "This email was sent automatically."
+msgstr "Bu e-posta otomatik olarak gönderilmiştir."
+
+msgid "New quote request"
+msgstr "Yeni teklif talebi"
+
+msgid "Name"
+msgstr "Ad soyad"
+
+msgid "Email"
+msgstr "E-posta"
+
+msgid "Phone"
+msgstr "Telefon"
+
+msgid "Date"
+msgstr "Tarih"
+
+msgid "Language"
+msgstr "Dil"
+
+msgid "Message"
+msgstr "Mesaj"
+
+#, python-format
+msgid "Thank you, %(name)s!"
+msgstr "Teşekkürler, %(name)s!"
+
+#, python-format
+msgid ""
+"We received your request. A confirmation email has been sent to %(email)s."
+msgstr "Talebinizi aldık. Onay e-postası %(email)s adresine gönderildi."
+
+msgid "Quick quote request"
+msgstr "Hızlı teklif talebi"
+
+msgid "Send"
+msgstr "Gönder"
+
+msgid "send/"
+msgstr "gonder/"
+
+msgid "Thank you! We received your request and will get back to you shortly."
+msgstr "Talebiniz alındı. En kısa sürede size dönüş yapacağız."

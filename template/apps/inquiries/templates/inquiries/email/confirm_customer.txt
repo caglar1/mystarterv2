@@ -1,9 +1,9 @@
-{% autoescape off %}Merhaba {{ inquiry.full_name }},
+{% load i18n %}{% autoescape off %}{% blocktranslate with name=inquiry.full_name %}Hello {{ name }},{% endblocktranslate %}
 
-{{ site_name }} olarak talebinizi aldık. Ekibimiz en kısa sürede size dönüş yapacak.
+{% blocktranslate %}We received your request at {{ site_name }}. Our team will get back to you shortly.{% endblocktranslate %}
 
-Mesajınız:
+{% translate "Your message" %}:
 {{ inquiry.message }}
 
-Bu e-posta otomatik olarak gönderilmiştir.
+{% translate "This email was sent automatically." %}
 {% endautoescape %}

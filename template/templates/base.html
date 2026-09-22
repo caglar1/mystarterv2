@@ -1,11 +1,15 @@
-{% load static %}<!DOCTYPE html>
-<html lang="tr" data-theme="marka">
+{% load static i18n core_tags %}<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}" data-theme="marka">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ project.name }}{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}{{ project.description }}{% endblock %}">
   <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+  {# Arama motorları için her dildeki karşılık (ilk dil x-default) #}
+  {% language_alternates as alternates %}
+  {% for code, href in alternates %}<link rel="alternate" hreflang="{{ code }}" href="{{ href }}">
+  {% endfor %}{% if alternates %}<link rel="alternate" hreflang="x-default" href="{{ alternates.0.1 }}">{% endif %}
 
   {# Sosyal paylaşım önizlemeleri (WhatsApp, LinkedIn, X...) #}
   <meta property="og:type" content="website">
@@ -45,7 +49,7 @@
   <script src="{% static 'core/vendor/alpine-csp.min.js' %}" defer></script>
 </head>
 <body class="flex min-h-dvh flex-col bg-base-100 text-base-content" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 btn btn-sm">İçeriğe geç</a>
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 btn btn-sm">{% translate "Skip to content" %}</a>
 
   {% include "core/components/navbar.html" %}
 

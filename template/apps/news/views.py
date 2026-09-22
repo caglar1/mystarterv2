@@ -5,8 +5,7 @@ from django.views.decorators.http import require_GET
 
 from apps.core.search import hybrid_search
 
-from .models import Article
-from .pipeline import CATEGORIES
+from .models import Article, Category
 
 PAGE_SIZE = 12
 
@@ -16,7 +15,7 @@ def article_list(request):
     q = request.GET.get("q", "").strip()[:200]
     category = request.GET.get("category", "")
     articles = Article.objects.select_related("feed")
-    if category in CATEGORIES:
+    if category in Category.values:
         articles = articles.filter(category=category)
     articles = hybrid_search(articles, q, fields=["title", "content"])
     page_obj = Paginator(articles, PAGE_SIZE).get_page(request.GET.get("page"))
@@ -25,7 +24,7 @@ def article_list(request):
         "page_obj": page_obj,
         "q": q,
         "category": category,
-        "categories": CATEGORIES,
+        "categories": Category.choices,
         "show_images": settings.NEWS_SHOW_REMOTE_IMAGES,
     }
     if request.htmx:

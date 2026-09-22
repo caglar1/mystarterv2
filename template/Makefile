@@ -34,7 +34,10 @@ format: ## Kodu biçimlendir
 check: lint test ## Commit öncesi: lint + test + migration kontrolü
 	$(MANAGE) makemigrations --check --dry-run
 
+messages: ## Çeviri dosyalarını güncelle ve derle (GNU gettext gerekir)
+	uv run python scripts/messages.py
+
 superuser: ## Yönetici hesabı oluştur
 	$(MANAGE) createsuperuser
 
-.PHONY: help setup dev css test lint format check superuser
+.PHONY: help setup dev css test lint format check messages superuser

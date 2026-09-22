@@ -80,7 +80,7 @@ def test_overpass_retries_then_raises_with_all_failures():
 def test_overpass_bad_query_fails_fast():
     transport, calls = overpass_transport([(400, {})])
     client = OverpassClient(["https://a.test/api", "https://b.test/api"], "test/1.0", transport=transport)
-    with pytest.raises(OverpassError, match="reddedildi"):
+    with pytest.raises(OverpassError, match="rejected"):
         client.query("bozuk")
     assert len(calls) == 1
 
@@ -133,7 +133,7 @@ def test_nearby_partial_via_htmx(client):
 @pytest.mark.django_db
 def test_nearby_rejects_invalid_coordinates(client):
     response = client.get(reverse("places:nearby"), {"lat": "abc", "lng": "999"}, **HTMX)
-    assert "Konum bilgisi alınamadı" in response.content.decode()
+    assert "Could not get your location" in response.content.decode()
 
 
 @pytest.mark.django_db

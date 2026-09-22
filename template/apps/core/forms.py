@@ -11,6 +11,7 @@ from django import forms
 from django.conf import settings
 from django.core import signing
 from django.forms.renderers import DjangoTemplates
+from django.utils.translation import gettext_lazy as _
 
 _WIDGET_CLASSES = [
     (forms.CheckboxInput, "checkbox checkbox-primary"),
@@ -65,13 +66,13 @@ class SpamProtectedFormMixin:
 
     honeypot_field = "website"
     timestamp_field = "form_ts"
-    spam_message = "Form gönderilemedi. Lütfen sayfayı yenileyip tekrar deneyin."
+    spam_message = _("The form could not be submitted. Please refresh the page and try again.")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         honeypot = forms.CharField(
             required=False,
-            label="Bu alanı boş bırakın",
+            label=_("Leave this field empty"),
             widget=forms.TextInput(attrs={"autocomplete": "off", "tabindex": "-1"}),
         )
         honeypot.is_honeypot = True

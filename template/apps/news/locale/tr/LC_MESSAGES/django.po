@@ -1,0 +1,224 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: starterpack\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-22 16:39+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "News"
+msgstr "Haberler"
+
+msgid "News (RSS + AI summaries)"
+msgstr "Haberler (RSS + AI özet)"
+
+msgid "Sample: a new release is out"
+msgstr "Örnek: Yeni sürüm yayınlandı"
+
+msgid ""
+"This is a sample article. Use the 'Sync now' button as an admin to fetch "
+"real news."
+msgstr ""
+"Bu bir örnek haberdir. Gerçek haberler için yönetici olarak 'Şimdi "
+"senkronize et' butonunu kullanın."
+
+msgid "Sample content"
+msgstr "Örnek içerik"
+
+msgid "Syncing brings in real articles"
+msgstr "Senkronizasyon ile gerçek haberler gelir"
+
+msgid "Sample: highlights of the week"
+msgstr "Örnek: Haftanın öne çıkan gelişmeleri"
+
+msgid "Feeds are managed in the admin; each sync only processes new articles."
+msgstr ""
+"Kaynaklar yönetim panelinden eklenir; her senkronizasyonda yalnızca yeni "
+"haberler işlenir."
+
+msgid "Feeds are managed in the admin"
+msgstr "Kaynaklar yönetim panelinden yönetilir"
+
+msgid "Technology"
+msgstr "Teknoloji"
+
+msgid "Business"
+msgstr "Ekonomi"
+
+msgid "World"
+msgstr "Dünya"
+
+msgid "Science"
+msgstr "Bilim"
+
+msgid "Health"
+msgstr "Sağlık"
+
+msgid "Sports"
+msgstr "Spor"
+
+msgid "Culture"
+msgstr "Kültür"
+
+msgid "Other"
+msgstr "Diğer"
+
+msgid "name"
+msgstr "ad"
+
+msgid "RSS/Atom URL"
+msgstr "RSS/Atom adresi"
+
+msgid "default category"
+msgstr "varsayılan kategori"
+
+msgid "language"
+msgstr "dil"
+
+msgid "ISO code: tr, en, de..."
+msgstr "ISO kodu: tr, en, de..."
+
+msgid "active"
+msgstr "aktif"
+
+msgid "last synced at"
+msgstr "son senkronizasyon"
+
+msgid "feed"
+msgstr "kaynak"
+
+msgid "feeds"
+msgstr "kaynaklar"
+
+msgid "Positive"
+msgstr "Olumlu"
+
+msgid "Neutral"
+msgstr "Nötr"
+
+msgid "Negative"
+msgstr "Olumsuz"
+
+msgid "URL"
+msgstr "Adres"
+
+msgid "title"
+msgstr "başlık"
+
+msgid "RSS excerpt"
+msgstr "RSS özeti"
+
+msgid "content"
+msgstr "içerik"
+
+msgid "image"
+msgstr "görsel"
+
+msgid "published at"
+msgstr "yayın tarihi"
+
+msgid "summary points"
+msgstr "özet maddeleri"
+
+msgid "category"
+msgstr "kategori"
+
+msgid "sentiment"
+msgstr "duygu"
+
+msgid "importance (1-10)"
+msgstr "önem (1-10)"
+
+msgid "tags"
+msgstr "etiketler"
+
+msgid "enriched at"
+msgstr "zenginleştirme"
+
+msgid "created at"
+msgstr "oluşturulma"
+
+msgid "article"
+msgstr "haber"
+
+msgid "articles"
+msgstr "haberler"
+
+#, python-format
+msgid "new: %d"
+msgstr "yeni: %d"
+
+#, python-format
+msgid "already saved: %d"
+msgstr "zaten kayıtlı: %d"
+
+#, python-format
+msgid "RSS excerpt only (robots.txt): %d"
+msgstr "yalnızca RSS özeti (robots.txt): %d"
+
+#, python-format
+msgid "text extraction failed: %d"
+msgstr "metin çıkarılamadı: %d"
+
+msgid "AI summaries skipped (LLM not configured)"
+msgstr "AI özet atlandı (LLM yapılandırılmamış)"
+
+#, python-format
+msgid "AI summaries: %d"
+msgstr "AI özet: %d"
+
+#, python-format
+msgid "AI errors: %d"
+msgstr "AI hatası: %d"
+
+#, python-format
+msgid "feed errors: %s"
+msgstr "kaynak hataları: %s"
+
+#, python-format
+msgid "None of the feeds could be fetched: %s"
+msgstr "Hiçbir kaynak çekilemedi: %s"
+
+#, python-format
+msgid "%(since)s ago"
+msgstr "%(since)s önce"
+
+msgid "Read at source"
+msgstr "Kaynakta oku"
+
+msgid "News collected from sources, with AI summaries."
+msgstr "Kaynaklardan derlenen haberler, yapay zeka özetleriyle."
+
+msgid "Search news…"
+msgstr "Haberlerde ara…"
+
+msgid "Search news"
+msgstr "Haberlerde ara"
+
+msgid "Category"
+msgstr "Kategori"
+
+msgid "All categories"
+msgstr "Tüm kategoriler"
+
+msgid "Load more"
+msgstr "Daha fazla"
+
+#, python-format
+msgid "No results for \"%(q)s\"."
+msgstr "\"%(q)s\" için sonuç bulunamadı."
+
+msgid "No news yet."
+msgstr "Henüz haber yok."

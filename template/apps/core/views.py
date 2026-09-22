@@ -5,6 +5,7 @@ from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, Js
 from django.shortcuts import get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import reverse
+from django.utils.translation import gettext
 from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_GET, require_POST
 
@@ -46,7 +47,7 @@ def web_manifest(request):
     manifest = {
         "name": settings.SITE_NAME,
         "short_name": settings.SITE_NAME[:12],
-        "description": settings.SITE_DESCRIPTION,
+        "description": gettext(settings.SITE_DESCRIPTION),
         "start_url": "/",
         "display": "standalone",
         "background_color": "#ffffff",

@@ -1,0 +1,24 @@
+{% load i18n lucide %}
+{% get_available_languages as languages %}
+{% if languages|length > 1 %}
+  {% get_current_language as current_language %}
+  {# Django'nun set_language view'ı: dil çerezini ayarlar ve `next` adresini seçilen dile çevirir #}
+  <div class="dropdown dropdown-end">
+    <button type="button" tabindex="0" class="btn btn-ghost btn-sm gap-1 px-2" aria-label="{% translate 'Language' %}">
+      {% lucide "languages" size=18 %}<span class="uppercase">{{ current_language }}</span>
+    </button>
+    <form action="{% url 'set_language' %}" method="post" class="dropdown-content z-50 mt-3">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <ul class="menu w-44 rounded-box border border-base-200 bg-base-100 p-2 shadow-lg">
+        {% for code, name in languages %}
+          <li>
+            <button type="submit" name="language" value="{{ code }}" lang="{{ code }}"
+                    class="{% if code == current_language %}menu-active{% endif %}"
+                    {% if code == current_language %}aria-current="true"{% endif %}>{{ name }}</button>
+          </li>
+        {% endfor %}
+      </ul>
+    </form>
+  </div>
+{% endif %}

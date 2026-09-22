@@ -12,6 +12,4 @@ urlpatterns = [
     path("sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="sitemap"),
     path("manifest.webmanifest", views.web_manifest, name="manifest"),
     path("favicon.ico", views.favicon, name="favicon"),
-    path("sync/<slug:job>/", views.sync_trigger, name="sync_trigger"),
-    path("sync/run/<int:pk>/", views.sync_status, name="sync_status"),
 ]

@@ -18,13 +18,13 @@ def test_public_pages_render(client, name):
 def test_home_shows_inquiry_form(client):
     body = client.get(reverse("pages:home")).content.decode()
     assert 'id="inquiry-form"' in body
-    assert 'hx-post="/teklif/gonder/"' in body
+    assert f'hx-post="{reverse("inquiries:submit")}"' in body
 
 
 @pytest.mark.django_db
 def test_navbar_only_links_installed_modules(client, settings):
     body = client.get(reverse("pages:home")).content.decode()
-    for feature, url_prefix in [("maps", "/harita/"), ("news", "/haberler/")]:
+    for feature, url_prefix in [("maps", "/map/"), ("news", "/news/")]:
         if settings.FEATURES[feature]:
             assert f'href="{url_prefix}"' in body
         else:

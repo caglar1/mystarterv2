@@ -37,7 +37,7 @@ def test_robots_txt_points_to_sitemap(client):
 def test_sitemap_lists_pages(client):
     response = client.get("/sitemap.xml")
     assert response.status_code == 200
-    assert "/iletisim/" in response.content.decode()
+    assert "/contact/" in response.content.decode()
 
 
 def test_favicon_redirects_to_svg(client):
@@ -165,7 +165,7 @@ def test_run_job_success_and_failure():
 @pytest.mark.django_db
 def test_sync_trigger_requires_staff(user_client):
     _register_demo_job()
-    response = user_client.post(reverse("core:sync_trigger", args=["demo"]), **HTMX)
+    response = user_client.post(reverse("sync:trigger", args=["demo"]), **HTMX)
     assert response.status_code == 302  # yönetici girişine yönlendirilir
     assert not SyncRun.objects.exists()
 
@@ -173,14 +173,14 @@ def test_sync_trigger_requires_staff(user_client):
 @pytest.mark.django_db
 def test_sync_trigger_and_status(staff_client):
     _register_demo_job()
-    response = staff_client.post(reverse("core:sync_trigger", args=["demo"]), **HTMX)
+    response = staff_client.post(reverse("sync:trigger", args=["demo"]), **HTMX)
     assert response.status_code == 200
     run = SyncRun.objects.get()
     # ImmediateBackend: görev hemen çalıştı
     assert run.status == SyncRun.Status.SUCCESS
-    status = staff_client.get(reverse("core:sync_status", args=[run.pk]), **HTMX)
+    status = staff_client.get(reverse("sync:status", args=[run.pk]), **HTMX)
     assert status.status_code == 286  # htmx sorgulamayı durdurur
-    assert staff_client.post(reverse("core:sync_trigger", args=["yok"]), **HTMX).status_code == 404
+    assert staff_client.post(reverse("sync:trigger", args=["yok"]), **HTMX).status_code == 404
 
 
 @pytest.mark.django_db
@@ -261,4 +261,4 @@ def test_collectstatic_with_production_storage(tmp_path, settings):
 def test_404_page(client):
     response = client.get("/boyle-bir-sayfa-yok/")
     assert response.status_code == 404
-    assert "bulunamadı" in response.content.decode()
+    assert "find the page you" in response.content.decode()

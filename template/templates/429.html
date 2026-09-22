@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Çok fazla istek · {{ project.name }}{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Too many requests" %} · {{ project.name }}{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-xl px-4 py-24 text-center">
   <div class="text-6xl font-black text-warning">429</div>
-  <h1 class="mt-4 text-2xl font-bold">Çok fazla istek gönderdiniz</h1>
-  <p class="mt-2 text-base-content/70">Lütfen birkaç dakika bekleyip tekrar deneyin.</p>
+  <h1 class="mt-4 text-2xl font-bold">{% translate "You have sent too many requests" %}</h1>
+  <p class="mt-2 text-base-content/70">{% translate "Please wait a few minutes and try again." %}</p>
 </section>
 {% endblock %}

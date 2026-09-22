@@ -6,6 +6,7 @@ from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.utils.translation import gettext as _
 
 from apps.core.ratelimit import ratelimit
 
@@ -26,7 +27,7 @@ class PasswordChangeView(auth_views.PasswordChangeView):
     success_url = reverse_lazy("pages:home")
 
     def form_valid(self, form):
-        messages.success(self.request, "Şifreniz güncellendi.")
+        messages.success(self.request, _("Your password has been updated."))
         return super().form_valid(form)
 
 
@@ -59,7 +60,7 @@ def signup(request):
     if request.method == "POST" and form.is_valid():
         user = form.save()
         login(request, user)
-        messages.success(request, "Hesabınız oluşturuldu. Hoş geldiniz!")
+        messages.success(request, _("Your account has been created. Welcome!"))
         return redirect(settings.LOGIN_REDIRECT_URL)
     status = 422 if form.is_bound else 200
     return render(request, "accounts/signup.html", {"form": form}, status=status)

@@ -11,6 +11,7 @@ Bu dosya yapay zeka kodlama ajanları (Claude Code, Cursor, Copilot, Codex...) v
 | Etkileşim | htmx 2 (sunucudan HTML), Alpine.js 3 **CSP build** (yalnızca yerel UI durumu) |
 | Stil | Tailwind CSS 4 + DaisyUI 5, standalone CLI ile derlenir (Node.js yok) |
 | İkonlar | `{% load lucide %}{% lucide "send" size=18 %}` — sunucuda SVG, JS yok |
+| Diller | [[ languages ]] — kaynak metinler İngilizce, ilk dil kökte, diğerleri `/<dil>/` önekli |
 | Veritabanı | [% if database == 'postgres' %]PostgreSQL (canlı), SQLite (geliştirme)[% else %]SQLite (WAL); istenirse PostgreSQL[% endif %] |
 | Arka plan işleri | `django.tasks` + `django-tasks-db` (`manage.py db_worker`), Celery/Redis yok |
 | Sunucu | gunicorn gthread + WhiteNoise (brotli, hash'li dosyalar), Docker + Caddy |
@@ -35,6 +36,7 @@ make dev        # runserver + tailwind --watch + db_worker (honcho)
 make check      # ruff + pytest + makemigrations --check  ← her değişiklikten sonra çalıştır
 uv run python manage.py sync <iş>      # senkronizasyon işini hemen çalıştır (liste: `sync`)
 uv run python scripts/vendor.py check  # vendor JS/CSS dosyalarının sha256 doğrulaması
+make messages   # yeni/değişen metinleri .po dosyalarına ekle ve derle (GNU gettext gerekir)
 ```
 
 ## Dizinler
@@ -47,6 +49,7 @@ apps/pages/        statik sayfalar (+ DEBUG'da /dev/ui-kit/)
 apps/inquiries/    teklif formu + task ile e-posta
 templates/         base.html ve hata sayfaları; uygulama şablonları apps/<app>/templates/<app>/
 assets/css/app.css Tailwind girişi (tema renkleri burada)
+locale/, apps/*/locale/  çeviriler (.po kaynağı + derlenmiş .mo; ikisi de repoda)
 static/css/app.css derlenmiş çıktı (git'e girmez)
 ```
 
@@ -72,8 +75,17 @@ static/css/app.css derlenmiş çıktı (git'e girmez)
 11. **Yeni vendor dosyası** `apps/<app>/vendor.json`'a eklenir, `python scripts/vendor.py lock` ile indirilir. CDN'den `<script>` ekleme.
 12. **Her özellik testiyle gelir** (pytest-django, `apps/<app>/tests/`). Bitti demeden önce `make check`.
 13. **Modüller `settings.FEATURES` ile açılır/kapanır.** Başka modüle link verirken `{% if features.x %}` ile koru.
+14. **Kullanıcıya görünen her metin İngilizce yazılır ve çeviriye işaretlenir:** şablonda `{% load i18n %}` +
+    `{% translate "..." %}` / `{% blocktranslate %}`, Python'da `gettext_lazy as _` (model, form, modül düzeyi)
+    veya `gettext` (view içi). Metni şablona Türkçe gömme. Sonra `make messages` ve `.po`'daki boş `msgstr`'ları doldur;
+    `test_translations_are_complete` eksik çeviride kırılır. URL yolları da `_("about/")` ile çevrilir.
+    Yorumlar, docstring'ler, loglar ve geliştirici hata mesajları Türkçe kalabilir.
+15. **Aynı İngilizce metin farklı yerlerde farklı çevriliyorsa** `pgettext_lazy("bağlam", "...")` kullan
+    (ör. kanban sütunu "In progress" = "Yapılıyor", talep durumu = "İşlemde").
+16. **Link verirken her zaman `{% url %}` / `reverse()`** kullan; aktif dile göre doğru önekli ve çevrilmiş adresi üretir.
+    Worker/e-posta gibi istek dışı kodda dili `translation.override(...)` ile açıkça seç.
 [%- if use_llm %]
-14. **LLM çağrıları yalnızca `apps.ai.llm.get_client()`** üzerinden. Anthropic için `temperature` ve
+17. **LLM çağrıları yalnızca `apps.ai.llm.get_client()`** üzerinden. Anthropic için `temperature` ve
     `budget_tokens` gönderme (güncel modellerde 400); derinlik `effort` ile ayarlanır. Model çıktısını
     şablona basarken escape et.
 [%- endif %]

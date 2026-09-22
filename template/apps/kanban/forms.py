@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from apps.core.forms import StyledFormMixin
 
@@ -9,11 +10,11 @@ class BoardForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Board
         fields = ["name"]
-        widgets = {"name": forms.TextInput(attrs={"placeholder": "Pano adı"})}
+        widgets = {"name": forms.TextInput(attrs={"placeholder": _("Board name")})}
 
 
 class CardForm(StyledFormMixin, forms.Form):
-    title = forms.CharField(label="Başlık", max_length=200)
+    title = forms.CharField(label=_("Title"), max_length=200)
     status = forms.ChoiceField(choices=Card.Status.choices, widget=forms.HiddenInput)
 
 
@@ -26,4 +27,4 @@ class MoveForm(forms.Form):
         try:
             return [int(part) for part in raw.split(",") if part.strip()]
         except ValueError as exc:
-            raise forms.ValidationError("Geçersiz sıra") from exc
+            raise forms.ValidationError(_("Invalid order")) from exc

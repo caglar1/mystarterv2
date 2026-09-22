@@ -1,0 +1,147 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: starterpack\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-22 16:40+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Kanban"
+msgstr "Kanban"
+
+msgid "Board name"
+msgstr "Pano adı"
+
+msgid "Title"
+msgstr "Başlık"
+
+msgid "Invalid order"
+msgstr "Geçersiz sıra"
+
+msgid "name"
+msgstr "ad"
+
+msgid "owner"
+msgstr "sahibi"
+
+msgid "created at"
+msgstr "oluşturulma"
+
+msgid "board"
+msgstr "pano"
+
+msgid "boards"
+msgstr "panolar"
+
+msgctxt "kanban column"
+msgid "To do"
+msgstr "Yapılacak"
+
+msgctxt "kanban column"
+msgid "In progress"
+msgstr "Yapılıyor"
+
+msgctxt "kanban column"
+msgid "Done"
+msgstr "Tamamlandı"
+
+msgid "title"
+msgstr "başlık"
+
+msgid "description"
+msgstr "açıklama"
+
+msgid "status"
+msgstr "durum"
+
+msgid "position"
+msgstr "sıra"
+
+msgid "updated at"
+msgstr "güncellenme"
+
+msgid "card"
+msgstr "kart"
+
+msgid "cards"
+msgstr "kartlar"
+
+msgid "Explore the kanban board"
+msgstr "Kanban panosunu keşfet"
+
+msgid "Drag and drop the cards"
+msgstr "Kartları sürükleyip bırak"
+
+msgid "Create the board"
+msgstr "Panoyu oluştur"
+
+msgid "My first board"
+msgstr "İlk panom"
+
+msgid "Delete card"
+msgstr "Kartı sil"
+
+msgid "Delete this card?"
+msgstr "Bu kart silinsin mi?"
+
+msgid "Boards"
+msgstr "Panolar"
+
+#, python-format
+msgid "%(label)s column"
+msgstr "%(label)s sütunu"
+
+msgid "New card"
+msgstr "Yeni kart"
+
+#, python-format
+msgid "New card for %(label)s"
+msgstr "%(label)s için yeni kart"
+
+msgid "Add card"
+msgstr "Kart ekle"
+
+msgid "My boards"
+msgstr "Panolarım"
+
+msgid "Track your work by dragging cards between columns."
+msgstr "İşlerinizi kartları sütunlar arasında sürükleyerek takip edin."
+
+#, python-format
+msgid "%(counter)s card"
+msgid_plural "%(counter)s cards"
+msgstr[0] "%(counter)s kart"
+msgstr[1] "%(counter)s kart"
+
+msgid "New board"
+msgstr "Yeni pano"
+
+msgid "Create"
+msgstr "Oluştur"
+
+msgid "<int:pk>/card/"
+msgstr "<int:pk>/kart/"
+
+msgid "card/<int:pk>/move/"
+msgstr "kart/<int:pk>/tasi/"
+
+msgid "card/<int:pk>/delete/"
+msgstr "kart/<int:pk>/sil/"
+
+msgid "Card title cannot be empty."
+msgstr "Kart başlığı boş olamaz."
+
+msgid "Invalid move request"
+msgstr "Geçersiz taşıma isteği"

@@ -1,23 +1,23 @@
 {% extends "base.html" %}
-{% load lucide core_tags %}
-{% block title %}Haberler · {{ project.name }}{% endblock %}
+{% load i18n lucide core_tags %}
+{% block title %}{% translate "News" %} · {{ project.name }}{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-6xl space-y-6 px-4 py-10">
   <header class="flex flex-wrap items-end justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold">Haberler</h1>
-      <p class="text-base-content/70">Kaynaklardan derlenen haberler, yapay zeka özetleriyle.</p>
+      <h1 class="text-3xl font-bold">{% translate "News" %}</h1>
+      <p class="text-base-content/70">{% translate "News collected from sources, with AI summaries." %}</p>
     </div>
     <form role="search" class="flex w-full flex-wrap gap-2 sm:w-auto"
           hx-get="{% url 'news:list' %}" hx-target="#results" hx-trigger="input delay:300ms, submit" hx-push-url="true">
       <label class="input w-full sm:w-72">
         {% lucide "search" size=16 class="opacity-60" %}
-        <input type="search" name="q" value="{{ q }}" placeholder="Haberlerde ara…" aria-label="Haberlerde ara">
+        <input type="search" name="q" value="{{ q }}" placeholder="{% translate 'Search news…' %}" aria-label="{% translate 'Search news' %}">
         <span class="loading loading-spinner loading-xs htmx-indicator" aria-hidden="true"></span>
       </label>
-      <select name="category" class="select w-full sm:w-44" aria-label="Kategori">
-        <option value="">Tüm kategoriler</option>
-        {% for item in categories %}<option value="{{ item }}" {% if item == category %}selected{% endif %}>{{ item|capfirst }}</option>{% endfor %}
+      <select name="category" class="select w-full sm:w-44" aria-label="{% translate 'Category' %}">
+        <option value="">{% translate "All categories" %}</option>
+        {% for value, label in categories %}<option value="{{ value }}" {% if value == category %}selected{% endif %}>{{ label }}</option>{% endfor %}
       </select>
     </form>
   </header>
@@ -35,7 +35,7 @@
                 <button type="button" class="btn btn-outline" hx-get="{% url 'news:list' %}?{% querystring page=page_obj.next_page_number %}"
                         hx-target="#load-more" hx-swap="outerHTML" hx-disabled-elt="this">
                   <span class="loading loading-spinner loading-sm htmx-indicator" aria-hidden="true"></span>
-                  Daha fazla
+                  {% translate "Load more" %}
                 </button>
               </div>
             {% endif %}
@@ -43,7 +43,7 @@
         </div>
       {% else %}
         <div class="rounded-box border border-dashed border-base-300 p-10 text-center text-base-content/70">
-          {% if q %}"{{ q }}" için sonuç bulunamadı.{% else %}Henüz haber yok.{% endif %}
+          {% if q %}{% blocktranslate %}No results for "{{ q }}".{% endblocktranslate %}{% else %}{% translate "No news yet." %}{% endif %}
         </div>
       {% endif %}
     {% endpartialdef %}

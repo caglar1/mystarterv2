@@ -1,6 +1,6 @@
-{% load lucide %}
+{% load i18n lucide %}
 <div role="alert" class="alert alert-warning alert-soft max-w-sm shadow-lg" x-data="toast" x-show="visible" x-transition.opacity>
   {% lucide "timer" size=20 %}
-  <span class="text-sm">Çok fazla istek gönderdiniz. Lütfen biraz sonra tekrar deneyin.</span>
-  <button type="button" class="btn btn-circle btn-ghost btn-xs" @click="close" aria-label="Kapat">{% lucide "x" size=14 %}</button>
+  <span class="text-sm">{% translate "You have sent too many requests. Please try again in a moment." %}</span>
+  <button type="button" class="btn btn-circle btn-ghost btn-xs" @click="close" aria-label="{% translate 'Close' %}">{% lucide "x" size=14 %}</button>
 </div>

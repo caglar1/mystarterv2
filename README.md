@@ -19,6 +19,7 @@ Tek ön koşul [uv](https://docs.astral.sh/uv/) (`brew install uv`); Python 3.13
 | `project_name` / `project_slug` | Benim Uygulamam | Slug Türkçe karakterlerden arındırılır |
 | `author_email` | dev@example.com | Bildirimler ve dış API'lere giden User-Agent. **Gerçek adres verin**: OSM sunucuları `example.com`'u reddeder |
 | `domain` | example.com | ALLOWED_HOSTS, Caddyfile |
+| `languages` | en,tr | Arayüz dilleri; ilk dil kökte (`/about/`), diğerleri önekli (`/tr/hakkimizda/`). Türkçe çeviri hazır |
 | `database` | postgres | `postgres` veya `sqlite` (WAL + IMMEDIATE, tek sunucu için) |
 | `use_maps` + `map_tiles` | evet, stadia | Leaflet + Overpass senkronizasyonu + yakınımdakiler |
 | `use_llm` + `llm_provider` | evet, anthropic | Saf httpx LLM gateway + SSE streaming demo |
@@ -46,6 +47,24 @@ bağımlılıkları birlikte gider (`settings.FEATURES`).
 | Haberler | Koşullu feed çekme (ETag), robots.txt'e uyum, newspaper4k ile metin çıkarma, JSON şemalı AI zenginleştirme, Postgres fonksiyonel GIN index + Türkçe kök bulma, HTMX anlık arama |
 | Kanban | Kullanıcıya göre izole panolar, transaction içinde sıralama, OOB sayaç güncellemesi |
 
+## Çok dillilik
+
+- **Kaynak dil İngilizce.** Bu Django/gettext standardı: çeviri araçları ve yapay zeka ajanları en iyi bununla
+  çalışır. Türkçe çevirinin tamamı hazır geliyor (yaklaşık 340 metin, `.po` + derlenmiş `.mo`).
+- **Adresler:** ilk dil kökte, diğerleri önekli; yol parçaları da çevriliyor
+  (`/about/` ↔ `/tr/hakkimizda/`, `/quote/send/` ↔ `/tr/teklif/gonder/`). `hreflang` etiketleri ve
+  çok dilli sitemap SEO için hazır. Dil seçici Django'nun `set_language` view'ını kullanıyor; geçerli sayfanın
+  karşılığına yönlendiriyor.
+- **Dilin doğru olması gereken yerler:**
+  - Teklif formu hangi dilde doldurulduysa müşteriye e-posta o dilde gidiyor, ekibe ise varsayılan dilde.
+  - AI özeti sayfanın dilinde üretiliyor.
+  - HTMX uçları önekli olduğu için yanıtlar da sayfanın dilinde dönüyor.
+- **Her uygulamanın kendi `locale/` klasörü var.** Bir modül kapatıldığında çevirileri de onunla gidiyor.
+- `test_translations_are_complete` eksik ya da "fuzzy" çeviri kaldığında testi kırıyor.
+  Yeni metin eklendiğinde `make messages` çalıştırılıyor (GNU gettext gerekir).
+- **Yeni dil eklemek:** `LANGUAGES=en,tr,de` ve ardından `uv run python scripts/messages.py de`.
+  Sağdan sola yazılan diller için `dir="rtl"` otomatik ekleniyor.
+
 ## Ölçümler
 
 Brotli ile sıkıştırılmış CSS + JS (HTML hariç):
@@ -63,9 +82,10 @@ Docker imajı: yaklaşık 430 MB (tüm modüller açık; payın çoğu newspaper
 
 ## Doğrulama
 
-- `scripts/test_matrix.py`: 7 seçenek kombinasyonunu üretir. Her birinde vendor sha256, ruff, `makemigrations --check`,
-  pytest ve Tailwind derlemesi çalışır. Postgres kombinasyonları gerçek Postgres 18'e karşı test edilir.
-- Tüm modüller açık projede 103 test (Postgres'te; index kullanımı `EXPLAIN` ile doğrulanır).
+- `scripts/test_matrix.py`: 9 seçenek kombinasyonunu üretir; `tr,en` (Türkçe kökte) ve tek dil de bunlara dahil.
+  Her birinde vendor sha256, ruff, `makemigrations --check`, pytest ve Tailwind derlemesi çalışır.
+  Ardından projenin gerçek ayarlarıyla her dilde sayfa açılır. Postgres kombinasyonları gerçek Postgres 18'e karşı test edilir.
+- Tüm modüller açık projede 112 test (Postgres'te; index kullanımı `EXPLAIN` ile doğrulanır).
 - `docker compose up` ile doğrulananlar: healthz, migration'lar, worker, brotli + `immutable` önbellekli statik dosyalar.
 
 ```bash

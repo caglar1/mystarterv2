@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% load lucide %}
-{% block title %}Sayfa bulunamadı · {{ project.name }}{% endblock %}
+{% load i18n lucide %}
+{% block title %}{% translate "Page not found" %} · {{ project.name }}{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-xl px-4 py-24 text-center">
   <div class="text-6xl font-black text-primary">404</div>
-  <h1 class="mt-4 text-2xl font-bold">Aradığınız sayfa bulunamadı</h1>
-  <p class="mt-2 text-base-content/70">Bağlantı eski olabilir ya da sayfa taşınmış olabilir.</p>
-  <a href="{% url 'pages:home' %}" class="btn btn-primary mt-8">{% lucide "house" size=18 %} Ana sayfaya dön</a>
+  <h1 class="mt-4 text-2xl font-bold">{% translate "We couldn't find the page you're looking for" %}</h1>
+  <p class="mt-2 text-base-content/70">{% translate "The link may be outdated or the page may have moved." %}</p>
+  <a href="{% url 'pages:home' %}" class="btn btn-primary mt-8">{% lucide "house" size=18 %} {% translate "Back to home" %}</a>
 </section>
 {% endblock %}

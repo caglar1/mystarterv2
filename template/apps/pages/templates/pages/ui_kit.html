@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% load lucide %}
+{% load i18n lucide %}
 {% block title %}UI Kit · {{ project.name }}{% endblock %}
 {% block content %}
 <div class="mx-auto max-w-6xl space-y-10 px-4 py-12">
   <header>
     <h1 class="flex items-center gap-2 text-3xl font-bold">{% lucide "palette" size=28 class="text-primary" %} UI Kit</h1>
-    <p class="mt-2 text-base-content/70">Projede kullanılan bileşenler. Yeni ekran yazarken buradaki kalıpları kopyalayın (yalnızca DEBUG modunda görünür).</p>
+    <p class="mt-2 text-base-content/70">{% translate "Components used in the project. Copy these patterns when building new screens (visible only in DEBUG mode)." %}</p>
   </header>
 
   <section class="space-y-3">
-    <h2 class="text-xl font-semibold">Butonlar</h2>
+    <h2 class="text-xl font-semibold">{% translate "Buttons" %}</h2>
     <div class="flex flex-wrap gap-2">
       <button class="btn btn-primary">Primary</button>
       <button class="btn btn-secondary">Secondary</button>
@@ -18,14 +18,14 @@
       <button class="btn btn-outline">Outline</button>
       <button class="btn btn-soft btn-primary">Soft</button>
       <button class="btn btn-ghost">Ghost</button>
-      <button class="btn btn-primary btn-sm">Küçük</button>
-      <button class="btn btn-primary" disabled>Pasif</button>
-      <button class="btn btn-primary">{% lucide "send" size=18 %} İkonlu</button>
+      <button class="btn btn-primary btn-sm">{% translate "Small" %}</button>
+      <button class="btn btn-primary" disabled>{% translate "Disabled" %}</button>
+      <button class="btn btn-primary">{% lucide "send" size=18 %} {% translate "With icon" %}</button>
     </div>
   </section>
 
   <section class="space-y-3">
-    <h2 class="text-xl font-semibold">Rozetler ve uyarılar</h2>
+    <h2 class="text-xl font-semibold">{% translate "Badges and alerts" %}</h2>
     <div class="flex flex-wrap gap-2">
       <span class="badge badge-primary">primary</span>
       <span class="badge badge-soft badge-success">success</span>
@@ -34,22 +34,22 @@
       <span class="badge badge-outline">outline</span>
     </div>
     <div class="grid gap-2 md:grid-cols-2">
-      <div role="alert" class="alert alert-success alert-soft">{% lucide "circle-check" size=20 %} İşlem başarılı.</div>
-      <div role="alert" class="alert alert-info alert-soft">{% lucide "info" size=20 %} Bilgilendirme mesajı.</div>
-      <div role="alert" class="alert alert-warning alert-soft">{% lucide "triangle-alert" size=20 %} Dikkat edilmesi gereken durum.</div>
-      <div role="alert" class="alert alert-error alert-soft">{% lucide "circle-alert" size=20 %} Bir hata oluştu.</div>
+      <div role="alert" class="alert alert-success alert-soft">{% lucide "circle-check" size=20 %} {% translate "Operation succeeded." %}</div>
+      <div role="alert" class="alert alert-info alert-soft">{% lucide "info" size=20 %} {% translate "An informational message." %}</div>
+      <div role="alert" class="alert alert-warning alert-soft">{% lucide "triangle-alert" size=20 %} {% translate "Something needs your attention." %}</div>
+      <div role="alert" class="alert alert-error alert-soft">{% lucide "circle-alert" size=20 %} {% translate "Something went wrong." %}</div>
     </div>
   </section>
 
   <section class="grid gap-6 lg:grid-cols-2">
     <div class="space-y-3">
-      <h2 class="text-xl font-semibold">Form (<code>{% templatetag openvariable %} form {% templatetag closevariable %}</code>)</h2>
-      <p class="text-sm text-base-content/70">Formlar <code>StyledFormMixin</code> ile otomatik stillenir; ek şablon kodu gerekmez.</p>
+      <h2 class="text-xl font-semibold">{% translate "Form" %} (<code>{% templatetag openvariable %} form {% templatetag closevariable %}</code>)</h2>
+      <p class="text-sm text-base-content/70">{% blocktranslate %}Forms are styled automatically by <code>StyledFormMixin</code>; no extra template code needed.{% endblocktranslate %}</p>
       <div class="card card-border bg-base-100 p-6">{{ form }}</div>
     </div>
     <div class="space-y-6">
       <div class="space-y-3">
-        <h2 class="text-xl font-semibold">Yükleniyor (skeleton)</h2>
+        <h2 class="text-xl font-semibold">{% translate "Loading (skeleton)" %}</h2>
         <div class="space-y-2">
           <div class="skeleton h-4 w-1/3"></div>
           <div class="skeleton h-4 w-full"></div>
@@ -57,33 +57,33 @@
         </div>
       </div>
       <div class="space-y-3">
-        <h2 class="text-xl font-semibold">Sekmeler (Alpine)</h2>
+        <h2 class="text-xl font-semibold">{% translate "Tabs (Alpine)" %}</h2>
         <div x-data="{ tab: 'bir' }">
           <div role="tablist" class="tabs tabs-box">
-            <button role="tab" class="tab" :class="tab === 'bir' && 'tab-active'" @click="tab = 'bir'">Birinci</button>
-            <button role="tab" class="tab" :class="tab === 'iki' && 'tab-active'" @click="tab = 'iki'">İkinci</button>
+            <button role="tab" class="tab" :class="tab === 'bir' && 'tab-active'" @click="tab = 'bir'">{% translate "First" %}</button>
+            <button role="tab" class="tab" :class="tab === 'iki' && 'tab-active'" @click="tab = 'iki'">{% translate "Second" %}</button>
           </div>
-          <div class="p-4" x-show="tab === 'bir'">Birinci sekmenin içeriği.</div>
-          <div class="p-4" x-show="tab === 'iki'" x-cloak>İkinci sekmenin içeriği.</div>
+          <div class="p-4" x-show="tab === 'bir'">{% translate "Content of the first tab." %}</div>
+          <div class="p-4" x-show="tab === 'iki'" x-cloak>{% translate "Content of the second tab." %}</div>
         </div>
       </div>
       <div class="space-y-3">
-        <h2 class="text-xl font-semibold">Modal (native dialog)</h2>
+        <h2 class="text-xl font-semibold">{% translate "Modal (native dialog)" %}</h2>
         <div x-data="{}">
-          <button class="btn" @click="$refs.demo.showModal()">Modalı aç</button>
+          <button class="btn" @click="$refs.demo.showModal()">{% translate "Open modal" %}</button>
           <dialog x-ref="demo" class="modal modal-bottom sm:modal-middle">
             <div class="modal-box">
-              <h3 class="text-lg font-bold">Merhaba!</h3>
-              <p class="py-4">Mobilde alttan açılır, masaüstünde ortalanır.</p>
-              <div class="modal-action"><form method="dialog"><button class="btn">Kapat</button></form></div>
+              <h3 class="text-lg font-bold">{% translate "Hello!" %}</h3>
+              <p class="py-4">{% translate "Opens from the bottom on mobile, centered on desktop." %}</p>
+              <div class="modal-action"><form method="dialog"><button class="btn">{% translate "Close" %}</button></form></div>
             </div>
-            <form method="dialog" class="modal-backdrop"><button>kapat</button></form>
+            <form method="dialog" class="modal-backdrop"><button>{% translate "close" %}</button></form>
           </dialog>
         </div>
       </div>
       <div class="space-y-3">
         <h2 class="text-xl font-semibold">Toast</h2>
-        <div class="alert alert-success alert-soft max-w-sm">{% lucide "circle-check" size=20 %} Toast'lar sağ üstte görünür ve 5 sn sonra kapanır.</div>
+        <div class="alert alert-success alert-soft max-w-sm">{% lucide "circle-check" size=20 %} {% translate "Toasts appear at the top right and close after 5 seconds." %}</div>
       </div>
     </div>
   </section>

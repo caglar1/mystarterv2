@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
@@ -9,5 +10,5 @@ class User(AbstractUser):
     """
 
     class Meta(AbstractUser.Meta):
-        verbose_name = "kullanıcı"
-        verbose_name_plural = "kullanıcılar"
+        verbose_name = _("user")
+        verbose_name_plural = _("users")

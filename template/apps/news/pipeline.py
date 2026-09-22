@@ -21,6 +21,7 @@ import httpx
 from django.conf import settings
 from django.utils import timezone
 from django.utils.html import strip_tags
+from django.utils.translation import gettext as _
 
 with warnings.catch_warnings():
     # newspaper4k, opsiyonel NLP özellikleri için nltk yoksa her import'ta uyarı basar; kullanmıyoruz.
@@ -29,29 +30,35 @@ with warnings.catch_warnings():
     from newspaper import ArticleException, Config
 
 from apps.ai import llm
+from apps.ai.prompts import language_name
 
-from .models import Article, Feed
+from .models import Article, Category, Feed
 
 logger = logging.getLogger(__name__)
 
 MAX_HTML_BYTES = 3_000_000
 ENRICH_INPUT_CHARS = 6000  # maliyet sınırı: modele metnin ilk ~6000 karakteri gönderilir
 
-CATEGORIES = ["teknoloji", "ekonomi", "dunya", "bilim", "saglik", "spor", "kultur", "diger"]
+CATEGORIES = Category.values
 
 ENRICHMENT_SYSTEM = (
-    "Sen deneyimli bir haber editörüsün. Verilen haberi Türkçe olarak analiz et. "
-    "Özet maddeleri kısa, olgusal ve tarafsız olsun; habere yeni bilgi ekleme."
+    "You are an experienced news editor. Analyze the given article. "
+    "Summary points must be short, factual and neutral; do not add information that is not in the article. "
+    "Write the summary points and tags in {language}."
 )
 
 ENRICHMENT_SCHEMA = {
     "type": "object",
     "properties": {
-        "tldr": {"type": "array", "items": {"type": "string"}, "description": "En fazla 3 kısa özet maddesi"},
+        "tldr": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "At most 3 short summary points",
+        },
         "category": {"type": "string", "enum": CATEGORIES},
         "sentiment": {"type": "string", "enum": ["positive", "neutral", "negative"]},
-        "importance": {"type": "integer", "description": "1 (önemsiz) ile 10 (çok önemli) arası"},
-        "tags": {"type": "array", "items": {"type": "string"}, "description": "En fazla 5 etiket"},
+        "importance": {"type": "integer", "description": "From 1 (trivial) to 10 (very important)"},
+        "tags": {"type": "array", "items": {"type": "string"}, "description": "At most 5 tags"},
     },
     "required": ["tldr", "category", "sentiment", "importance", "tags"],
     "additionalProperties": False,
@@ -70,20 +77,21 @@ class SyncStats:
     feed_errors: list[str] = field(default_factory=list)
 
     def summary(self) -> str:
-        parts = [f"{self.new} yeni", f"{self.skipped} zaten vardı"]
+        # "etiket: sayı" biçimi çoğul eklerine takılmadan her dile çevrilebilir.
+        parts = [_("new: %d") % self.new, _("already saved: %d") % self.skipped]
         if self.robots_blocked:
-            parts.append(f"{self.robots_blocked} robots.txt nedeniyle yalnızca RSS özeti")
+            parts.append(_("RSS excerpt only (robots.txt): %d") % self.robots_blocked)
         if self.extract_failed:
-            parts.append(f"{self.extract_failed} metin çıkarılamadı")
+            parts.append(_("text extraction failed: %d") % self.extract_failed)
         if self.enrich_skipped:
-            parts.append("AI özet atlandı (LLM yapılandırılmamış)")
+            parts.append(_("AI summaries skipped (LLM not configured)"))
         else:
-            parts.append(f"{self.enriched} AI özet")
+            parts.append(_("AI summaries: %d") % self.enriched)
             if self.enrich_failed:
-                parts.append(f"{self.enrich_failed} AI hatası")
+                parts.append(_("AI errors: %d") % self.enrich_failed)
         if self.feed_errors:
-            parts.append("kaynak hataları: " + "; ".join(self.feed_errors))
-        return ", ".join(parts)
+            parts.append(_("feed errors: %s") % "; ".join(self.feed_errors))
+        return " · ".join(parts)
 
 
 class RobotsCache:
@@ -189,8 +197,9 @@ def extract_article(url: str, html: str, language: str = "tr") -> dict:
 
 
 def enrich(title: str, text: str, client: llm.LLMClient) -> dict:
-    prompt = f"Başlık: {title}\n\nHaber metni:\n{text[:ENRICH_INPUT_CHARS]}"
-    data = client.generate_json(prompt, schema=ENRICHMENT_SCHEMA, system=ENRICHMENT_SYSTEM, effort="low")
+    prompt = f"Title: {title}\n\nArticle:\n{text[:ENRICH_INPUT_CHARS]}"
+    system = ENRICHMENT_SYSTEM.format(language=language_name(settings.NEWS_SUMMARY_LANGUAGE))
+    data = client.generate_json(prompt, schema=ENRICHMENT_SCHEMA, system=system, effort="low")
     category = data.get("category")
     sentiment = data.get("sentiment")
     try:
@@ -199,7 +208,7 @@ def enrich(title: str, text: str, client: llm.LLMClient) -> dict:
         importance = 5
     return {
         "summary": [str(item).strip() for item in data.get("tldr", []) if str(item).strip()][:3],
-        "category": category if category in CATEGORIES else "diger",
+        "category": category if category in CATEGORIES else Category.OTHER,
         "sentiment": sentiment if sentiment in Article.Sentiment.values else "neutral",
         "importance": importance,
         "tags": [str(tag).strip()[:40] for tag in data.get("tags", []) if str(tag).strip()][:5],
@@ -301,5 +310,5 @@ def sync_all(*, http: httpx.Client | None = None, llm_client: llm.LLMClient | No
             http.close()
 
     if feeds and len(stats.feed_errors) == len(feeds):
-        raise RuntimeError("Hiçbir kaynak çekilemedi: " + "; ".join(stats.feed_errors))
+        raise RuntimeError(_("None of the feeds could be fetched: %s") % "; ".join(stats.feed_errors))
     return stats.new, stats.summary()

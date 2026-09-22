@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Erişim engellendi · {{ project.name }}{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Access denied" %} · {{ project.name }}{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-xl px-4 py-24 text-center">
   <div class="text-6xl font-black text-warning">403</div>
-  <h1 class="mt-4 text-2xl font-bold">Bu sayfaya erişim yetkiniz yok</h1>
-  <a href="{% url 'pages:home' %}" class="btn btn-primary mt-8">Ana sayfaya dön</a>
+  <h1 class="mt-4 text-2xl font-bold">{% translate "You don't have permission to view this page" %}</h1>
+  <a href="{% url 'pages:home' %}" class="btn btn-primary mt-8">{% translate "Back to home" %}</a>
 </section>
 {% endblock %}

@@ -226,7 +226,7 @@ class LLMClient:
             elif mode == "object":
                 payload["response_format"] = {"type": "json_object"}
             # "none": şema, prompt'a eklenen talimatla istenir; yanıt parse_json_text ile ayrıştırılır.
-            instruction = "Yalnızca şu JSON şemasına uyan geçerli bir JSON nesnesi döndür:\n" + json.dumps(
+            instruction = "Return only a valid JSON object that matches this JSON schema:\n" + json.dumps(
                 json_schema, ensure_ascii=False
             )
             messages[-1]["content"] = f"{prompt}\n\n{instruction}"

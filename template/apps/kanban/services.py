@@ -1,24 +1,28 @@
 from django.db import transaction
 from django.db.models import Max
+from django.utils.translation import gettext as _
 
 from .models import Board, Card
 
-STARTER_CARDS = [
-    ("Kanban'ı keşfet", Card.Status.TODO),
-    ("Kartları sürükleyip bırak", Card.Status.DOING),
-    ("Panoyu oluştur", Card.Status.DONE),
-]
+
+def _starter_cards() -> list[tuple[str, str]]:
+    # Kullanıcının o anki dilinde oluşturulur (kart başlıkları veridir, sonradan çevrilmez).
+    return [
+        (_("Explore the kanban board"), Card.Status.TODO),
+        (_("Drag and drop the cards"), Card.Status.DOING),
+        (_("Create the board"), Card.Status.DONE),
+    ]
 
 
 def ensure_starter_board(user) -> None:
     """İlk ziyarette örnek bir pano oluşturur (boş ekran yerine)."""
     if Board.objects.filter(owner=user).exists():
         return
-    board = Board.objects.create(name="İlk panom", owner=user)
+    board = Board.objects.create(name=_("My first board"), owner=user)
     Card.objects.bulk_create(
         [
             Card(board=board, title=title, status=status, position=i)
-            for i, (title, status) in enumerate(STARTER_CARDS)
+            for i, (title, status) in enumerate(_starter_cards())
         ]
     )
 

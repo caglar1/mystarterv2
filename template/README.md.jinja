@@ -23,6 +23,15 @@ Modüller: çekirdek (sayfalar, hesaplar, teklif formu)
 [%- if use_kanban %] · kanban (`/kanban/`)[% endif %]
 [%- if use_ui_kit %] · UI kit (`/dev/ui-kit/`, yalnızca DEBUG)[% endif %].
 
+## Diller
+
+Arayüz dilleri: `[[ languages ]]` (ilk dil kökte, diğerleri `/<dil>/` önekli; URL yolları da çevrilir:
+`/about/` ↔ `/tr/hakkimizda/`). Kaynak metinler İngilizce, çeviriler `locale/` ve `apps/*/locale/` altında.
+
+- Dil eklemek: `.env` → `LANGUAGES=en,tr,de`, sonra `uv run python scripts/messages.py de` ve `.po` dosyalarını doldurun.
+- Metin ekledikten sonra: `make messages` (GNU gettext gerekir: `brew install gettext` / `apt install gettext`).
+- Derlenmiş `.mo` dosyaları repodadır; çalıştırmak ve Docker için gettext gerekmez.
+
 ## Canlıya alma (Docker)
 
 ```bash

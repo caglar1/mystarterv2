@@ -9,15 +9,17 @@ import time
 from collections.abc import Callable
 
 import httpx
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 logger = logging.getLogger(__name__)
 
 # 400: sorgu hatası -> diğer sunucular da aynı cevabı verir, hemen dur.
 FAIL_FAST_STATUS = {400}
 HINTS = {
-    403: "erişim reddedildi",
-    406: "User-Agent reddedildi; OVERPASS_USER_AGENT içinde gerçek bir iletişim adresi olmalı",
-    429: "istek limiti aşıldı",
+    403: gettext_lazy("access denied"),
+    406: gettext_lazy("User-Agent rejected; OVERPASS_USER_AGENT must contain a real contact address"),
+    429: gettext_lazy("rate limited"),
 }
 
 
@@ -44,7 +46,7 @@ class OverpassClient:
         sleep: Callable[[float], None] = time.sleep,
     ):
         if not endpoints:
-            raise OverpassError("En az bir Overpass sunucusu tanımlanmalı (OVERPASS_ENDPOINTS).")
+            raise OverpassError(_("At least one Overpass endpoint is required (OVERPASS_ENDPOINTS)."))
         self.endpoints = endpoints
         self.rounds = rounds
         self.backoff = backoff
@@ -71,5 +73,5 @@ class OverpassClient:
                 hint = HINTS.get(response.status_code)
                 failures.append(f"{endpoint}: HTTP {response.status_code}" + (f" ({hint})" if hint else ""))
                 if response.status_code in FAIL_FAST_STATUS:
-                    raise OverpassError(f"Overpass sorgusu reddedildi: {' | '.join(failures)}")
-        raise OverpassError(f"Tüm Overpass sunucuları başarısız: {' | '.join(failures)}")
+                    raise OverpassError(_("Overpass rejected the query: %s") % " | ".join(failures))
+        raise OverpassError(_("All Overpass endpoints failed: %s") % " | ".join(failures))

@@ -1,0 +1,85 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: starterpack\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-22 16:39+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "AI"
+msgstr "Yapay zeka"
+
+msgid "Text"
+msgstr "Metin"
+
+msgid "Paste the text to summarize here"
+msgstr "Özetlenecek metni buraya yapıştırın"
+
+msgid "Summary length"
+msgstr "Özet uzunluğu"
+
+msgid "Short"
+msgstr "Kısa"
+
+msgid "Bullet points"
+msgstr "Madde madde"
+
+msgid "Detailed"
+msgstr "Ayrıntılı"
+
+msgid "Summarize with AI"
+msgstr "AI ile özetle"
+
+msgid ""
+"Paste your text; the summary streams onto the screen as it is written "
+"(Server-Sent Events)."
+msgstr "Metni yapıştırın; özet yazıldıkça ekrana akar (Server-Sent Events)."
+
+msgid ""
+"The LLM is not configured. Set <code>LLM_API_KEY</code> and "
+"<code>LLM_MODEL</code> in <code>.env</code>."
+msgstr ""
+"LLM yapılandırılmamış. <code>.env</code> içinde <code>LLM_API_KEY</code> ve "
+"<code>LLM_MODEL</code> değerlerini girin."
+
+msgid "Summarize"
+msgstr "Özetle"
+
+msgid "Summary"
+msgstr "Özet"
+
+msgid "writing…"
+msgstr "yazılıyor…"
+
+msgid "summary/"
+msgstr "ozet/"
+
+msgid "summary/start/"
+msgstr "ozet/baslat/"
+
+msgid "summary/stream/<slug:key>/"
+msgstr "ozet/akis/<slug:key>/"
+
+msgid "The server is busy right now. Please try again in a moment."
+msgstr "Sunucu şu an meşgul, lütfen biraz sonra tekrar deneyin."
+
+msgid "The model declined to answer this request."
+msgstr "Model bu isteği yanıtlamayı reddetti."
+
+msgid "Could not generate the summary. Please try again later."
+msgstr "Özet üretilemedi. Lütfen daha sonra tekrar deneyin."
+
+msgid "Done"
+msgstr "Tamamlandı"

@@ -5,7 +5,7 @@ from django.urls import reverse
 from apps.inquiries.models import Inquiry
 from conftest import HTMX
 
-URL = "/teklif/gonder/"
+URL = "/quote/send/"  # reverse("inquiries:submit"); varsayılan dil önek almaz
 
 
 def payload(**extra):
@@ -27,7 +27,7 @@ def test_htmx_submit_saves_and_sends_emails(client, settings):
     response = client.post(URL, payload(), **HTMX)
     assert response.status_code == 200
     body = response.content.decode()
-    assert "Teşekkürler, Ayşe Yılmaz" in body
+    assert "Thank you, Ayşe Yılmaz" in body
     # Mesaj aynı yanıtta toast olarak gelir (bir sonraki sayfaya kaymaz)
     assert 'hx-swap-oob="beforeend"' in body
     inquiry = Inquiry.objects.get()
@@ -49,7 +49,7 @@ def test_invalid_submit_returns_422_with_errors(client):
     assert response.status_code == 422
     body = response.content.decode()
     assert "input-error" in body
-    assert "onay vermeniz gerekiyor" in body
+    assert "give your consent" in body
     assert not Inquiry.objects.exists()
 
 

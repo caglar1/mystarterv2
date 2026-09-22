@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.core.ratelimit import ratelimit
@@ -19,7 +20,7 @@ def submit(request):
 
     inquiry = form.save()
     send_inquiry_emails.enqueue(inquiry.pk)
-    messages.success(request, "Talebiniz alındı. En kısa sürede size dönüş yapacağız.")
+    messages.success(request, _("Thank you! We received your request and will get back to you shortly."))
 
     if request.htmx:
         return render(request, "inquiries/form_card.html", {"sent": True, "inquiry": inquiry})

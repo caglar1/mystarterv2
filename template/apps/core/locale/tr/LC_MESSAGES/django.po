@@ -1,0 +1,161 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: starterpack\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-22 16:39+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Core"
+msgstr "Çekirdek"
+
+msgid ""
+"A fast, lightweight business app built with Django, htmx and Alpine.js."
+msgstr "Django, htmx ve Alpine.js ile hafif ve hızlı bir iş uygulaması."
+
+msgid ""
+"The form could not be submitted. Please refresh the page and try again."
+msgstr "Form gönderilemedi. Lütfen sayfayı yenileyip tekrar deneyin."
+
+msgid "Leave this field empty"
+msgstr "Bu alanı boş bırakın"
+
+msgid "Queued"
+msgstr "Sırada"
+
+msgid "Running"
+msgstr "Çalışıyor"
+
+msgid "Succeeded"
+msgstr "Başarılı"
+
+msgid "Failed"
+msgstr "Hatalı"
+
+msgid "job"
+msgstr "görev"
+
+msgid "status"
+msgstr "durum"
+
+msgid "items"
+msgstr "öge sayısı"
+
+msgid "message"
+msgstr "mesaj"
+
+msgid "triggered by"
+msgstr "başlatan"
+
+msgid "created at"
+msgstr "oluşturulma"
+
+msgid "started at"
+msgstr "başlangıç"
+
+msgid "finished at"
+msgstr "bitiş"
+
+msgid "sync run"
+msgstr "senkronizasyon"
+
+msgid "sync runs"
+msgstr "senkronizasyonlar"
+
+#, python-format
+msgid "© %(year)s %(name)s. All rights reserved."
+msgstr "© %(year)s %(name)s. Tüm hakları saklıdır."
+
+msgid "Footer"
+msgstr "Alt menü"
+
+msgid "Privacy notice"
+msgstr "KVKK Aydınlatma Metni"
+
+msgid "Contact"
+msgstr "İletişim"
+
+msgid "Language"
+msgstr "Dil"
+
+msgid "Home"
+msgstr "Ana sayfa"
+
+msgid "Services"
+msgstr "Hizmetler"
+
+msgid "Map"
+msgstr "Harita"
+
+msgid "News"
+msgstr "Haberler"
+
+msgid "Kanban"
+msgstr "Kanban"
+
+msgid "AI summary"
+msgstr "AI özet"
+
+msgid "About"
+msgstr "Hakkımızda"
+
+msgid "Open menu"
+msgstr "Menüyü aç"
+
+msgid "Main menu"
+msgstr "Ana menü"
+
+msgid "Account menu"
+msgstr "Hesap menüsü"
+
+msgid "Admin"
+msgstr "Yönetim paneli"
+
+msgid "Change password"
+msgstr "Şifre değiştir"
+
+msgid "Log out"
+msgstr "Çıkış yap"
+
+msgid "Log in"
+msgstr "Giriş yap"
+
+msgid "Get a quote"
+msgstr "Teklif al"
+
+#, python-format
+msgid "%(counter)s item"
+msgid_plural "%(counter)s items"
+msgstr[0] "%(counter)s öge"
+msgstr[1] "%(counter)s öge"
+
+#, python-format
+msgid "%(since)s ago"
+msgstr "%(since)s önce"
+
+msgid "Not synced yet."
+msgstr "Henüz senkronize edilmedi."
+
+msgid "Sync now"
+msgstr "Şimdi senkronize et"
+
+msgid "Toggle light/dark theme"
+msgstr "Açık/koyu tema"
+
+msgid "You have sent too many requests. Please try again in a moment."
+msgstr "Çok fazla istek gönderdiniz. Lütfen biraz sonra tekrar deneyin."
+
+msgid "Close"
+msgstr "Kapat"

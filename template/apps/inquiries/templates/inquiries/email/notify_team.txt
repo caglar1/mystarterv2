@@ -1,10 +1,11 @@
-{% autoescape off %}Yeni teklif talebi
+{% load i18n %}{% autoescape off %}{% translate "New quote request" %}
 
-Ad soyad : {{ inquiry.full_name }}
-E-posta  : {{ inquiry.email }}
-Telefon  : {{ inquiry.phone|default:"-" }}
-Tarih    : {{ inquiry.created_at|date:"d.m.Y H:i" }}
+{% translate "Name" %}: {{ inquiry.full_name }}
+{% translate "Email" %}: {{ inquiry.email }}
+{% translate "Phone" %}: {{ inquiry.phone|default:"-" }}
+{% translate "Date" %}: {{ inquiry.created_at|date:"SHORT_DATETIME_FORMAT" }}
+{% translate "Language" %}: {{ inquiry.language }}
 
-Mesaj:
+{% translate "Message" %}:
 {{ inquiry.message }}
 {% endautoescape %}

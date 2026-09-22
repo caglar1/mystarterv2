@@ -1,0 +1,294 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: starterpack\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-22 16:39+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "About"
+msgstr "Hakkımızda"
+
+msgid "About us"
+msgstr "Hakkımızda"
+
+#, python-format
+msgid ""
+"%(name)s helps businesses run their digital processes with simple, fast "
+"tools."
+msgstr ""
+"%(name)s, işletmelerin dijital süreçlerini sade ve hızlı araçlarla "
+"yönetmesine yardımcı olur."
+
+msgid ""
+"Replace this text with your own story: who you are, what you do and why, and"
+" what you promise your customers."
+msgstr ""
+"Bu metni kendi hikâyenizle değiştirin: kim olduğunuz, neyi neden yaptığınız "
+"ve müşterilerinize ne vaat ettiğiniz."
+
+msgid "Contact"
+msgstr "İletişim"
+
+msgid ""
+"Fill in the form for questions and quote requests, or reach us directly."
+msgstr ""
+"Sorularınız ve teklif talepleriniz için formu doldurun ya da bize doğrudan "
+"ulaşın."
+
+msgid "Istanbul, Türkiye"
+msgstr "İstanbul, Türkiye"
+
+msgid "See on the map"
+msgstr "Haritada görün"
+
+msgid "Fast, light, secure"
+msgstr "Hızlı, hafif, güvenli"
+
+msgid "Get a quote"
+msgstr "Teklif al"
+
+msgid "Our services"
+msgstr "Hizmetlerimiz"
+
+msgid "Pages that load instantly"
+msgstr "Anında açılan sayfalar"
+
+msgid ""
+"Server-rendered HTML and htmx, no unnecessary JavaScript: fast even on "
+"mobile."
+msgstr ""
+"Sunucuda üretilen HTML ve htmx, gereksiz JavaScript yok: mobilde bile hızlı."
+
+msgid "Secure by default"
+msgstr "Güvenli varsayılanlar"
+
+msgid "HTTPS, CSP, rate limiting and spam protection from day one."
+msgstr "HTTPS, CSP, istek sınırı ve spam koruması ilk günden açık."
+
+msgid "Mobile friendly"
+msgstr "Mobil uyumlu"
+
+msgid ""
+"An interface that works on every screen size and can be installed to the "
+"home screen (PWA)."
+msgstr "Her ekran boyutunda çalışan, ana ekrana eklenebilir (PWA) arayüz."
+
+msgid "Maps and location"
+msgstr "Harita ve konum"
+
+msgid "Explore nearby places with OpenStreetMap data."
+msgstr "OpenStreetMap verisiyle yakınınızdaki noktaları keşfedin."
+
+msgid "AI-powered news"
+msgstr "Yapay zeka destekli haberler"
+
+msgid "News collected from sources, with short summaries."
+msgstr "Kaynaklardan derlenen haberler, kısa özetleriyle."
+
+msgid "Task tracking"
+msgstr "İş takibi"
+
+msgid "Track work with drag-and-drop kanban boards."
+msgstr "Sürükle-bırak kanban panoları ile işleri takip edin."
+
+msgid "Let's talk about your project"
+msgstr "Projenizi konuşalım"
+
+msgid "Fill in the form and we'll get back to you within one business day."
+msgstr "Formu doldurun, en geç bir iş günü içinde size dönüş yapalım."
+
+msgid "Free initial consultation"
+msgstr "Ücretsiz ön görüşme"
+
+msgid "A clear timeline and budget"
+msgstr "Net zaman ve bütçe planı"
+
+msgid "Your data is protected under privacy law (KVKK/GDPR)"
+msgstr "Bilgileriniz KVKK kapsamında korunur"
+
+msgid "Privacy notice"
+msgstr "KVKK Aydınlatma Metni"
+
+msgid ""
+"This page is a template. Write your own notice with your legal adviser "
+"before going live (KVKK in Türkiye, GDPR in the EU)."
+msgstr ""
+"Bu sayfa bir şablondur. Yayına almadan önce hukuk danışmanınızla birlikte "
+"kendi metninizi yazın (Türkiye'de KVKK, AB'de GDPR)."
+
+msgid "Data controller:"
+msgstr "Veri sorumlusu:"
+
+msgid "Data we process:"
+msgstr "İşlenen veriler:"
+
+msgid ""
+"The full name, email, phone number and message you share in the contact "
+"form."
+msgstr ""
+"İletişim formunda paylaştığınız ad-soyad, e-posta, telefon ve mesaj içeriği."
+
+msgid "Purpose:"
+msgstr "Amaç:"
+
+msgid "To respond to your request and handle the quotation process."
+msgstr "Talebinize yanıt vermek ve teklif süreçlerini yürütmek."
+
+msgid "Retention:"
+msgstr "Saklama süresi:"
+
+msgid ""
+"A reasonable period after your request is concluded; then deleted or "
+"anonymized."
+msgstr ""
+"Talebin sonuçlanmasından itibaren makul bir süre; ardından silinir veya "
+"anonimleştirilir."
+
+msgid "Your rights:"
+msgstr "Haklarınız:"
+
+msgid ""
+"Contact us to exercise your rights under the applicable data protection law "
+"(KVKK article 11 / GDPR)."
+msgstr ""
+"6698 sayılı Kanun'un 11. maddesi kapsamındaki haklarınız için bizimle "
+"iletişime geçebilirsiniz."
+
+msgid "Services"
+msgstr "Hizmetler"
+
+msgid ""
+"List your services here. Each card can describe a service, its benefit and "
+"its starting price."
+msgstr ""
+"Hizmetlerinizi burada listeleyin. Her kart bir hizmeti, faydasını ve "
+"başlangıç fiyatını anlatabilir."
+
+msgid "Web applications"
+msgstr "Web uygulaması"
+
+msgid "Fast, secure business applications tailored to your needs."
+msgstr "İhtiyacınıza özel, hızlı ve güvenli iş uygulamaları."
+
+msgid "Process automation"
+msgstr "Süreç otomasyonu"
+
+msgid "We save you time by automating repetitive work."
+msgstr "Tekrarlayan işleri otomatikleştirerek zaman kazandırıyoruz."
+
+msgid "Maintenance and support"
+msgstr "Bakım ve destek"
+
+msgid "Updates, backups and monitoring for uninterrupted service."
+msgstr "Güncellemeler, yedekler ve izleme ile kesintisiz hizmet."
+
+msgid "Request a quote"
+msgstr "Teklif isteyin"
+
+msgid ""
+"Components used in the project. Copy these patterns when building new "
+"screens (visible only in DEBUG mode)."
+msgstr ""
+"Projede kullanılan bileşenler. Yeni ekran yazarken buradaki kalıpları "
+"kopyalayın (yalnızca DEBUG modunda görünür)."
+
+msgid "Buttons"
+msgstr "Butonlar"
+
+msgid "Small"
+msgstr "Küçük"
+
+msgid "Disabled"
+msgstr "Pasif"
+
+msgid "With icon"
+msgstr "İkonlu"
+
+msgid "Badges and alerts"
+msgstr "Rozetler ve uyarılar"
+
+msgid "Operation succeeded."
+msgstr "İşlem başarılı."
+
+msgid "An informational message."
+msgstr "Bilgilendirme mesajı."
+
+msgid "Something needs your attention."
+msgstr "Dikkat edilmesi gereken durum."
+
+msgid "Something went wrong."
+msgstr "Bir hata oluştu."
+
+msgid "Form"
+msgstr "Form"
+
+msgid ""
+"Forms are styled automatically by <code>StyledFormMixin</code>; no extra "
+"template code needed."
+msgstr ""
+"Formlar <code>StyledFormMixin</code> ile otomatik stillenir; ek şablon kodu "
+"gerekmez."
+
+msgid "Loading (skeleton)"
+msgstr "Yükleniyor (skeleton)"
+
+msgid "Tabs (Alpine)"
+msgstr "Sekmeler (Alpine)"
+
+msgid "First"
+msgstr "Birinci"
+
+msgid "Second"
+msgstr "İkinci"
+
+msgid "Content of the first tab."
+msgstr "Birinci sekmenin içeriği."
+
+msgid "Content of the second tab."
+msgstr "İkinci sekmenin içeriği."
+
+msgid "Modal (native dialog)"
+msgstr "Modal (native dialog)"
+
+msgid "Open modal"
+msgstr "Modalı aç"
+
+msgid "Hello!"
+msgstr "Merhaba!"
+
+msgid "Opens from the bottom on mobile, centered on desktop."
+msgstr "Mobilde alttan açılır, masaüstünde ortalanır."
+
+msgid "Close"
+msgstr "Kapat"
+
+msgid "close"
+msgstr "kapat"
+
+msgid "Toasts appear at the top right and close after 5 seconds."
+msgstr "Toast'lar sağ üstte görünür ve 5 sn sonra kapanır."
+
+msgid "about/"
+msgstr "hakkimizda/"
+
+msgid "services/"
+msgstr "hizmetler/"
+
+msgid "contact/"
+msgstr "iletisim/"
+
+msgid "privacy/"
+msgstr "kvkk/"

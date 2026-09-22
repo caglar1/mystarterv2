@@ -38,6 +38,9 @@ COMBOS: dict[str, dict] = {
     "llm-openai": {**OFF, "use_llm": True, "llm_provider": "openai", "database": "sqlite"},
     "news-llm": {**OFF, "use_llm": True, "use_news": True, "database": "sqlite"},
     "kanban-uikit": {**OFF, "use_kanban": True, "use_ui_kit": True, "database": "sqlite"},
+    # Diller: Türkçe kökte (/hakkimizda/, /en/about/) ve tek dil (dil seçici/hreflang yok)
+    "turkish-root": {**OFF, "use_kanban": True, "languages": "tr,en", "database": "sqlite"},
+    "english-only": {**OFF, "languages": "en", "database": "sqlite"},
 }
 
 
@@ -79,8 +82,37 @@ def check_combo(name: str, answers: dict, workdir: Path, *, css: bool) -> list[t
         ok, out = run(cmd, target, env)
         results.append((label, ok, out))
         if not ok:
+            return results
+
+    # Testler İngilizce'yi kökte zorlar; burada projenin GERÇEK ayarlarıyla (ör. tr,en) sayfalar açılır.
+    real_env = {**env, "DJANGO_SETTINGS_MODULE": "config.settings"}
+    real_env.pop("DATABASE_URL", None)
+    for label, cmd in [
+        ("migrate (gerçek ayarlar)", ["uv", "run", "python", "manage.py", "migrate", "-v0"]),
+        ("smoke (her dil)", ["uv", "run", "python", "manage.py", "shell", "-c", SMOKE]),
+    ]:
+        ok, out = run(cmd, target, real_env)
+        results.append((label, ok, out))
+        if not ok:
             break
     return results
+
+
+SMOKE = """
+from django.conf import settings
+from django.test import Client
+from django.urls import reverse
+from django.utils import translation
+
+client = Client(HTTP_HOST="localhost")
+for code, _name in settings.LANGUAGES:
+    with translation.override(code):
+        url = reverse("pages:about")
+    response = client.get(url)
+    assert response.status_code == 200, (url, response.status_code)
+    assert f'<html lang="{code}"' in response.content.decode(), url
+    print(code, url)
+"""
 
 
 def main() -> int:

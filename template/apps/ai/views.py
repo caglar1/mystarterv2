@@ -8,14 +8,17 @@ from django.core.cache import cache
 from django.http import Http404, StreamingHttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.utils import translation
 from django.utils.html import escape
+from django.utils.translation import get_language
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
 
 from apps.core.ratelimit import ratelimit
 
 from . import llm
 from .forms import SummarizeForm
-from .prompts import SUMMARY_SYSTEM, summary_prompt
+from .prompts import summary_prompt, summary_system
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +49,9 @@ def summarize_start(request):
     if not form.is_valid():
         return render(request, "ai/summarize.html#form", {"form": form, "configured": True}, status=422)
     key = uuid.uuid4().hex
-    cache.set(_job_key(key), {"user_id": request.user.pk, **form.cleaned_data}, JOB_TTL)
+    # Stream ayrı bir istekte açılır; özetin dili formun gönderildiği dil olsun.
+    job = {"user_id": request.user.pk, "language": get_language(), **form.cleaned_data}
+    cache.set(_job_key(key), job, JOB_TTL)
     return render(request, "ai/summarize.html#stream", {"key": key})
 
 
@@ -60,22 +65,29 @@ def _alert(message: str) -> str:
 
 
 def _summary_events(job: dict):
+    # Bu generator view döndükten sonra, yanıt akarken çalışır: dili açıkça sabitle.
+    with translation.override(job["language"]):
+        yield from _summary_events_in_language(job)
+
+
+def _summary_events_in_language(job: dict):
     if not _STREAM_SLOTS.acquire(blocking=False):
-        yield _sse("failure", _alert("Sunucu şu an meşgul, lütfen biraz sonra tekrar deneyin."))
+        yield _sse("failure", _alert(_("The server is busy right now. Please try again in a moment.")))
         yield _sse("done", "")
         return
     try:
         client = llm.get_client()
-        for chunk in client.stream(summary_prompt(job["text"], job["length"]), system=SUMMARY_SYSTEM):
+        prompt = summary_prompt(job["text"], job["length"])
+        for chunk in client.stream(prompt, system=summary_system(job["language"])):
             yield _sse("delta", escape(chunk))
     except llm.LLMRefused:
-        yield _sse("failure", _alert("Model bu isteği yanıtlamayı reddetti."))
+        yield _sse("failure", _alert(_("The model declined to answer this request.")))
     except llm.LLMError as exc:
         logger.warning("Özet üretilemedi: %s", exc)
-        yield _sse("failure", _alert("Özet üretilemedi. Lütfen daha sonra tekrar deneyin."))
+        yield _sse("failure", _alert(_("Could not generate the summary. Please try again later.")))
     finally:
         _STREAM_SLOTS.release()
-    yield _sse("done", '<span class="text-success">Tamamlandı</span>')
+    yield _sse("done", f'<span class="text-success">{escape(_("Done"))}</span>')
 
 
 @login_required

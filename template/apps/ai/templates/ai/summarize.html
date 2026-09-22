@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% load static lucide %}
-{% block title %}AI ile özetle · {{ project.name }}{% endblock %}
+{% load static i18n lucide %}
+{% block title %}{% translate "Summarize with AI" %} · {{ project.name }}{% endblock %}
 {% block extra_js %}<script src="{% static 'ai/vendor/htmx-ext-sse.min.js' %}" defer></script>{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-3xl space-y-6 px-4 py-10">
   <header>
-    <h1 class="flex items-center gap-2 text-3xl font-bold">{% lucide "sparkles" size=28 class="text-primary" %} AI ile özetle</h1>
-    <p class="mt-2 text-base-content/70">Metni yapıştırın; özet yazıldıkça ekrana akar (Server-Sent Events).</p>
+    <h1 class="flex items-center gap-2 text-3xl font-bold">{% lucide "sparkles" size=28 class="text-primary" %} {% translate "Summarize with AI" %}</h1>
+    <p class="mt-2 text-base-content/70">{% translate "Paste your text; the summary streams onto the screen as it is written (Server-Sent Events)." %}</p>
   </header>
 
   {% if not configured %}
     <div role="alert" class="alert alert-warning alert-soft">
       {% lucide "triangle-alert" size=20 %}
-      <span>LLM yapılandırılmamış. <code>.env</code> içinde <code>LLM_API_KEY</code> ve <code>LLM_MODEL</code> değerlerini girin.</span>
+      <span>{% blocktranslate %}The LLM is not configured. Set <code>LLM_API_KEY</code> and <code>LLM_MODEL</code> in <code>.env</code>.{% endblocktranslate %}</span>
     </div>
   {% endif %}
 
@@ -24,7 +24,7 @@
         {{ form }}
         <button type="submit" class="btn btn-primary mt-2 self-start">
           <span class="loading loading-spinner loading-sm htmx-indicator" aria-hidden="true"></span>
-          Özetle
+          {% translate "Summarize" %}
         </button>
       </div>
     </form>
@@ -34,11 +34,11 @@
     {% partialdef stream %}
       <div class="card card-border bg-base-100" hx-ext="sse" sse-connect="{% url 'ai:summarize_stream' key %}" sse-close="done">
         <div class="card-body gap-3">
-          <h2 class="card-title text-base">Özet</h2>
+          <h2 class="card-title text-base">{% translate "Summary" %}</h2>
           <div class="whitespace-pre-wrap leading-relaxed" sse-swap="delta" hx-swap="beforeend"></div>
           <div sse-swap="failure" hx-swap="innerHTML"></div>
           <div class="text-sm text-base-content/60" sse-swap="done" hx-swap="innerHTML">
-            <span class="loading loading-dots loading-sm"></span> yazılıyor…
+            <span class="loading loading-dots loading-sm"></span> {% translate "writing…" %}
           </div>
         </div>
       </div>

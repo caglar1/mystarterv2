@@ -1,17 +1,18 @@
-{% load static %}<!DOCTYPE html>
-<html lang="tr" data-theme="marka">
+{% load static i18n %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+<html lang="{{ LANGUAGE_CODE }}" data-theme="marka">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sunucu hatası</title>
+  <title>{% translate "Server error" %}</title>
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
 </head>
 <body class="flex min-h-dvh items-center justify-center bg-base-100 p-4 text-center text-base-content">
   <main>
     <div class="text-6xl font-black text-error">500</div>
-    <h1 class="mt-4 text-2xl font-bold">Beklenmeyen bir hata oluştu</h1>
-    <p class="mt-2 text-base-content/70">Ekibimiz bilgilendirildi. Lütfen biraz sonra tekrar deneyin.</p>
-    <a href="/" class="btn btn-primary mt-8">Ana sayfa</a>
+    <h1 class="mt-4 text-2xl font-bold">{% translate "Something went wrong" %}</h1>
+    <p class="mt-2 text-base-content/70">{% translate "Our team has been notified. Please try again later." %}</p>
+    <a href="/" class="btn btn-primary mt-8">{% translate "Home" %}</a>
   </main>
 </body>
 </html>

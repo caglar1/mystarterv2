@@ -67,7 +67,7 @@ class FakeLLM:
             raise self.error
         return self.result or {
             "tldr": ["Yeni bisiklet yolu açıldı", "Vatandaşlar ilgi gösterdi"],
-            "category": "dunya",
+            "category": "world",
             "sentiment": "positive",
             "importance": 7,
             "tags": ["ulaşım", "belediye"],
@@ -81,7 +81,7 @@ def run_sync(fake_llm=None, overrides=None, calls=None):
 
 @pytest.fixture
 def feed(db):
-    return Feed.objects.create(name="Test Haber", url=FEED_URL, category="diger")
+    return Feed.objects.create(name="Test Haber", url=FEED_URL, category="other")
 
 
 def test_parse_entries_strips_html_and_parses_dates():
@@ -100,7 +100,7 @@ def test_full_pipeline_extracts_enriches_and_respects_robots(feed):
     first = Article.objects.get(url="https://haber.test/1")
     assert "bisiklet yolu" in first.content  # newspaper4k ile çıkarıldı
     assert first.summary == ["Yeni bisiklet yolu açıldı", "Vatandaşlar ilgi gösterdi"]
-    assert (first.category, first.sentiment, first.importance) == ("dunya", "positive", 7)
+    assert (first.category, first.sentiment, first.importance) == ("world", "positive", 7)
     assert first.enriched_at is not None
     assert first.excerpt == "RSS özeti bir"
     blocked = Article.objects.get(url="https://haber.test/gizli/2")
@@ -126,14 +126,14 @@ def test_existing_articles_are_not_reprocessed(feed):
     fake = FakeLLM()
     count, message = run_sync(fake)
     assert count == 0 and fake.calls == 0
-    assert "2 zaten vardı" in message
+    assert "already saved: 2" in message
 
 
 def test_enrichment_failure_still_saves_article(feed):
     count, message = run_sync(FakeLLM(error=llm.LLMError("kota")))
     assert count == 2
     assert Article.objects.filter(enriched_at__isnull=True).count() == 2
-    assert "2 AI hatası" in message
+    assert "AI errors: 2" in message
 
 
 def test_enrichment_output_is_normalized(feed):
@@ -147,14 +147,14 @@ def test_enrichment_output_is_normalized(feed):
     run_sync(FakeLLM(result=weird))
     article = Article.objects.get(url="https://haber.test/1")
     assert article.summary == ["a", "b", "c"]
-    assert (article.category, article.sentiment, article.importance) == ("diger", "neutral", 10)
+    assert (article.category, article.sentiment, article.importance) == ("other", "neutral", 10)
 
 
 def test_without_llm_enrichment_is_skipped(feed, settings):
     settings.LLM_API_KEY = ""
     count, message = run_sync(None)
     assert count == 2
-    assert "AI özet atlandı" in message
+    assert "AI summaries skipped" in message
 
 
 def test_robots_rules():
@@ -184,7 +184,7 @@ def test_all_feeds_failing_marks_run_failed(feed, monkeypatch):
     monkeypatch.setitem(sync.JOBS, "news", sync.SyncJob("news", "Haberler", broken))
     run = sync.run_job("news")
     assert run.status == SyncRun.Status.FAILED
-    assert "Hiçbir kaynak çekilemedi" in run.message
+    assert "None of the feeds could be fetched" in run.message
 
 
 @pytest.mark.django_db
@@ -197,7 +197,7 @@ def test_list_page_and_htmx_search(client, feed):
     )
     page = client.get(reverse("news:list"))
     assert page.status_code == 200
-    assert "Kaynakta oku" in page.content.decode()
+    assert "Read at source" in page.content.decode()
 
     results = client.get(reverse("news:list"), {"q": "bisiklet"}, **HTMX).content.decode()
     assert "<html" not in results

@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from . import services
@@ -50,7 +51,7 @@ def card_create(request, pk: int):
     board = get_object_or_404(Board, pk=pk, owner=request.user)
     form = CardForm(request.POST)
     if not form.is_valid():
-        messages.error(request, "Kart başlığı boş olamaz.")
+        messages.error(request, _("Card title cannot be empty."))
         response = render(request, "kanban/_counts_oob.html", {"counts": _counts(board)}, status=422)
         response["HX-Reswap"] = "none"
         return response
@@ -64,7 +65,7 @@ def card_move(request, pk: int):
     card = get_object_or_404(Card.objects.select_related("board"), pk=pk, board__owner=request.user)
     form = MoveForm(request.POST)
     if not form.is_valid():
-        return HttpResponseBadRequest("Geçersiz taşıma isteği")
+        return HttpResponseBadRequest(_("Invalid move request"))
     services.move_card(card, form.cleaned_data["status"], form.cleaned_data["order"])
     return _render_with_counts(request, card.board)
 

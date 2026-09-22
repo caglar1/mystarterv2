@@ -1,12 +1,13 @@
 {% extends "accounts/auth_base.html" %}
-{% block title %}Giriş yap · {{ project.name }}{% endblock %}
-{% block heading %}Giriş yap{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Log in" %} · {{ project.name }}{% endblock %}
+{% block heading %}{% translate "Log in" %}{% endblock %}
 {% block body %}
 <form method="post" class="grid gap-4">
   {% csrf_token %}
   {{ form }}
   <input type="hidden" name="next" value="{{ next }}">
-  <button type="submit" class="btn btn-primary">Giriş yap</button>
+  <button type="submit" class="btn btn-primary">{% translate "Log in" %}</button>
 </form>
-<a class="link link-hover text-sm" href="{% url 'accounts:password_reset' %}">Şifremi unuttum</a>
+<a class="link link-hover text-sm" href="{% url 'accounts:password_reset' %}">{% translate "Forgot your password?" %}</a>
 {% endblock %}

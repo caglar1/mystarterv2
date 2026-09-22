@@ -53,7 +53,10 @@ ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,[::1]" if DEBUG e
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 
 SITE_NAME = env("SITE_NAME", "[[ project_name ]]")
-SITE_DESCRIPTION = env("SITE_DESCRIPTION", "[[ project_description ]]")
+SITE_DESCRIPTION = env(
+    "SITE_DESCRIPTION",
+    "[[ project_description ]]",
+)
 
 # Hangi modüllerin kurulu olduğu. Şablonlar ve URL'ler buna bakar (context processor: `features`).
 FEATURES = {
@@ -100,6 +103,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -136,6 +140,7 @@ TEMPLATES = [
                 "django.template.context_processors.csp",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.i18n",
                 "apps.core.context_processors.site",
             ],
         },
@@ -213,7 +218,24 @@ AUTH_PASSWORD_VALIDATORS = [
 # ---------------------------------------------------------------------------
 # Dil ve saat
 # ---------------------------------------------------------------------------
-LANGUAGE_CODE = "tr"
+# Kaynak metinler İngilizce (gettext standardı); çeviriler apps/*/locale ve locale/ altında.
+# İlk dil kök adreste (/about/), diğerleri önekli (/tr/hakkimizda/). Bkz. config/urls.py (i18n_patterns).
+# Dil adları kendi dillerinde yazılır (dil seçicide herkes kendi dilini tanısın).
+LANGUAGE_NAMES = {
+    "en": "English",
+    "tr": "Türkçe",
+    "de": "Deutsch",
+    "fr": "Français",
+    "es": "Español",
+    "it": "Italiano",
+    "nl": "Nederlands",
+    "ru": "Русский",
+    "ar": "العربية",
+    "az": "Azərbaycan dili",
+}
+LANGUAGES = [(code, LANGUAGE_NAMES.get(code, code)) for code in env_list("LANGUAGES", "[[ languages ]]")]
+LANGUAGE_CODE = LANGUAGES[0][0]
+LOCALE_PATHS = [BASE_DIR / "locale"]
 TIME_ZONE = env("TIME_ZONE", "Europe/Istanbul")
 USE_I18N = True
 USE_TZ = True
@@ -412,6 +434,8 @@ LLM_MAX_CONCURRENT_STREAMS = env_int("LLM_MAX_CONCURRENT_STREAMS", 4)
 NEWS_USER_AGENT = env("NEWS_USER_AGENT", "[[ project_slug ]]-news/1.0 ([[ author_email ]])")
 NEWS_SYNC_LIMIT = env_int("NEWS_SYNC_LIMIT", 10)
 NEWS_ENRICH = env_bool("NEWS_ENRICH", True)
+# AI özetleri tek dilde saklanır; varsayılan olarak sitenin kök dili.
+NEWS_SUMMARY_LANGUAGE = env("NEWS_SUMMARY_LANGUAGE", LANGUAGE_CODE)
 # Kaynak sitelerin görsellerini doğrudan göstermek (hotlink) KVKK ve telif açısından risklidir.
 NEWS_SHOW_REMOTE_IMAGES = env_bool("NEWS_SHOW_REMOTE_IMAGES", False)
 if NEWS_SHOW_REMOTE_IMAGES:

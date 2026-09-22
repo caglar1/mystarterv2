@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.shortcuts import render
 from django.templatetags.static import static
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET
 
 from .models import Place
@@ -62,7 +63,7 @@ def nearby_view(request):
     radius = _coordinate(request.GET.get("radius"), 0.1, 50) or 2.0
     context = {"results": None, "radius": radius, "error": None}
     if lat is None or lng is None:
-        context["error"] = "Konum bilgisi alınamadı. Tarayıcınızın konum izni verdiğinden emin olun."
+        context["error"] = _("Could not get your location. Make sure your browser allows location access.")
     else:
         context["results"] = nearby(lat, lng, radius_km=radius)
     template = "places/map.html#nearby" if request.htmx else "places/map.html"

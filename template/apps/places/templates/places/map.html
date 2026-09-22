@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% load static lucide core_tags %}
-{% block title %}Harita · {{ project.name }}{% endblock %}
+{% load static i18n lucide core_tags %}
+{% block title %}{% translate "Map" %} · {{ project.name }}{% endblock %}
 {% block extra_head %}<link rel="stylesheet" href="{% static 'places/vendor/leaflet/leaflet.css' %}">{% endblock %}
 {% block extra_js %}
   <script src="{% static 'places/vendor/leaflet/leaflet.js' %}" defer></script>
@@ -13,15 +13,15 @@
 <section class="mx-auto max-w-6xl space-y-6 px-4 py-10">
   <header class="flex flex-wrap items-end justify-between gap-3">
     <div>
-      <h1 class="text-3xl font-bold">Harita</h1>
-      <p class="text-base-content/70">{{ place_count }} nokta · veri: OpenStreetMap katkıcıları</p>
+      <h1 class="text-3xl font-bold">{% translate "Map" %}</h1>
+      <p class="text-base-content/70">{% blocktranslate count counter=place_count %}{{ counter }} place{% plural %}{{ counter }} places{% endblocktranslate %} · {% translate "data: OpenStreetMap contributors" %}</p>
     </div>
   </header>
 
   {% if missing_tile_config and debug or missing_tile_config and user.is_staff %}
     <div role="alert" class="alert alert-warning alert-soft text-sm">
       {% lucide "triangle-alert" size=18 %}
-      <span>Harita katmanı eksik ayarlı: <code>{{ missing_tile_config }}</code> tanımlı değil. Karolar filigranlı ya da boş görünebilir (bkz. .env.example).</span>
+      <span>{% blocktranslate with setting=missing_tile_config %}The map layer is not fully configured: <code>{{ setting }}</code> is not set. Tiles may appear watermarked or blank (see .env.example).{% endblocktranslate %}</span>
     </div>
   {% endif %}
 
@@ -29,17 +29,19 @@
 
   <div class="grid gap-6 lg:grid-cols-3">
     <div class="lg:col-span-2">
-      <div id="map" x-data="leafletMap" class="z-0 h-[26rem] w-full overflow-hidden rounded-box border border-base-300 sm:h-[32rem]" role="region" aria-label="Harita"></div>
+      <div id="map" x-data="leafletMap" class="z-0 h-[26rem] w-full overflow-hidden rounded-box border border-base-300 sm:h-[32rem]" role="region" aria-label="{% translate 'Map' %}"></div>
     </div>
 
     <aside class="space-y-4">
       <form hx-get="{% url 'places:nearby' %}" hx-target="#nearby-results" hx-swap="innerHTML"
-            x-data="nearbyFinder" class="card card-border bg-base-100">
+            x-data="nearbyFinder" class="card card-border bg-base-100"
+            data-msg-unsupported="{% translate 'Your browser does not support location.' %}"
+            data-msg-failed="{% translate 'Could not get your location. Check the location permission.' %}">
         <div class="card-body gap-3 p-4">
-          <h2 class="card-title text-base">{% lucide "locate-fixed" size=18 class="text-primary" %} Yakınımdakiler</h2>
+          <h2 class="card-title text-base">{% lucide "locate-fixed" size=18 class="text-primary" %} {% translate "Near me" %}</h2>
           <input type="hidden" name="lat" x-ref="lat">
           <input type="hidden" name="lng" x-ref="lng">
-          <label class="fieldset-legend" for="radius">Yarıçap</label>
+          <label class="fieldset-legend" for="radius">{% translate "Radius" %}</label>
           <select id="radius" name="radius" class="select select-sm w-full">
             <option value="1">1 km</option>
             <option value="2" selected>2 km</option>
@@ -48,7 +50,7 @@
           </select>
           <button type="button" class="btn btn-primary btn-sm" @click="locate" :disabled="busy">
             <span class="loading loading-spinner loading-xs" x-show="busy" x-cloak></span>
-            Konumumu kullan
+            {% translate "Use my location" %}
           </button>
           <p class="text-xs text-error" x-show="error" x-text="error" x-cloak></p>
         </div>
@@ -70,7 +72,7 @@
                 {% endfor %}
               </ul>
             {% else %}
-              <p class="text-sm text-base-content/70">{{ radius|floatformat:"-1" }} km içinde kayıtlı nokta yok.</p>
+              <p class="text-sm text-base-content/70">{% blocktranslate with radius=radius|floatformat:"-1" %}No saved places within {{ radius }} km.{% endblocktranslate %}</p>
             {% endif %}
           {% endif %}
         {% endpartialdef %}

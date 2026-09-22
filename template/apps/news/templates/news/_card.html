@@ -1,4 +1,4 @@
-{% load lucide %}
+{% load i18n lucide %}
 <article class="card card-border bg-base-100 transition-shadow hover:shadow-md">
   {% if show_images and article.image_url %}
     <figure class="h-40 bg-base-200"><img src="{{ article.image_url }}" alt="" loading="lazy" referrerpolicy="no-referrer" class="h-full w-full object-cover"></figure>
@@ -6,7 +6,7 @@
   <div class="card-body gap-3 p-5">
     <div class="flex items-center justify-between gap-2 text-xs text-base-content/60">
       <span class="flex items-center gap-1 font-medium text-primary">{% lucide "rss" size=14 %} {{ article.feed.name }}</span>
-      {% if article.category %}<span class="badge badge-ghost badge-sm">{{ article.category|capfirst }}</span>{% endif %}
+      {% if article.category %}<span class="badge badge-ghost badge-sm">{{ article.get_category_display }}</span>{% endif %}
     </div>
     <h2 class="card-title text-base leading-snug">{{ article.title }}</h2>
     {% if article.summary %}
@@ -17,10 +17,10 @@
       <p class="text-sm text-base-content/70">{{ article.excerpt|default:article.content|truncatewords:36 }}</p>
     {% endif %}
     <div class="mt-auto flex items-center justify-between border-t border-base-200 pt-3 text-xs text-base-content/60">
-      <span>{% if article.published_at %}{{ article.published_at|timesince }} önce{% endif %}</span>
+      <span>{% if article.published_at %}{% blocktranslate with since=article.published_at|timesince %}{{ since }} ago{% endblocktranslate %}{% endif %}</span>
       {# Adil kullanım: okuru her zaman özgün kaynağa yönlendir #}
       <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer" class="link link-primary flex items-center gap-1">
-        Kaynakta oku {% lucide "external-link" size=14 %}
+        {% translate "Read at source" %} {% lucide "external-link" size=14 %}
       </a>
     </div>
   </div>

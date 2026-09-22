@@ -1,0 +1,138 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: starterpack\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-22 16:39+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Places"
+msgstr "Harita ve yerler"
+
+msgid "Places (OpenStreetMap / Overpass)"
+msgstr "Yerler (OpenStreetMap / Overpass)"
+
+msgid "OSM id"
+msgstr "OSM kimliği"
+
+msgid "name"
+msgstr "ad"
+
+msgid "category"
+msgstr "kategori"
+
+msgid "latitude"
+msgstr "enlem"
+
+msgid "longitude"
+msgstr "boylam"
+
+msgid "address"
+msgstr "adres"
+
+msgid "phone"
+msgstr "telefon"
+
+msgid "website"
+msgstr "web sitesi"
+
+msgid "opening hours"
+msgstr "çalışma saatleri"
+
+msgid "OSM tags"
+msgstr "OSM etiketleri"
+
+msgid "updated at"
+msgstr "güncellenme"
+
+msgid "place"
+msgstr "yer"
+
+msgid "places"
+msgstr "yerler"
+
+msgid "access denied"
+msgstr "erişim reddedildi"
+
+msgid ""
+"User-Agent rejected; OVERPASS_USER_AGENT must contain a real contact address"
+msgstr ""
+"User-Agent reddedildi; OVERPASS_USER_AGENT içinde gerçek bir iletişim adresi"
+" olmalı"
+
+msgid "rate limited"
+msgstr "istek limiti aşıldı"
+
+msgid "At least one Overpass endpoint is required (OVERPASS_ENDPOINTS)."
+msgstr "En az bir Overpass sunucusu tanımlanmalı (OVERPASS_ENDPOINTS)."
+
+#, python-format
+msgid "Overpass rejected the query: %s"
+msgstr "Overpass sorguyu reddetti: %s"
+
+#, python-format
+msgid "All Overpass endpoints failed: %s"
+msgstr "Tüm Overpass sunucuları başarısız: %s"
+
+#, python-format
+msgid "%(radius)s km around %(lat).4f,%(lng).4f"
+msgstr "%(lat).4f,%(lng).4f çevresinde %(radius)s km"
+
+msgid "Map"
+msgstr "Harita"
+
+#, python-format
+msgid "%(counter)s place"
+msgid_plural "%(counter)s places"
+msgstr[0] "%(counter)s nokta"
+msgstr[1] "%(counter)s nokta"
+
+msgid "data: OpenStreetMap contributors"
+msgstr "veri: OpenStreetMap katkıcıları"
+
+#, python-format
+msgid ""
+"The map layer is not fully configured: <code>%(setting)s</code> is not set. "
+"Tiles may appear watermarked or blank (see .env.example)."
+msgstr ""
+"Harita katmanı eksik ayarlı: <code>%(setting)s</code> tanımlı değil. Karolar"
+" filigranlı ya da boş görünebilir (bkz. .env.example)."
+
+msgid "Your browser does not support location."
+msgstr "Tarayıcınız konum özelliğini desteklemiyor."
+
+msgid "Could not get your location. Check the location permission."
+msgstr "Konum alınamadı. Konum iznini kontrol edin."
+
+msgid "Near me"
+msgstr "Yakınımdakiler"
+
+msgid "Radius"
+msgstr "Yarıçap"
+
+msgid "Use my location"
+msgstr "Konumumu kullan"
+
+#, python-format
+msgid "No saved places within %(radius)s km."
+msgstr "%(radius)s km içinde kayıtlı nokta yok."
+
+msgid "nearby/"
+msgstr "yakinimdakiler/"
+
+msgid ""
+"Could not get your location. Make sure your browser allows location access."
+msgstr ""
+"Konum bilgisi alınamadı. Tarayıcınızın konum izni verdiğinden emin olun."

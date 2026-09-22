@@ -1,5 +1,25 @@
 # Değişiklik günlüğü
 
+## 2.1.0 — 2026-09-22
+
+Çok dillilik.
+
+- Yeni Copier sorusu `languages` (varsayılan `en,tr`). İlk dil kökte, diğerleri `/<dil>/` önekli (`i18n_patterns`).
+  URL yolları da çevriliyor.
+- Kaynak metinler İngilizce (gettext standardı). Türkçe çevirinin tamamı hazır (`apps/*/locale`, `locale/`),
+  derlenmiş `.mo` dosyaları repoda.
+- Dil seçici, `hreflang` + `x-default`, çok dilli sitemap, RTL desteği (`dir`).
+- E-postalar formun dilinde (`Inquiry.language`); AI özetleri sayfanın dilinde, haber özetleri
+  `NEWS_SUMMARY_LANGUAGE` ile belirlenen dilde.
+- Senkronizasyon uçları ayrı `sync` namespace'ine taşındı (i18n_patterns içinde, yanıtlar sayfanın dilinde).
+- Haber kategori kodları İngilizce oldu (`technology`, `world`...); eski Türkçe kodlar migration ile dönüştürülüyor.
+- Kanban durumları bağlamlı çeviriyle (`pgettext`).
+- `make messages` / `scripts/messages.py`; eksik çeviriyi yakalayan test; matriste dil kombinasyonları ve
+  gerçek ayarlarla smoke adımı.
+- Her uygulamada `0002_i18n` migration'ı var: alan etiketleri çevrilebilir oldu, talepte `language` alanı eklendi.
+- Test matrisi son etiketi değil çalışma ağacını test ediyor (`--vcs-ref HEAD`).
+- `AGENTS.md`: çeviri kuralları, widget-tweaks/django-honeypot'un neden kullanılmadığı.
+
 ## 2.0.0 — 2026-09-22
 
 v1'in (`starterpack`, cookiecutter) yerine sıfırdan yazıldı.
@@ -17,6 +37,6 @@ v1'in (`starterpack`, cookiecutter) yerine sıfırdan yazıldı.
 - `AGENTS.md` tek kaynak olarak eklendi (`CLAUDE.md` onu içe aktarır).
 
 Bilinen kısıtlar:
-- Arayüz metinleri Türkçe; i18n (çoklu dil) altyapısı yok.
+- Arayüz metinleri yalnızca Türkçe (2.1.0'da giderildi).
 - `SECURE_HSTS_PRELOAD` varsayılanı `False`; bu yüzden `check --deploy` yalnızca `security.W021` uyarısını verir.
   Preload bilinçli olarak açılmalı.

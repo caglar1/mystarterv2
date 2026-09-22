@@ -1,26 +1,37 @@
 from django.conf import settings
+from django.conf.urls.i18n import i18n_patterns
 from django.contrib import admin
 from django.urls import include, path
+from django.utils.translation import gettext_lazy as _
 
+# Dilden bağımsız adresler (sağlık kontrolü, robots, sitemap, manifest, admin, dil değiştirme)
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("", include("apps.core.urls")),
-    path("hesap/", include("apps.accounts.urls")),
-    path("teklif/", include("apps.inquiries.urls")),
+    path("i18n/", include("django.conf.urls.i18n")),
+]
+
+# Arayüz adresleri: ilk dil (settings.LANGUAGE_CODE) önek almaz, diğerleri /<dil>/ ile başlar.
+# Yol parçaları da çevrilir: /about/ <-> /tr/hakkimizda/ (çeviriler .po dosyalarında).
+urlpatterns += i18n_patterns(
+    path(_("account/"), include("apps.accounts.urls")),
+    path(_("quote/"), include("apps.inquiries.urls")),
+    path("sync/", include("apps.core.sync_urls")),
 [%- if use_maps %]
-    path("harita/", include("apps.places.urls")),
+    path(_("map/"), include("apps.places.urls")),
 [%- endif %]
 [%- if use_llm %]
     path("ai/", include("apps.ai.urls")),
 [%- endif %]
 [%- if use_news %]
-    path("haberler/", include("apps.news.urls")),
+    path(_("news/"), include("apps.news.urls")),
 [%- endif %]
 [%- if use_kanban %]
     path("kanban/", include("apps.kanban.urls")),
 [%- endif %]
     path("", include("apps.pages.urls")),
-]
+    prefix_default_language=False,
+)
 
 if "django_browser_reload" in settings.INSTALLED_APPS:
     urlpatterns.append(path("__reload__/", include("django_browser_reload.urls")))

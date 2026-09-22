@@ -1,12 +1,12 @@
-{% load core_tags %}
-<li><a href="{% url 'pages:home' %}" class="{% nav_active 'pages:home' %}">Ana sayfa</a></li>
-<li><a href="{% url 'pages:services' %}" class="{% nav_active 'pages:services' %}">Hizmetler</a></li>
-{% if features.maps %}<li><a href="{% url 'places:map' %}" class="{% nav_active 'places:map' %}">Harita</a></li>{% endif %}
-{% if features.news %}<li><a href="{% url 'news:list' %}" class="{% nav_active 'news:list' %}">Haberler</a></li>{% endif %}
+{% load i18n core_tags %}
+<li><a href="{% url 'pages:home' %}" class="{% nav_active 'pages:home' %}">{% translate "Home" %}</a></li>
+<li><a href="{% url 'pages:services' %}" class="{% nav_active 'pages:services' %}">{% translate "Services" %}</a></li>
+{% if features.maps %}<li><a href="{% url 'places:map' %}" class="{% nav_active 'places:map' %}">{% translate "Map" %}</a></li>{% endif %}
+{% if features.news %}<li><a href="{% url 'news:list' %}" class="{% nav_active 'news:list' %}">{% translate "News" %}</a></li>{% endif %}
 {% if user.is_authenticated %}
-  {% if features.kanban %}<li><a href="{% url 'kanban:boards' %}" class="{% nav_active 'kanban:boards' 'kanban:board' %}">Kanban</a></li>{% endif %}
-  {% if features.llm %}<li><a href="{% url 'ai:summarize' %}" class="{% nav_active 'ai:summarize' %}">AI özet</a></li>{% endif %}
+  {% if features.kanban %}<li><a href="{% url 'kanban:boards' %}" class="{% nav_active 'kanban:boards' 'kanban:board' %}">{% translate "Kanban" %}</a></li>{% endif %}
+  {% if features.llm %}<li><a href="{% url 'ai:summarize' %}" class="{% nav_active 'ai:summarize' %}">{% translate "AI summary" %}</a></li>{% endif %}
 {% endif %}
-<li><a href="{% url 'pages:about' %}" class="{% nav_active 'pages:about' %}">Hakkımızda</a></li>
-<li><a href="{% url 'pages:contact' %}" class="{% nav_active 'pages:contact' %}">İletişim</a></li>
+<li><a href="{% url 'pages:about' %}" class="{% nav_active 'pages:about' %}">{% translate "About" %}</a></li>
+<li><a href="{% url 'pages:contact' %}" class="{% nav_active 'pages:contact' %}">{% translate "Contact" %}</a></li>
 {% if features.ui_kit and debug %}<li><a href="{% url 'pages:ui_kit' %}" class="{% nav_active 'pages:ui_kit' %} text-secondary">UI Kit</a></li>{% endif %}

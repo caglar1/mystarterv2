@@ -1,9 +1,11 @@
+{% load i18n %}
 <footer class="border-t border-base-200 bg-base-200/50">
   <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-base-content/70 sm:flex-row sm:items-center sm:justify-between">
-    <p>&copy; {% now "Y" %} {{ project.name }}. Tüm hakları saklıdır.</p>
-    <nav class="flex flex-wrap gap-4" aria-label="Alt menü">
-      <a class="link link-hover" href="{% url 'pages:privacy' %}">KVKK Aydınlatma Metni</a>
-      <a class="link link-hover" href="{% url 'pages:contact' %}">İletişim</a>
+    {% now "Y" as year %}
+    <p>{% blocktranslate with name=project.name %}© {{ year }} {{ name }}. All rights reserved.{% endblocktranslate %}</p>
+    <nav class="flex flex-wrap gap-4" aria-label="{% translate 'Footer' %}">
+      <a class="link link-hover" href="{% url 'pages:privacy' %}">{% translate "Privacy notice" %}</a>
+      <a class="link link-hover" href="{% url 'pages:contact' %}">{% translate "Contact" %}</a>
     </nav>
   </div>
 </footer>

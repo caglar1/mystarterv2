@@ -26,3 +26,8 @@ PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 FORM_MIN_SUBMIT_SECONDS = 0
 # collectstatic çalıştırılmadan WhiteNoise'un STATIC_ROOT uyarısı vermemesi için
 WHITENOISE_AUTOREFRESH = True
+
+# Testler projenin dil seçiminden bağımsız olsun: kaynak dil (İngilizce) kökte, diğerleri önekli.
+# Böylece `tr,en` seçilmiş bir projede de assertion'lar aynı kalır; çeviriler test_i18n.py'de denetlenir.
+LANGUAGES = [("en", "English"), *[(code, name) for code, name in LANGUAGES if code != "en"]]  # noqa: F405
+LANGUAGE_CODE = "en"

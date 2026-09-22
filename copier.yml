@@ -49,8 +49,10 @@ project_slug:
 
 project_description:
   type: str
-  help: Kısa açıklama (meta description ve README için)
-  default: Django, HTMX ve Alpine.js ile hafif ve hızlı bir iş uygulaması.
+  help: >-
+    Kısa açıklama (meta description ve README). Varsayılan metnin Türkçe çevirisi hazır gelir;
+    değiştirirseniz çevirisini locale/tr/LC_MESSAGES/django.po'ya ekleyin.
+  default: A fast, lightweight business app built with Django, htmx and Alpine.js.
 
 author_name:
   type: str
@@ -67,6 +69,14 @@ domain:
   type: str
   help: Canlı ortam alan adı (ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, Caddyfile)
   default: example.com
+
+languages:
+  type: str
+  help: >-
+    Arayüz dilleri, virgülle. İlk dil kök adreste (/about/), diğerleri önekli (/tr/hakkimizda/).
+    Kaynak metinler İngilizce; Türkçe çeviri hazır gelir, diğer diller için `make messages` + çeviri.
+  default: en,tr
+  validator: "[% if not (languages | regex_search('^[a-z]{2}(-[a-z]{2,4})?(,[a-z]{2}(-[a-z]{2,4})?)*$')) %]Örn: en,tr veya tr,en (küçük harf ISO kodları, virgülle).[% endif %]"
 
 database:
   type: str
@@ -126,7 +136,10 @@ _tasks:
 
 _message_after_copy: |
   [[ project_name ]] hazır.
-  [% if 'example.com' in author_email %]
+  [% set missing = languages.split(',') | reject('in', ['en', 'tr']) | list %][% if missing %]
+  NOT: [[ missing | join(', ') ]] için hazır çeviri yok (kaynak İngilizce, Türkçe hazır geliyor).
+  Çeviri dosyalarını üretmek için: make messages (GNU gettext gerekir), sonra .po dosyalarını doldurun.
+  [% endif %]  [% if 'example.com' in author_email %]
   UYARI: author_email hâlâ [[ author_email ]]. .env içinde NOTIFICATION_EMAILS ve
   (harita/haber modülleri için) OVERPASS_USER_AGENT / NEWS_USER_AGENT değerlerini gerçek adresle güncelleyin.
   [% endif %]

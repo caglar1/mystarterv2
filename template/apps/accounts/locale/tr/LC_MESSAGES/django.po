@@ -1,0 +1,141 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: starterpack\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-22 16:39+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Accounts"
+msgstr "Hesaplar"
+
+msgid "user"
+msgstr "kullanıcı"
+
+msgid "users"
+msgstr "kullanıcılar"
+
+msgid "Log in"
+msgstr "Giriş yap"
+
+msgid "Forgot your password?"
+msgstr "Şifremi unuttum"
+
+msgid "Change password"
+msgstr "Şifre değiştir"
+
+msgid "Save"
+msgstr "Kaydet"
+
+msgid "Reset password"
+msgstr "Şifre sıfırlama"
+
+msgid ""
+"Enter the email address of your account and we'll send you a reset link."
+msgstr ""
+"Hesabınıza kayıtlı e-posta adresini yazın; sıfırlama bağlantısı gönderelim."
+
+msgid "Send link"
+msgstr "Bağlantı gönder"
+
+msgid "Password updated"
+msgstr "Şifre güncellendi"
+
+msgid "Your password has been updated"
+msgstr "Şifreniz güncellendi"
+
+msgid "New password"
+msgstr "Yeni şifre"
+
+msgid "Set a new password"
+msgstr "Yeni şifre belirleyin"
+
+msgid "Save password"
+msgstr "Şifreyi kaydet"
+
+msgid "This link is invalid or has expired. Please request a new one."
+msgstr ""
+"Bu bağlantı geçersiz ya da süresi dolmuş. Lütfen yeniden sıfırlama isteyin."
+
+msgid "Request again"
+msgstr "Yeniden iste"
+
+msgid "Email sent"
+msgstr "E-posta gönderildi"
+
+msgid "Check your email"
+msgstr "E-postanızı kontrol edin"
+
+msgid ""
+"If an account exists for that address, we've sent a password reset link. If "
+"it doesn't arrive within a few minutes, check your spam folder."
+msgstr ""
+"Bu adrese kayıtlı bir hesap varsa şifre sıfırlama bağlantısı gönderildi. "
+"Birkaç dakika içinde gelmezse gereksiz klasörünü kontrol edin."
+
+#, python-format
+msgid "Hello %(username)s,"
+msgstr "Merhaba %(username)s,"
+
+#, python-format
+msgid ""
+"We received a request to reset the password for your %(project_name)s "
+"account. To set a new password, open:"
+msgstr ""
+"%(project_name)s hesabınız için şifre sıfırlama isteği aldık. Yeni şifre "
+"belirlemek için:"
+
+msgid "If you didn't request this, you can ignore this email."
+msgstr "Bu isteği siz yapmadıysanız bu e-postayı yok sayabilirsiniz."
+
+#, python-format
+msgid "Password reset for %(project_name)s"
+msgstr "%(project_name)s şifre sıfırlama"
+
+msgid "Sign up"
+msgstr "Kayıt ol"
+
+msgid "Create an account"
+msgstr "Hesap oluştur"
+
+msgid "login/"
+msgstr "giris/"
+
+msgid "logout/"
+msgstr "cikis/"
+
+msgid "signup/"
+msgstr "kayit/"
+
+msgid "password/change/"
+msgstr "sifre/degistir/"
+
+msgid "password/reset/"
+msgstr "sifre/sifirla/"
+
+msgid "password/reset/sent/"
+msgstr "sifre/sifirla/gonderildi/"
+
+msgid "password/reset/<uidb64>/<token>/"
+msgstr "sifre/sifirla/<uidb64>/<token>/"
+
+msgid "password/reset/done/"
+msgstr "sifre/sifirla/tamam/"
+
+msgid "Your password has been updated."
+msgstr "Şifreniz güncellendi."
+
+msgid "Your account has been created. Welcome!"
+msgstr "Hesabınız oluşturuldu. Hoş geldiniz!"

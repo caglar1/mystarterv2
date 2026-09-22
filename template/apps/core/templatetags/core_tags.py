@@ -1,6 +1,18 @@
 from django import template
+from django.conf import settings
+from django.urls import translate_url
 
 register = template.Library()
+
+
+@register.simple_tag(takes_context=True)
+def language_alternates(context) -> list[tuple[str, str]]:
+    """Geçerli sayfanın her dildeki mutlak adresi: [(dil, url), ...] (hreflang için)."""
+    request = context.get("request")
+    if request is None or len(settings.LANGUAGES) < 2:
+        return []
+    url = request.build_absolute_uri(request.path)
+    return [(code, translate_url(url, code)) for code, _name in settings.LANGUAGES]
 
 
 @register.simple_tag(takes_context=True)

@@ -78,7 +78,7 @@ def test_create_card_rejects_empty_title(user_client, board):
     )
     assert response.status_code == 422
     assert response["HX-Reswap"] == "none"
-    assert "boş olamaz" in response.content.decode()  # toast (OOB)
+    assert "cannot be empty" in response.content.decode()  # toast (OOB)
 
 
 @pytest.mark.django_db

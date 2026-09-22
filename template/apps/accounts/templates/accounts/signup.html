@@ -1,10 +1,11 @@
 {% extends "accounts/auth_base.html" %}
-{% block title %}Kayıt ol · {{ project.name }}{% endblock %}
-{% block heading %}Hesap oluştur{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "Sign up" %} · {{ project.name }}{% endblock %}
+{% block heading %}{% translate "Create an account" %}{% endblock %}
 {% block body %}
 <form method="post" class="grid gap-4">
   {% csrf_token %}
   {{ form }}
-  <button type="submit" class="btn btn-primary">Kayıt ol</button>
+  <button type="submit" class="btn btn-primary">{% translate "Sign up" %}</button>
 </form>
 {% endblock %}

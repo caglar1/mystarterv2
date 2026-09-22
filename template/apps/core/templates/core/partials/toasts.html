@@ -1,8 +1,8 @@
-{% load lucide %}
+{% load i18n lucide %}
 {% for message in messages %}
   <div role="alert" class="alert alert-{{ message.tags|default:'info' }} alert-soft max-w-sm shadow-lg" x-data="toast" x-show="visible" x-transition.opacity>
     {% if message.tags == "success" %}{% lucide "circle-check" size=20 %}{% elif message.tags == "error" %}{% lucide "circle-alert" size=20 %}{% elif message.tags == "warning" %}{% lucide "triangle-alert" size=20 %}{% else %}{% lucide "info" size=20 %}{% endif %}
     <span class="text-sm">{{ message }}</span>
-    <button type="button" class="btn btn-circle btn-ghost btn-xs" @click="close" aria-label="Kapat">{% lucide "x" size=14 %}</button>
+    <button type="button" class="btn btn-circle btn-ghost btn-xs" @click="close" aria-label="{% translate 'Close' %}">{% lucide "x" size=14 %}</button>
   </div>
 {% endfor %}

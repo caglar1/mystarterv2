@@ -72,7 +72,7 @@ document.addEventListener("alpine:init", () => {
     error: "",
     locate() {
       if (!("geolocation" in navigator)) {
-        this.error = "Tarayıcınız konum özelliğini desteklemiyor.";
+        this.error = this.$el.dataset.msgUnsupported;
         return;
       }
       this.busy = true;
@@ -86,7 +86,7 @@ document.addEventListener("alpine:init", () => {
         },
         () => {
           this.busy = false;
-          this.error = "Konum alınamadı. Konum iznini kontrol edin.";
+          this.error = this.$el.dataset.msgFailed;
         },
         { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
       );

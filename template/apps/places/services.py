@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.translation import gettext as _
 
 from .geo import bounding_box, haversine_km
 from .models import Place
@@ -22,7 +23,7 @@ def element_to_place(element: dict) -> Place | None:
     return Place(
         osm_id=f"{element['type']}/{element['id']}",
         name=name[:255],
-        category=(tags.get("amenity") or tags.get("healthcare") or tags.get("shop") or "diğer")[:60],
+        category=(tags.get("amenity") or tags.get("healthcare") or tags.get("shop") or "other")[:60],
         lat=float(lat),
         lng=float(lng),
         address=address[:255],
@@ -53,7 +54,11 @@ def sync_default_area() -> tuple[int, str]:
     """Senkronizasyon işi (bkz. apps.core.sync): settings'teki merkez ve filtrelerle çalışır."""
     lat, lng = settings.MAP_DEFAULT_CENTER
     count = sync_area(lat, lng, settings.PLACES_SYNC_RADIUS_KM, settings.PLACES_SYNC_FILTERS)
-    return count, f"{lat:.4f},{lng:.4f} çevresinde {settings.PLACES_SYNC_RADIUS_KM:g} km"
+    return count, _("%(radius)s km around %(lat).4f,%(lng).4f") % {
+        "radius": f"{settings.PLACES_SYNC_RADIUS_KM:g}",
+        "lat": lat,
+        "lng": lng,
+    }
 
 
 def nearby(lat: float, lng: float, radius_km: float = 5, limit: int = 20) -> list[Place]:
