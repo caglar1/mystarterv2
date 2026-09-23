@@ -4,7 +4,7 @@ Django 6.1 + htmx 2 + Alpine.js (CSP build) + Tailwind CSS 4 / DaisyUI 5 ile haf
 ajanlarıyla çalışmaya hazır iş uygulamaları için **Copier** şablonu. Node.js, Redis ve Celery gerekmez.
 
 ```bash
-uvx copier copy --trust ~/Desktop/starterpackv2 benim-projem   # repo GitHub'a konunca: gh:<kullanıcı>/starterpackv2
+uvx copier copy --trust gh:caglar1/mystarterv2 benim-projem
 cd benim-projem
 make setup   # uv sync, .env (rastgele SECRET_KEY), Tailwind CLI, migrate, demo veri
 make dev     # runserver + tailwind --watch + görev worker'ı
