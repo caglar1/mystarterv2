@@ -312,6 +312,9 @@ ADMINS = env_list("ADMINS", "[[ author_email ]]")
 # ---------------------------------------------------------------------------
 # Proxy (Caddy/Nginx) arkasında istemci IP'si için X-Forwarded-For'a güvenilsin mi?
 TRUST_X_FORWARDED_FOR = env_bool("TRUST_X_FORWARDED_FOR", False)
+# Uygulamanın önündeki proxy sayısı; IP, başlığın sağından bu kadar geriden okunur (apps/core/ratelimit.py).
+# Yalnızca Caddy: 1. Cloudflare gibi bir CDN + Caddy: 2 (Caddyfile'da trusted_proxies de tanımlanmalı).
+TRUSTED_PROXY_COUNT = max(1, env_int("TRUSTED_PROXY_COUNT", 1))
 
 SESSION_COOKIE_HTTPONLY = True
 # CSRF token'ı <body hx-headers> ile sayfaya gömülüyor; JS'in cookie okumasına gerek yok.

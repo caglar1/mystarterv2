@@ -76,14 +76,17 @@ def _summary_events_in_language(job: dict):
         yield _sse("done", "")
         return
     try:
-        client = llm.get_client()
-        prompt = summary_prompt(job["text"], job["length"])
-        for chunk in client.stream(prompt, system=summary_system(job["language"])):
-            yield _sse("delta", escape(chunk))
+        with llm.get_client() as client:
+            prompt = summary_prompt(job["text"], job["length"])
+            for chunk in client.stream(prompt, system=summary_system(job["language"])):
+                yield _sse("delta", escape(chunk))
     except llm.LLMRefused:
+        # Ret yanıtın ortasında da gelebilir: yarım kalan metin eksik ve yanıltıcı olur, ekrandan kaldırılır.
+        yield _sse("discard", "")
         yield _sse("failure", _alert(_("The model declined to answer this request.")))
     except llm.LLMError as exc:
         logger.warning("Özet üretilemedi: %s", exc)
+        yield _sse("discard", "")
         yield _sse("failure", _alert(_("Could not generate the summary. Please try again later.")))
     finally:
         _STREAM_SLOTS.release()

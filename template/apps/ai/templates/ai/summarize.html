@@ -35,7 +35,10 @@
       <div class="card card-border bg-base-100" hx-ext="sse" sse-connect="{% url 'ai:summarize_stream' key %}" sse-close="done">
         <div class="card-body gap-3">
           <h2 class="card-title text-base">{% translate "Summary" %}</h2>
-          <div class="whitespace-pre-wrap leading-relaxed" sse-swap="delta" hx-swap="beforeend"></div>
+          {# Hata ya da ret gelirse `discard` olayı yarım kalan metni siler (bkz. views._summary_events). #}
+          <div sse-swap="discard" hx-swap="innerHTML">
+            <div class="whitespace-pre-wrap leading-relaxed" sse-swap="delta" hx-swap="beforeend"></div>
+          </div>
           <div sse-swap="failure" hx-swap="innerHTML"></div>
           <div class="text-sm text-base-content/60" sse-swap="done" hx-swap="innerHTML">
             <span class="loading loading-dots loading-sm"></span> {% translate "writing…" %}

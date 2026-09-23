@@ -13,14 +13,20 @@ class FakeClient:
     configured = True
 
     def __init__(self, chunks=None, error=None):
-        self.chunks, self.error, self.calls = chunks or [], error, []
+        self.chunks, self.error, self.calls, self.closed = chunks or [], error, [], False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc_info):
+        self.closed = True
 
     def stream(self, prompt, system=None, **kwargs):
         self.calls.append(prompt)
         self.systems = [*getattr(self, "systems", []), system]
+        yield from self.chunks  # hata varsa bu parçalardan SONRA gelir (yanıtın ortasında ret)
         if self.error:
             raise self.error
-        yield from self.chunks
 
 
 @pytest.fixture
@@ -75,6 +81,7 @@ def test_stream_escapes_html_and_finishes(user_client, fake_client):
     assert "event: delta\ndata: Kısa \n\n" in body
     assert "özet &lt;b&gt;" in body  # model çıktısı HTML olarak yorumlanmaz
     assert body.rstrip().endswith('data: <span class="text-success">Done</span>')
+    assert "event: discard" not in body and fake_client.closed
     assert "Django" in fake_client.calls[0]
     # Tek kullanımlık anahtar
     assert user_client.get(url).status_code == 404
@@ -86,6 +93,17 @@ def test_stream_reports_refusal(user_client, monkeypatch):
     monkeypatch.setattr(llm, "get_client", lambda **kwargs: fake)
     body, _ = stream_body(user_client, start(user_client))
     assert "event: failure" in body and "declined" in body
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("error", [llm.LLMRefused("hayır"), llm.LLMError("bağlantı koptu")])
+def test_mid_stream_failure_discards_partial_text(user_client, monkeypatch, error):
+    fake = FakeClient(chunks=["Yarım "], error=error)
+    monkeypatch.setattr(llm, "get_client", lambda **kwargs: fake)
+    body, _ = stream_body(user_client, start(user_client))
+    # Önce yarım metin akar, sonra silinir, sonra hata gösterilir
+    assert body.index("data: Yarım") < body.index("event: discard") < body.index("event: failure")
+    assert fake.closed  # HTTP bağlantı havuzu kapatıldı
 
 
 @pytest.mark.django_db

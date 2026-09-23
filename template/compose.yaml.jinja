@@ -77,13 +77,20 @@ services:
       - "443:443"
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      # Yüklenen dosyalar (yalnızca public/ sunulur), salt okunur. Caddy'nin kendi verisi /data'da,
-      # bu yüzden ayrı bir yola bağlanır.
-      - appdata:/srv/app:ro
+      # Uygulama volume'undan YALNIZCA media/public, salt okunur: Caddy veritabanı dosyasını ve private/
+      # eklerini hiç görmez. Caddy'nin kendi verisi /data'da, bu yüzden ayrı bir yola bağlanır.
+      - type: volume
+        source: appdata
+        target: /srv/app/media/public
+        read_only: true
+        volume:
+          subpath: media/public
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - web
+      # media/public klasörünü web'in entrypoint'i oluşturur; alt klasör yoksa bağlama başarısız olur.
+      web:
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:

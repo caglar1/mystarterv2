@@ -7,6 +7,7 @@ iletişim bilgisi içeren User-Agent gönderin, sorguları seyrek ve dar tutun, 
 import logging
 import time
 from collections.abc import Callable
+from typing import Self
 
 import httpx
 from django.utils.translation import gettext as _
@@ -56,6 +57,15 @@ class OverpassClient:
             transport=transport,
             headers={"User-Agent": user_agent, "Accept": "application/json"},
         )
+
+    def close(self) -> None:
+        self.http.close()
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(self, *exc_info) -> None:
+        self.close()
 
     def query(self, ql: str) -> list[dict]:
         failures: list[str] = []

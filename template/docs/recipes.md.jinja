@@ -13,8 +13,9 @@ dosyaya gidip kalıbı oradan alın.
 | Rate limit | `apps/core/ratelimit.py`, kullanım: `apps/inquiries/views.py` |
 | Dosya yükleme + yetkili indirme | `apps/core/uploads.py`, `apps/inquiries/models.py` (alan), `apps/inquiries/views.py` (`attachment`) |
 | Toast bildirimi | view'da `messages.success(...)`; mekanizma: `apps/core/middleware.py` |
-| Alpine bileşeni (CSP uyumlu) | `apps/core/static/core/js/app.js` (tema, toast) |
-| Modal, sekme | `apps/pages/templates/pages/ui_kit.html` (DEBUG'da `/dev/ui-kit/`) |
+| Alpine bileşeni (CSP uyumlu) | `apps/core/static/core/js/app.js` (`tabs`, `modal`, `toast`, `themeToggle`) |
+| Modal, sekme | bileşenler `apps/core/static/core/js/app.js`[% if use_ui_kit %], kullanım `apps/pages/templates/pages/ui_kit.html` (DEBUG'da `/dev/ui-kit/`)[% endif %] |
+| Yeni paket / kütüphane / imaj eklemek | Önce kullanıcı onayı, sonra `approved-stack.toml` (denetim: `apps/core/tests/test_stack.py`) |
 | Arka plan görevi (`@task`) | `apps/inquiries/tasks.py`, `apps/accounts/tasks.py` (şifre sıfırlama e-postası) |
 | Kişisel veriyi loglara düşürmeden almak (POST + yuvarlama) | [% if use_maps %]`apps/places/views.py` (`nearby_view`), `apps/places/static/places/map.js`[% else %]`apps/inquiries/views.py` (form POST ile gelir)[% endif %] |
 | Periyodik senkronizasyon + HTMX durum kartı | `apps/core/sync.py`, `{% sync_card "iş" %}` |

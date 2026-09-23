@@ -17,7 +17,7 @@ from django.utils import timezone, translation
 from apps.core import sync
 from apps.core.forms import SpamProtectedFormMixin, StyledFormMixin
 from apps.core.models import SyncRun
-from apps.core.ratelimit import is_limited, parse_rate
+from apps.core.ratelimit import client_ip, is_limited, parse_rate
 from conftest import HTMX
 
 BASE_DIR = Path(__file__).resolve().parents[3]
@@ -52,6 +52,10 @@ def test_caddy_serves_only_public_media():
     assert "handle_path /media/public/*" in caddyfile
     assert "/media/private" not in caddyfile
     assert "X-Content-Type-Options nosniff" in caddyfile
+    # Caddy konteyneri veritabanını ve private/ eklerini hiç görmez: volume'un yalnızca alt klasörü bağlanır
+    compose = (BASE_DIR / "compose.yaml").read_text()
+    assert "subpath: media/public" in compose
+    assert "appdata:/srv/app" not in compose
 
 
 def test_permissions_policy_header(client):
@@ -121,6 +125,23 @@ def test_is_limited_counts_per_identity():
     assert not any(is_limited("t", "1.1.1.1", "3/m") for _ in range(3))
     assert is_limited("t", "1.1.1.1", "3/m")
     assert not is_limited("t", "2.2.2.2", "3/m")
+
+
+def test_client_ip_ignores_spoofed_forwarded_for(rf, settings):
+    # Nginx `$proxy_add_x_forwarded_for`: istemcinin yazdığı değer solda kalır, gerçek adres sona eklenir.
+    request = rf.get("/", HTTP_X_FORWARDED_FOR="6.6.6.6, 203.0.113.7", REMOTE_ADDR="10.0.0.2")
+    settings.TRUST_X_FORWARDED_FOR = False
+    assert client_ip(request) == "10.0.0.2"
+    settings.TRUST_X_FORWARDED_FOR = True
+    settings.TRUSTED_PROXY_COUNT = 1
+    assert client_ip(request) == "203.0.113.7"
+    # CDN + Caddy: gerçek istemci sondan ikinci
+    request = rf.get("/", HTTP_X_FORWARDED_FOR="6.6.6.6, 198.51.100.4, 172.68.1.1", REMOTE_ADDR="10.0.0.2")
+    settings.TRUSTED_PROXY_COUNT = 2
+    assert client_ip(request) == "198.51.100.4"
+    # Beklenenden kısa başlık: en soldaki (tek) değer
+    settings.TRUSTED_PROXY_COUNT = 3
+    assert client_ip(rf.get("/", HTTP_X_FORWARDED_FOR="203.0.113.7")) == "203.0.113.7"
 
 
 class DemoForm(SpamProtectedFormMixin, StyledFormMixin, forms.Form):

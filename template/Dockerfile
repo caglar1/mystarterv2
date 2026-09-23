@@ -34,7 +34,7 @@ ENV PATH="/app/.venv/bin:$PATH" \
     DEBUG=False
 RUN groupadd --system --gid 10001 app \
  && useradd --system --uid 10001 --gid app --home /app app \
- && mkdir -p /data/media \
+ && mkdir -p /data/media/public /data/media/private \
  && chown -R app:app /data
 WORKDIR /app
 COPY --from=builder --chown=app:app /app /app

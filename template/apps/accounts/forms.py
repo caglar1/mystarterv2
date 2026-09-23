@@ -1,10 +1,10 @@
 from django.contrib.auth import forms as auth_forms
-from django.template.loader import render_to_string
+from django.utils.translation import get_language
 
 from apps.core.forms import SpamProtectedFormMixin, StyledFormMixin
 
 from .models import User
-from .tasks import send_email
+from .tasks import send_password_reset_email
 
 
 class LoginForm(StyledFormMixin, auth_forms.AuthenticationForm):
@@ -25,11 +25,19 @@ class PasswordResetForm(StyledFormMixin, auth_forms.PasswordResetForm):
         to_email,
         html_email_template_name=None,
     ):
-        # E-posta istek içinde (kullanıcının dilinde) hazırlanır, gönderimi worker yapar: istek SMTP'yi
-        # beklemez ve yanıt süresi, adresin kayıtlı olup olmadığını ele vermez.
-        subject = "".join(render_to_string(subject_template_name, context).splitlines())
-        body = render_to_string(email_template_name, context)
-        send_email.enqueue(subject, body, from_email, [to_email])
+        # E-posta worker'da hazırlanıp gönderilir: istek SMTP'yi beklemez ve yanıt süresi adresin kayıtlı olup
+        # olmadığını ele vermez. Token (context["token"]) bilerek görev argümanlarına konmaz; worker yenisini
+        # üretir, böylece sıfırlama bağlantısı görev tablosunda düz metin durmaz. Dil isteğin dilinden gelir.
+        send_password_reset_email.enqueue(
+            context["user"].pk,
+            context["domain"],
+            context["site_name"],
+            context["protocol"],
+            get_language(),
+            subject_template_name,
+            email_template_name,
+            from_email,
+        )
 
 
 class SetPasswordForm(StyledFormMixin, auth_forms.SetPasswordForm):

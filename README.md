@@ -21,10 +21,10 @@ Tek ön koşul [uv](https://docs.astral.sh/uv/) (`brew install uv`); Python 3.13
 | `domain` | example.com | ALLOWED_HOSTS, Caddyfile |
 | `languages` | en,tr | Arayüz dilleri; ilk dil kökte (`/about/`), diğerleri önekli (`/tr/hakkimizda/`). Türkçe çeviri hazır |
 | `database` | postgres | `postgres` veya `sqlite` (WAL + IMMEDIATE, tek sunucu için) |
-| `use_maps` + `map_tiles` | evet, stadia | Leaflet + Overpass senkronizasyonu + yakınımdakiler |
+| `use_maps` + `map_tiles` | hayır, stadia | Leaflet + Overpass senkronizasyonu + yakınımdakiler |
 | `use_llm` + `llm_provider` | evet, anthropic | Saf httpx LLM gateway + SSE streaming demo |
 | `use_news` | hayır | RSS → makale → AI özet → Postgres tam metin araması (LLM gerekir) |
-| `use_kanban` | evet | SortableJS + htmx, sıralama veritabanına kaydedilir |
+| `use_kanban` | hayır | SortableJS + htmx, sıralama veritabanına kaydedilir |
 | `use_ui_kit` | evet | `/dev/ui-kit/` bileşen vitrini (yalnızca DEBUG) |
 | `use_sentry` | evet | Hata izleme; `SENTRY_DSN` verilmedikçe başlatılmaz, kişisel veri göndermez |
 
@@ -40,6 +40,15 @@ PWA manifest ve ikonlar · OG/Twitter meta · sitemap/robots · `/healthz` · s�
 `check --deploy`
 uyarısız · Docker (çok aşamalı, root olmayan kullanıcı) + compose (web / worker / db / Caddy) · GitHub Actions CI ·
 tek kaynak `AGENTS.md` (+ `CLAUDE.md`).
+
+**Yapay zeka ajanları için korkuluklar:**
+- *Stack genişletme onayı:* `approved-stack.toml` onaylı Python paketlerini, vendor dosyalarını (majör sürümüyle),
+  Docker imajlarını ve GitHub Actions eylemlerini listeler. `test_stack.py` listede olmayan her bağımlılıkta
+  `make check`'i ve CI'ı kırar; hangi AI aracı kullanılırsa kullanılsın çalışır. Claude Code'da ayrıca
+  `.claude/settings.json`, `uv add` ve bağımlılık dosyası düzenlemelerinden önce kullanıcıya sorar.
+- *CSP denetimi:* `test_templates.py` şablonlarda nonce'suz `<script>`, `style=`, `onclick=`, `hx-on`, CDN,
+  nesne yazılmış `x-data` ve Alpine CSP build'in çalıştırmadığı ifadeleri (`=>`, template literal) yakalar.
+  Bu hatalar sayfayı bozmadığı ve yalnızca tarayıcı konsolunda göründüğü için normal testler görmez.
 
 **Modüller:** her biri gerçek, test edilmiş kod; kapatılınca klasörü, URL'leri, navbar linkleri ve
 bağımlılıkları birlikte gider (`settings.FEATURES`).
@@ -77,7 +86,7 @@ Brotli ile sıkıştırılmış CSS + JS (HTML hariç):
 
 | Sayfa | Boyut |
 |---|---|
-| Ana sayfa | **51 KB** (CSS 15 · htmx 14,6 · Alpine 20,8 · app.js 0,5) |
+| Ana sayfa | **51 KB** (CSS 15 · htmx 14,6 · Alpine 20,8 · app.js 0,7) |
 | Harita | 91 KB (+ Leaflet yalnızca bu sayfada) |
 | Kanban | 65 KB (+ Sortable yalnızca bu sayfada) |
 | AI özet | 52 KB |
@@ -88,10 +97,10 @@ Docker imajı: yaklaşık 430 MB (tüm modüller açık; payın çoğu newspaper
 
 ## Doğrulama
 
-- `scripts/test_matrix.py`: 9 seçenek kombinasyonunu üretir; `tr,en` (Türkçe kökte) ve tek dil de bunlara dahil.
+- `scripts/test_matrix.py`: 10 seçenek kombinasyonunu üretir (biri hiçbir soruyu değiştirmeden); `tr,en` (Türkçe kökte) ve tek dil de bunlara dahil.
   Her birinde vendor sha256, ruff, `makemigrations --check`, pytest ve Tailwind derlemesi çalışır.
   Ardından projenin gerçek ayarlarıyla her dilde sayfa açılır. Postgres kombinasyonları gerçek Postgres 18'e karşı test edilir.
-- Tüm modüller açık projede 136 test (Postgres'te; index kullanımı `EXPLAIN` ile doğrulanır).
+- Tüm modüller açık projede 148 test (Postgres'te; index kullanımı `EXPLAIN` ile doğrulanır).
 - `docker compose up` ile doğrulananlar: healthz, migration'lar, worker, brotli + `immutable` önbellekli statik dosyalar.
 
 ```bash
@@ -135,6 +144,8 @@ scripts/make_icons.py      PWA ikonlarını yeniden üretir
 ```
 
 - Vendor sürümü yükseltmek: ilgili `template/apps/*/vendor.json`'da sürümü ve URL'yi değiştirin, sonra
-  `cd template && python3 scripts/vendor.py lock`.
+  `cd template && python3 scripts/vendor.py lock`. Majör sürüm değiştiyse `template/approved-stack.toml.jinja`'yı da güncelleyin.
+- Yeni paket, vendor dosyası, Docker imajı ya da Actions eylemi: `template/approved-stack.toml.jinja`'ya ekleyin
+  (modüle bağlıysa aynı `[% if %]` koşuluyla); yoksa üretilen projede `test_stack.py` kırılır.
 - Tailwind yükseltmek: `template/apps/core/tailwind.py` (sürüm + sha256sums.txt değerleri).
 - Değişiklikten sonra: `uv run --no-project --with copier python scripts/test_matrix.py`.

@@ -45,9 +45,11 @@ def upsert_places(elements: list[dict]) -> int:
 
 
 def sync_area(lat: float, lng: float, radius_km: float, filters: list[str], client=None) -> int:
-    client = client or OverpassClient(settings.OVERPASS_ENDPOINTS, settings.OVERPASS_USER_AGENT)
-    elements = client.query(around_query(lat, lng, int(radius_km * 1000), filters))
-    return upsert_places(elements)
+    query = around_query(lat, lng, int(radius_km * 1000), filters)
+    if client is not None:  # dışarıdan verilen istemciyi (testler) kapatmak çağıranın işi
+        return upsert_places(client.query(query))
+    with OverpassClient(settings.OVERPASS_ENDPOINTS, settings.OVERPASS_USER_AGENT) as own_client:
+        return upsert_places(own_client.query(query))
 
 
 def sync_default_area() -> tuple[int, str]:

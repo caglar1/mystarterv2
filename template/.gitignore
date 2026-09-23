@@ -13,3 +13,5 @@ db.sqlite3*
 .DS_Store
 .idea/
 .vscode/
+# Kişisel Claude Code ayarları (ortak olanlar .claude/settings.json'da)
+.claude/settings.local.json

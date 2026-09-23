@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from django.core import mail
 from django.urls import reverse
@@ -35,13 +37,17 @@ def test_password_reset_sends_email(client, user, settings):
     response = client.post(reverse("accounts:password_reset"), {"email": "ayse@example.com"})
     assert response.status_code == 302
     assert len(mail.outbox) == 1
-    assert "/account/password/reset/" in mail.outbox[0].body
+    assert mail.outbox[0].to == ["ayse@example.com"]
     assert settings.SITE_NAME in mail.outbox[0].subject
+    # Worker'da üretilen bağlantı geçerli: şifre belirleme adımına yönlendirir
+    link = re.search(r"https?://testserver(/account/password/reset/\S+)", mail.outbox[0].body).group(1)
+    assert client.get(link)["Location"].endswith("/set-password/")
 
 
 @pytest.mark.django_db
-def test_password_reset_email_goes_through_a_task(client, user, monkeypatch):
-    """İstek SMTP'yi beklemez; yanıt süresi adresin kayıtlı olup olmadığını ele vermez."""
+def test_password_reset_email_goes_through_a_task_without_the_token(client, user, monkeypatch):
+    """İstek SMTP'yi beklemez (yanıt süresi adresin kayıtlı olup olmadığını ele vermez) ve sıfırlama
+    bağlantısı görev kuyruğu tablosuna yazılmaz: token worker'da üretilir."""
     from apps.accounts import forms
 
     calls = []
@@ -50,11 +56,21 @@ def test_password_reset_email_goes_through_a_task(client, user, monkeypatch):
         def enqueue(self, *args):
             calls.append(args)
 
-    monkeypatch.setattr(forms, "send_email", Recorder())
+    monkeypatch.setattr(forms, "send_password_reset_email", Recorder())
     client.post(reverse("accounts:password_reset"), {"email": "ayse@example.com"})
-    assert len(calls) == 1
-    subject, body, _from_email, recipients = calls[0]
-    assert recipients == ["ayse@example.com"] and "/account/password/reset/" in body and subject
+    # Argümanların tamamı bu: bağlantı ya da token yok
+    assert calls == [
+        (
+            user.pk,
+            "testserver",
+            "testserver",
+            "http",
+            "en",
+            "accounts/password_reset_subject.txt",
+            "accounts/password_reset_email.txt",
+            None,
+        )
+    ]
 
 
 @pytest.mark.django_db

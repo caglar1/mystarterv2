@@ -6,16 +6,16 @@
     * adaptive thinking + `output_config.effort` (güncel Claude modelleri; Haiku hariç)
     * `temperature` / `budget_tokens` GÖNDERİLMEZ (güncel modellerde 400 döner)
     * yanıt metni `type == "text"` bloklarından toplanır (thinking blokları atlanır)
-    * `stop_reason == "refusal"` -> LLMRefused; claude-opus-5 için sunucu tarafı fallback açık
+    * `stop_reason == "refusal"` -> LLMRefused; sunucu tarafı fallback yalnızca FALLBACK_MODELS'ta açık
     * JSON: structured outputs (`output_config.format`)
 - "openai": OpenAI uyumlu /chat/completions (OpenRouter, DeepSeek, Groq, Gemini, Ollama, vLLM...)
     * `reasoning_effort` ve JSON modu yalnızca ayarlarda açıksa gönderilir (her model desteklemez)
 
-Kullanım:
-    client = LLMClient()
-    client.generate("Merhaba").text
-    client.generate_json("...", schema={...})
-    for parca in client.stream("..."): ...
+Kullanım (HTTP bağlantısı ilk istekte açılır; `with` bloğu bitince kapanır):
+    with get_client() as client:
+        client.generate("Merhaba").text
+        client.generate_json("...", schema={...})
+        for parca in client.stream("..."): ...
 """
 
 from __future__ import annotations
@@ -34,8 +34,9 @@ logger = logging.getLogger(__name__)
 
 ANTHROPIC_VERSION = "2023-06-01"
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
-# Sunucu tarafı fallback'in belgelendiği modeller (diğerlerine parametre gönderilmez).
-FALLBACK_MODEL_PREFIXES = ("claude-opus-5", "claude-fable-5")
+# Sunucu tarafı fallback'in (`fallbacks: "default"`) belgelendiği modeller; tam ad eşleşmesi.
+# Önek kullanılmaz: "claude-opus-5" öneki claude-opus-5-5'i de yakalardı, onun izinli hedefleri farklı.
+FALLBACK_MODELS = frozenset({"claude-opus-5", "claude-fable-5", "claude-fable-5-1"})
 RETRY_STATUS = {408, 429, 500, 502, 503, 504, 529}
 MAX_RETRY_AFTER = 30.0
 
@@ -124,7 +125,27 @@ class LLMClient:
         self.sleep = sleep
         if self.provider not in {"anthropic", "openai"}:
             raise LLMConfigError(f"Bilinmeyen LLM_PROVIDER: {self.provider!r}")
-        self.http = httpx.Client(timeout=timeout or settings.LLM_TIMEOUT, transport=transport)
+        self._timeout = timeout or settings.LLM_TIMEOUT
+        self._transport = transport
+        self._http: httpx.Client | None = None
+
+    @property
+    def http(self) -> httpx.Client:
+        """Bağlantı havuzu ilk istekte açılır: yalnızca `configured` bakan kod bağlantı açmaz."""
+        if self._http is None:
+            self._http = httpx.Client(timeout=self._timeout, transport=self._transport)
+        return self._http
+
+    def close(self) -> None:
+        if self._http is not None:
+            self._http.close()
+            self._http = None
+
+    def __enter__(self) -> LLMClient:
+        return self
+
+    def __exit__(self, *exc_info) -> None:
+        self.close()
 
     @property
     def configured(self) -> bool:
@@ -202,7 +223,7 @@ class LLMClient:
             output_config["format"] = {"type": "json_schema", "schema": json_schema}
         if output_config:
             payload["output_config"] = output_config
-        if settings.LLM_FALLBACKS == "default" and self.model.startswith(FALLBACK_MODEL_PREFIXES):
+        if settings.LLM_FALLBACKS == "default" and self.model in FALLBACK_MODELS:
             payload["fallbacks"] = "default"
             headers["anthropic-beta"] = FALLBACK_BETA
         if stream:

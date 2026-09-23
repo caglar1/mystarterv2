@@ -2,10 +2,10 @@
   "files": [
     {
       "name": "htmx",
-      "version": "2.0.10",
-      "url": "https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js",
+      "version": "2.0.11",
+      "url": "https://cdn.jsdelivr.net/npm/htmx.org@2.0.11/dist/htmx.min.js",
       "dest": "apps/core/static/core/vendor/htmx.min.js",
-      "sha256": "71ea67185bfa8c98c39d31717c6fce5d852370fcdfd129db4543774d3145c0de"
+      "sha256": "d6fdc75f204e6bdefa99b69bf1e6d4ac69b8a364f77929f45c13476b4000f717"
     },
     {
       "name": "alpinejs-csp",

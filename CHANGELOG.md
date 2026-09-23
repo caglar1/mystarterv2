@@ -1,5 +1,46 @@
 # Değişiklik günlüğü
 
+## 2.3.0 — 2026-09-23
+
+Yapay zeka ajanları için korkuluklar: stack genişletme onayı artık yalnızca talimat değil.
+
+- **Onaylı stack (`approved-stack.toml`, yeni):** Python paketleri, vendor dosyaları (majör sürümüyle),
+  Docker imajları ve GitHub Actions eylemleri. `apps/core/tests/test_stack.py` listede olmayan her bağımlılıkta
+  `make check`'i ve CI'ı kırar; hangi AI aracı kullanılırsa kullanılsın çalışır.
+- **`.claude/settings.json` (yeni):** Claude Code `uv add` / `pip install` / `npm`, `vendor.py lock` ve
+  `pyproject.toml`, `vendor.json`, `Dockerfile`, `compose.yaml`, workflow'lar, `approved-stack.toml` ve denetim
+  testlerindeki düzenlemelerden önce kullanıcıya sorar. `.claude/settings.local.json` git'e girmez.
+- **CSP denetimi (`apps/core/tests/test_templates.py`, yeni):** şablonlarda nonce'suz `<script>`, CDN,
+  `<style>`, `style=`, `onclick=`, `hx-on`, `javascript:`, nesne yazılmış `x-data` ve Alpine CSP build'in
+  çalıştırmadığı ifadeler (`=>`, template literal); JS'te `eval`. Bu hatalar tarayıcıda sessizce engellenir.
+- **Alpine:** `tabs` ve `modal` bileşenleri `app.js`'e taşındı; UI kit artık AGENTS.md'deki kurala uyuyor
+  (önceden örnek, kuralın yasakladığı satır içi `x-data="{ ... }"` kullanıyordu).
+- **AGENTS.md:** onay kapsamı genişledi (harici servis/CSP origin'i, Docker imajı, Actions eylemi, majör sürüm).
+  7. ve 11. kurallar artık onaya yönlendiriyor; `approved-stack.toml`'u ve testleri onaysız değiştirmek yasak.
+- **Varsayılanlar:** `use_maps` ve `use_kanban` artık kapalı (demo kodu yalnızca istenirse gelir).
+- Test matrisine hiçbir soruyu değiştirmeyen `defaults` kombinasyonu eklendi.
+
+Düzeltmeler:
+- **Rate limit:** proxy arkasında istemci IP'si `X-Forwarded-For`'un en solundan değil, sağından okunuyor.
+  Soldaki değeri istemci kendisi yazabildiği için Nginx ya da CDN arkasında her istekte başka IP yazarak limit
+  aşılabiliyordu. Yeni ayar `TRUSTED_PROXY_COUNT` (varsayılan 1; CDN + Caddy için 2).
+- **Şifre sıfırlama:** bağlantıdaki token artık istekte üretilip görev argümanı olarak veritabanına yazılmıyor;
+  worker e-postayı gönderirken üretiyor. Görev tablosunda ve yedeklerde sıfırlama bağlantısı düz metin durmuyor.
+- **Caddy:** uygulama volume'unun tamamı yerine yalnızca `media/public` alt klasörü salt okunur bağlanıyor
+  (compose `volume.subpath`); Caddy konteyneri SQLite veritabanını ve `private/` eklerini artık görmüyor.
+  Klasörü web servisinin entrypoint'i oluşturuyor, Caddy web sağlıklı olunca başlıyor. Docker Engine 26+ gerekir.
+- **LLM:** HTTP bağlantı havuzu ilk istekte açılıyor ve iş bitince kapanıyor (`with get_client() as client`);
+  önceden her istekte açılıp kapatılmıyordu. Özet akışında ret ya da hata yanıtın ortasında gelirse yarım
+  kalan metin ekrandan siliniyor (`discard` olayı). Sunucu tarafı fallback artık model adıyla tam eşleşiyor:
+  `claude-opus-5` öneki `claude-opus-5-5`'i de yakalıyordu.
+- Overpass ve haber senkronizasyonu da açtıkları HTTP istemcilerini kapatıyor.
+- htmx 2.0.10 → 2.0.11 (htmx 4.0 npm'de `next` etiketinde; 2.x `latest` ve bakımda).
+- Bağımlılıklara bir sonraki majör sürüm üst sınırı eklendi (0.x paketlerde bir sonraki minör): yeni üretilen
+  projeler test edilmemiş kırıcı sürümleri çekmesin. pytest alt sınırı 9.1.
+
+Mevcut projelere `copier update` ile gelir. Sonrasında `approved-stack.toml`'a kendi eklediğiniz paketleri yazın;
+aksi halde `test_stack.py` bunları onaysız sayar.
+
 ## 2.2.0 — 2026-09-23
 
 Dosya yükleme, hata izleme, dağıtım komutu.

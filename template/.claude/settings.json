@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "ask": [
+      "Bash(uv add *)",
+      "Bash(uv remove *)",
+      "Bash(uv pip install *)",
+      "Bash(uv run pip install *)",
+      "Bash(pip install *)",
+      "Bash(pip3 install *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(python scripts/vendor.py lock)",
+      "Bash(python3 scripts/vendor.py lock)",
+      "Bash(uv run python scripts/vendor.py lock)",
+      "Edit(pyproject.toml)",
+      "Edit(approved-stack.toml)",
+      "Edit(**/vendor.json)",
+      "Edit(Dockerfile)",
+      "Edit(compose.yaml)",
+      "Edit(.github/workflows/**)",
+      "Edit(apps/core/tests/test_stack.py)",
+      "Edit(apps/core/tests/test_templates.py)",
+      "Edit(.claude/settings.json)"
+    ]
+  }
+}

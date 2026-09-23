@@ -28,10 +28,17 @@ def parse_rate(rate: str) -> tuple[int, int]:
 
 
 def client_ip(request) -> str:
+    """İstemci IP'si. Proxy arkasında X-Forwarded-For'un SAĞINDAN okunur.
+
+    Her proxy başlığın sonuna kendi gördüğü adresi ekler; en soldaki değeri ise istemci kendisi yazabilir
+    (ör. Nginx `$proxy_add_x_forwarded_for`). Soldan okumak, her istekte başka IP yazarak limiti aşmayı
+    sağlardı. `TRUSTED_PROXY_COUNT`: uygulamanın önündeki proxy sayısı (Caddy = 1, CDN + Caddy = 2).
+    """
     if settings.TRUST_X_FORWARDED_FOR:
-        forwarded = request.META.get("HTTP_X_FORWARDED_FOR", "")
+        forwarded = [part.strip() for part in request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")]
+        forwarded = [part for part in forwarded if part]
         if forwarded:
-            return forwarded.split(",")[0].strip()
+            return forwarded[-min(settings.TRUSTED_PROXY_COUNT, len(forwarded))]
     return request.META.get("REMOTE_ADDR", "")
 
 

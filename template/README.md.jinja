@@ -60,6 +60,9 @@ değiştirirseniz arama index'ini yeniden kuran bir migration yazın.
 
 ## Canlıya alma (Docker)
 
+Sunucuda Docker Engine 26 veya üstü gerekir: Caddy, uygulama volume'unun yalnızca `media/public` alt klasörünü
+bağlar (`volume.subpath`), veritabanını ve gizli ekleri hiç görmez.
+
 ```bash
 cp .env.example .env
 # Doldurun: SECRET_KEY, ALLOWED_HOSTS=[[ domain ]], CSRF_TRUSTED_ORIGINS=https://[[ domain ]],

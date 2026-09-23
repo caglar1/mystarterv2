@@ -76,11 +76,17 @@ def test_anthropic_payload_uses_current_api_shape():
 
 
 def test_anthropic_fallbacks_only_for_supported_models(settings):
-    client = make_client([anthropic_message()], model="claude-sonnet-5")
+    # claude-opus-5-5, "claude-opus-5" ile başlasa da listede değil (izinli fallback hedefleri farklı)
+    for model in ("claude-sonnet-5", "claude-opus-5-5"):
+        client = make_client([anthropic_message()], model=model)
+        client.generate("x")
+        body = body_of(client.requests[0])
+        assert "fallbacks" not in body, model
+        assert "anthropic-beta" not in client.requests[0].headers, model
+
+    client = make_client([anthropic_message()], model="claude-fable-5-1")
     client.generate("x")
-    body = body_of(client.requests[0])
-    assert "fallbacks" not in body
-    assert "anthropic-beta" not in client.requests[0].headers
+    assert body_of(client.requests[0])["fallbacks"] == "default"
 
     settings.LLM_FALLBACKS = "off"
     client = make_client([anthropic_message()])
@@ -225,6 +231,16 @@ def test_unconfigured_client_raises():
     assert not client.configured
     with pytest.raises(LLMError, match="LLM_API_KEY"):
         client.generate("x")
+
+
+def test_http_pool_opens_lazily_and_closes():
+    client = make_client([anthropic_message()])
+    assert client.configured and client._http is None  # yalnızca ayar kontrolü bağlantı açmaz
+    with client:
+        client.generate("x")
+        pool = client._http
+        assert pool is not None and not pool.is_closed
+    assert pool.is_closed and client._http is None
 
 
 def test_parse_json_text_handles_fences_and_noise():

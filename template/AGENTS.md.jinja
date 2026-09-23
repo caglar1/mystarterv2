@@ -56,6 +56,8 @@ templates/         base.html ve hata sayfaları; uygulama şablonları apps/<app
 assets/css/app.css Tailwind girişi (tema renkleri burada)
 locale/, apps/*/locale/  çeviriler (.po kaynağı + derlenmiş .mo; ikisi de repoda)
 static/css/app.css derlenmiş çıktı (git'e girmez)
+approved-stack.toml  onaylı paket / vendor / imaj listesi (insan yönetir; bkz. "Stack genişletme onayı")
+.claude/settings.json  Claude Code'un bağımlılık dosyalarına dokunmadan önce soru sorması
 ```
 
 ## Kurallar
@@ -69,10 +71,14 @@ static/css/app.css derlenmiş çıktı (git'e girmez)
 5. **Formlar `StyledFormMixin`** ile stillenir, şablonda sadece `{{ form }}`. Herkese açık formlara
    `SpamProtectedFormMixin` ve view'a `@ratelimit(...)` ekle.
 6. **Alpine yalnızca yerel UI durumu** (modal, sekme, dropdown, harita/sortable yaşam döngüsü) içindir; HTTP isteği yapmaz.
-   CSP build kullanıldığı için mantığı `static/<app>/*.js` içinde `Alpine.data("ad", ...)` ile tanımla,
-   şablonda yalnızca basit ifadeler yaz (`x-data="toast"`, `@click="close"`).
-7. **CSP sıkı:** inline `<script>` yalnızca `nonce="{{ csp_nonce }}"` ile; `onclick=`, `style=` niteliği,
-   `hx-on:*` ve `eval` kullanma. Yeni dış kaynak gerekiyorsa `settings.SECURE_CSP` / `CSP_*_SRC` listesine ekle.
+   CSP build kullanıldığı için mantığı `static/<app>/*.js` içinde `Alpine.data("ad", ...)` ile tanımla.
+   `x-data` yalnızca bileşen adı alır (`x-data="tabs"`, nesne yazma); başlangıç değeri `data-*` ile verilir.
+   Şablonda yalnızca basit ifadeler: `@click="show('iki')"`, `x-show="is('iki')"`. Ok fonksiyonu (`=>`) ve
+   template literal çalışmaz. Hazır bileşenler `apps/core/static/core/js/app.js`'te: `tabs`, `modal`, `toast`, `themeToggle`.
+7. **CSP sıkı:** inline `<script>` yalnızca `nonce="{{ csp_nonce }}"` ile; `onclick=`, `style=` niteliği, `<style>`,
+   `hx-on:*`, `javascript:` ve `eval` kullanma. Bu hatalar sayfayı bozmaz ama tarayıcı kodu sessizce engeller;
+   `apps/core/tests/test_templates.py` şablonları bunlara karşı tarar. Yeni dış kaynak (CDN, API, karo sağlayıcı)
+   için `CSP_*_SRC` listesini genişletmek bir stack değişikliğidir: önce onay al (bkz. "Stack genişletme onayı").
 8. **Yavaş işler (>1 sn, dış API, e-posta) istek içinde yapılmaz:** `@task` tanımla, `.enqueue()` ile kuyruğa al.
    Periyodik işler için `apps.core.sync.register_job()` + `manage.py sync <iş>` (cron).
 9. **Dış HTTP her zaman `httpx` ile, timeout'lu ve iletişim bilgili User-Agent ile.** Testlerde `httpx.MockTransport`.
@@ -81,7 +87,8 @@ static/css/app.css derlenmiş çıktı (git'e girmez)
    (boyut, uzantı, ilk baytlar). Varsayılan hedef `private/` ve indirme yetkili bir view'dan; `public/`
    yalnızca gerçekten herkese açık dosyalar için.
 10. **Sayfaya özel JS/CSS sadece o sayfada** yüklenir: `{% block extra_js %}` / `{% block extra_head %}`.
-11. **Yeni vendor dosyası** `apps/<app>/vendor.json`'a eklenir, `python scripts/vendor.py lock` ile indirilir. CDN'den `<script>` ekleme.
+11. **Yeni vendor dosyası yalnızca onaydan sonra** (bkz. "Stack genişletme onayı"): `apps/<app>/vendor.json`'a eklenir,
+    `python scripts/vendor.py lock` ile indirilir, `approved-stack.toml`'a yazılır. CDN'den `<script>` ekleme.
 12. **Her özellik testiyle gelir** (pytest-django, `apps/<app>/tests/`). Bitti demeden önce `make check`.
 13. **Modüller `settings.FEATURES` ile açılır/kapanır.** Başka modüle link verirken `{% if features.x %}` ile koru.
 14. **Kullanıcıya görünen her metin İngilizce yazılır ve çeviriye işaretlenir:** şablonda `{% load i18n %}` +
@@ -101,12 +108,25 @@ static/css/app.css derlenmiş çıktı (git'e girmez)
 
 ## Stack genişletme onayı
 
-Yeni bir paket, JS kütüphanesi ya da harici servis eklemeden önce **dur ve kullanıcıya sor**:
+Aşağıdakilerden birini yapmadan önce **dur ve kullanıcıya sor**:
+
+- Python paketi eklemek (`uv add`, `pyproject.toml`), JS/CSS kütüphanesi eklemek (`vendor.json`)
+- Harici servis ya da API bağlamak (yeni SaaS, LLM/harita/e-posta sağlayıcısı, CSP'ye yeni origin)
+- Docker imajı, compose servisi ya da GitHub Actions eylemi eklemek
+- Majör sürüm yükseltmek (Django 6 → 7, htmx 2 → 3, Tailwind 4 → 5...)
 
 > **[STACK GENİŞLETME ONAYI]** Önerilen: `paket>=sürüm` · Neden gerekli: … · Mevcut stack ile alternatif: …
-> `pyproject.toml` / `vendor.json`'a eklememi onaylıyor musunuz?
+> `pyproject.toml` / `vendor.json` / `approved-stack.toml`'a eklememi onaylıyor musunuz?
 
-Onay gelmeden ekleme. Yasaklar: React/Vue/Svelte, jQuery, Node.js/npm derleme adımı, Bootstrap/Flowbite,
+Onay gelmeden ekleme. Onay gelince değişikliği yap ve `approved-stack.toml`'a da yaz.
+
+**Denetim (yalnızca talimat değil):**
+- `apps/core/tests/test_stack.py`: `pyproject.toml`, `vendor.json`, `Dockerfile`, `compose.yaml` ve CI'daki her
+  bağımlılığı `approved-stack.toml` ile karşılaştırır. Onaysız ekleme `make check`'i ve CI'ı kırar.
+- `.claude/settings.json`: Claude Code bu dosyaları düzenlemeden ya da `uv add` çalıştırmadan önce kullanıcıya sorar.
+- Testi geçirmek için `approved-stack.toml`'u onaysız güncellemek, bu testleri değiştirmek ya da atlamak **yasaktır**.
+
+Yasaklar: React/Vue/Svelte, jQuery, Node.js/npm derleme adımı, Bootstrap/Flowbite,
 ağır LLM çatıları (langchain, litellm), Elasticsearch gibi ayrı arama servisleri, Celery/Redis (önce `django.tasks`).
 
 **Bilinçli olarak kullanılmayan "standart" paketler** (geri ekleme):

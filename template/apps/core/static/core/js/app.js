@@ -28,4 +28,25 @@ document.addEventListener("alpine:init", () => {
       setTimeout(() => this.$el.remove(), 300);
     },
   }));
+
+  // Sekmeler. Şablonda: <div x-data="tabs" data-tab="ilk"> + @click="show('ikinci')", x-show="is('ikinci')"
+  Alpine.data("tabs", () => ({
+    tab: "",
+    init() {
+      this.tab = this.$el.dataset.tab || "";
+    },
+    show(name) {
+      this.tab = name;
+    },
+    is(name) {
+      return this.tab === name;
+    },
+  }));
+
+  // Tarayıcının kendi <dialog> penceresi. Şablonda: <div x-data="modal"> + @click="open" + <dialog x-ref="dialog">
+  Alpine.data("modal", () => ({
+    open() {
+      this.$refs.dialog.showModal();
+    },
+  }));
 });

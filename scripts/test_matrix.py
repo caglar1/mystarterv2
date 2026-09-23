@@ -31,6 +31,8 @@ OFF = {
     "use_sentry": False,  # varsayılan açık; kapalı yol da sınansın
 }
 COMBOS: dict[str, dict] = {
+    # Hiçbir soruyu değiştirmeden (copier.yml varsayılanları); database yalnızca Postgres'te sınansın diye yazılı.
+    "defaults": {"database": "postgres"},
     "minimal-sqlite": {**OFF, "database": "sqlite"},
     "full-postgres": {
         "use_sentry": True,

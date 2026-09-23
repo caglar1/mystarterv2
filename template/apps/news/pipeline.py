@@ -282,9 +282,10 @@ def sync_feed(
 def sync_all(*, http: httpx.Client | None = None, llm_client: llm.LLMClient | None = None) -> tuple[int, str]:
     """Senkronizasyon işi (bkz. apps.core.sync): tüm aktif kaynakları işler."""
     stats = SyncStats()
+    owned_llm = None  # burada açılan istemci burada kapatılır; dışarıdan verilen istemciye dokunulmaz
     if llm_client is None and settings.NEWS_ENRICH:
         client = llm.get_client()
-        llm_client = client if client.configured else None
+        llm_client = owned_llm = client if client.configured else None
     stats.enrich_skipped = llm_client is None
 
     feeds = list(Feed.objects.filter(is_active=True))
@@ -308,6 +309,8 @@ def sync_all(*, http: httpx.Client | None = None, llm_client: llm.LLMClient | No
     finally:
         if owns_http:
             http.close()
+        if owned_llm is not None:
+            owned_llm.close()
 
     if feeds and len(stats.feed_errors) == len(feeds):
         raise RuntimeError(_("None of the feeds could be fetched: %s") % "; ".join(stats.feed_errors))

@@ -58,20 +58,20 @@
       </div>
       <div class="space-y-3">
         <h2 class="text-xl font-semibold">{% translate "Tabs (Alpine)" %}</h2>
-        <div x-data="{ tab: 'bir' }">
+        <div x-data="tabs" data-tab="bir">
           <div role="tablist" class="tabs tabs-box">
-            <button role="tab" class="tab" :class="tab === 'bir' && 'tab-active'" @click="tab = 'bir'">{% translate "First" %}</button>
-            <button role="tab" class="tab" :class="tab === 'iki' && 'tab-active'" @click="tab = 'iki'">{% translate "Second" %}</button>
+            <button role="tab" class="tab" :class="is('bir') && 'tab-active'" @click="show('bir')">{% translate "First" %}</button>
+            <button role="tab" class="tab" :class="is('iki') && 'tab-active'" @click="show('iki')">{% translate "Second" %}</button>
           </div>
-          <div class="p-4" x-show="tab === 'bir'">{% translate "Content of the first tab." %}</div>
-          <div class="p-4" x-show="tab === 'iki'" x-cloak>{% translate "Content of the second tab." %}</div>
+          <div class="p-4" x-show="is('bir')">{% translate "Content of the first tab." %}</div>
+          <div class="p-4" x-show="is('iki')" x-cloak>{% translate "Content of the second tab." %}</div>
         </div>
       </div>
       <div class="space-y-3">
         <h2 class="text-xl font-semibold">{% translate "Modal (native dialog)" %}</h2>
-        <div x-data="{}">
-          <button class="btn" @click="$refs.demo.showModal()">{% translate "Open modal" %}</button>
-          <dialog x-ref="demo" class="modal modal-bottom sm:modal-middle">
+        <div x-data="modal">
+          <button class="btn" @click="open">{% translate "Open modal" %}</button>
+          <dialog x-ref="dialog" class="modal modal-bottom sm:modal-middle">
             <div class="modal-box">
               <h3 class="text-lg font-bold">{% translate "Hello!" %}</h3>
               <p class="py-4">{% translate "Opens from the bottom on mobile, centered on desktop." %}</p>

@@ -1,0 +1,82 @@
+# Onaylı stack. Bu listeyi İNSAN yönetir.
+#
+# apps/core/tests/test_stack.py; pyproject.toml, vendor.json dosyaları, Dockerfile, compose.yaml ve
+# GitHub Actions'taki her bağımlılığı bu listeyle karşılaştırır. Listede olmayan bir şey eklenirse
+# `make check` ve CI kırılır.
+#
+# Yapay zeka ajanları: bu dosyayı YALNIZCA kullanıcı açıkça onay verdikten sonra güncelle
+# (AGENTS.md → "Stack genişletme onayı"). Testi geçirmek için onaysız ekleme yapma.
+
+[python]
+# pyproject.toml → [project].dependencies (paket adları; sürüm aralıkları pyproject.toml'da)
+dependencies = [
+    "django",
+    "django-htmx",
+    "django-tasks-db",
+    "django-anymail",
+    "dj-database-url",
+    "gunicorn",
+    "httpx",
+    "lucide",
+    "python-dotenv",
+    "whitenoise",
+[%- if use_sentry %]
+    "sentry-sdk",
+[%- endif %]
+[%- if database == 'postgres' %]
+    "psycopg",
+[%- endif %]
+[%- if use_news %]
+    "feedparser",
+    "newspaper4k",
+[%- endif %]
+]
+# pyproject.toml → [dependency-groups].dev
+dev = [
+    "django-browser-reload",
+    "honcho",
+    "pytest",
+    "pytest-django",
+    "ruff",
+]
+
+[vendor]
+# apps/*/vendor.json ve assets/vendor.json: ad = onaylı majör sürüm (majör yükseltme de onay ister)
+daisyui = "5"
+daisyui-theme = "5"
+htmx = "2"
+alpinejs-csp = "3"
+[%- if use_llm %]
+htmx-ext-sse = "2"
+[%- endif %]
+[%- if use_maps %]
+leaflet = "1"
+leaflet-css = "1"
+leaflet-marker-icon = "1"
+leaflet-marker-icon-2x = "1"
+leaflet-marker-shadow = "1"
+leaflet-layers = "1"
+leaflet-layers-2x = "1"
+protomaps-leaflet = "5"
+[%- endif %]
+[%- if use_kanban %]
+sortablejs = "1"
+[%- endif %]
+
+[docker]
+# Dockerfile (FROM, COPY --from), compose.yaml ve CI servislerindeki imajlar (etiketsiz)
+images = [
+    "python",
+    "ghcr.io/astral-sh/uv",
+    "caddy",
+[%- if database == 'postgres' %]
+    "postgres",
+[%- endif %]
+]
+
+[ci]
+# .github/workflows/*.yml → uses:
+actions = [
+    "actions/checkout",
+    "astral-sh/setup-uv",
+]

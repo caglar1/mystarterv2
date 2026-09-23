@@ -87,7 +87,7 @@ database:
 use_maps:
   type: bool
   help: "Harita modülü: Leaflet + Overpass ile yer senkronizasyonu + yakınımdakiler"
-  default: true
+  default: false
 
 map_tiles:
   type: str
@@ -121,7 +121,7 @@ use_news:
 use_kanban:
   type: bool
   help: "Kanban modülü: SortableJS ile sürükle-bırak, sıralama veritabanına kaydedilir"
-  default: true
+  default: false
 
 use_ui_kit:
   type: bool

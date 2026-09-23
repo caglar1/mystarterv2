@@ -3,36 +3,39 @@ name = "[[ project_slug ]]"
 version = "0.1.0"
 description = "[[ project_description ]]"
 requires-python = ">=3.12"
+# Üst sınır bir sonraki majör sürüm (0.x paketlerde bir sonraki minör): yeni üretilen projeler, şablon
+# test edilmeden çıkmış kırıcı bir sürümü çekmesin. Sınırı kaldırmak majör yükseltmedir, onay ister
+# (AGENTS.md → "Stack genişletme onayı"). Kesin sürümler uv.lock'ta.
 dependencies = [
     "django>=6.1.1,<6.2",
-    "django-htmx>=1.29",
-    "django-tasks-db>=0.13",
-    "django-anymail[resend]>=15.2",
-    "dj-database-url>=3.1",
-    "gunicorn>=26",
-    "httpx>=0.28",
-    "lucide>=1.1",
-    "python-dotenv>=1.1",
-    "whitenoise[brotli]>=6.12",
+    "django-htmx>=1.29,<2",
+    "django-tasks-db>=0.13,<0.14",
+    "django-anymail[resend]>=15.2,<16",
+    "dj-database-url>=3.1,<4",
+    "gunicorn>=26,<27",
+    "httpx>=0.28,<0.29",
+    "lucide>=1.1,<2",
+    "python-dotenv>=1.1,<2",
+    "whitenoise[brotli]>=6.12,<7",
 [%- if use_sentry %]
-    "sentry-sdk>=2.70",
+    "sentry-sdk>=2.70,<3",
 [%- endif %]
 [%- if database == 'postgres' %]
-    "psycopg[binary]>=3.3",
+    "psycopg[binary]>=3.3,<4",
 [%- endif %]
 [%- if use_news %]
-    "feedparser>=6.0.14",
-    "newspaper4k>=0.9.6",
+    "feedparser>=6.0.14,<7",
+    "newspaper4k>=0.9.6,<0.10",
 [%- endif %]
 ]
 
 [dependency-groups]
 dev = [
-    "django-browser-reload>=1.21",
-    "honcho>=2.0",
-    "pytest>=8.4",
-    "pytest-django>=4.14",
-    "ruff>=0.16",
+    "django-browser-reload>=1.21,<2",
+    "honcho>=2.0,<3",
+    "pytest>=9.1,<10",
+    "pytest-django>=4.14,<5",
+    "ruff>=0.16,<0.17",
 ]
 
 [tool.uv]
