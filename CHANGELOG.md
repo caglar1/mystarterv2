@@ -1,5 +1,22 @@
 # Değişiklik günlüğü
 
+## 2.2.0 — 2026-09-23
+
+Dosya yükleme, hata izleme, dağıtım komutu.
+
+- **Dosya yükleme:** `apps/core/uploads.py` (UUID'li hedef yol + boyut/uzantı/ilk bayt doğrulaması).
+  Teklif formuna ek dosya alanı (5 MB; pdf, jpg, png, docx). Ekler `private/` altında saklanır ve yalnızca
+  yöneticinin eriştiği bir view ile iner; talep silinince dosya da silinir.
+  `MEDIA_ROOT` düzeni: `public/` (Caddy sunar) ve `private/` (doğrudan sunulmaz).
+  Yedek betiği artık yüklenen dosyaları da arşivliyor.
+- **Sentry (yeni soru `use_sentry`, varsayılan açık):** `SENTRY_DSN` boşsa hiç başlatılmaz.
+  Açıkken kullanıcı bilgisi ve form içerikleri gönderilmez, performans izleme kapalı gelir.
+  500 hatalarının e-postası olduğu gibi kalıyor.
+- **`make deploy`:** sunucuda `git pull` → yedek → imaj derleme → servis güncelleme → sağlık kontrolü;
+  `.env`'deki `DEPLOY_HOST` / `DEPLOY_PATH` ile çalışır. Geri alma README'de.
+- **Üretilen README'de "İlk 30 dakika" listesi**; kurulum sonrası mesaj bu listeye yönlendiriyor.
+- Caddy: `/media/public/` için `nosniff` + `Content-Disposition: attachment`, gövde sınırı 6 MB.
+
 ## 2.1.1 — 2026-09-22
 
 Şablonun baştan sona gözden geçirilmesinden çıkan düzeltmeler.

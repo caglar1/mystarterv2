@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.core.forms import SpamProtectedFormMixin, StyledFormMixin
 
-from .models import Inquiry
+from .models import ATTACHMENT_EXTENSIONS, ATTACHMENT_MAX_MB, Inquiry
 
 
 def _consent_help():
@@ -28,13 +28,20 @@ class InquiryForm(SpamProtectedFormMixin, StyledFormMixin, forms.ModelForm):
 
     class Meta:
         model = Inquiry
-        fields = ["full_name", "email", "phone", "message"]
+        fields = ["full_name", "email", "phone", "message", "attachment"]
+        help_texts = {
+            "attachment": _("Optional. PDF, JPG, PNG or DOCX, at most %(limit)s MB.")
+            % {"limit": ATTACHMENT_MAX_MB},
+        }
         widgets = {
             "full_name": forms.TextInput(attrs={"autocomplete": "name", "placeholder": _("e.g. Jane Doe")}),
             "email": forms.EmailInput(attrs={"autocomplete": "email", "placeholder": "name@company.com"}),
             "phone": forms.TextInput(attrs={"autocomplete": "tel", "placeholder": "+90 5xx xxx xx xx"}),
             "message": forms.Textarea(
                 attrs={"rows": 4, "placeholder": _("Tell us briefly about your project")}
+            ),
+            "attachment": forms.ClearableFileInput(
+                attrs={"accept": ",".join(f".{item}" for item in ATTACHMENT_EXTENSIONS)}
             ),
         }
 

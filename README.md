@@ -26,15 +26,17 @@ Tek ön koşul [uv](https://docs.astral.sh/uv/) (`brew install uv`); Python 3.13
 | `use_news` | hayır | RSS → makale → AI özet → Postgres tam metin araması (LLM gerekir) |
 | `use_kanban` | evet | SortableJS + htmx, sıralama veritabanına kaydedilir |
 | `use_ui_kit` | evet | `/dev/ui-kit/` bileşen vitrini (yalnızca DEBUG) |
+| `use_sentry` | evet | Hata izleme; `SENTRY_DSN` verilmedikçe başlatılmaz, kişisel veri göndermez |
 
 Üretilen projeye sonradan gelen şablon düzeltmeleri: `uvx copier update --trust`.
 
 ## Neler var
 
 **Her projede:** özel User modeli ve giriş/şifre sıfırlama · KVKK onaylı teklif formu (honeypot + zaman
-damgası + rate limit, e-postalar arka plan görevinde) · htmx yanıtlarında otomatik toast · açık/koyu tema ·
+damgası + rate limit, e-postalar arka plan görevinde, doğrulanmış dosya eki yalnızca yöneticiye açık) · htmx yanıtlarında otomatik toast · açık/koyu tema ·
 PWA manifest ve ikonlar · OG/Twitter meta · sitemap/robots · `/healthz` · sıkı CSP (nonce) · `Permissions-Policy` · canlıda 500 hatalarının e-postası · yedekleme betiği
-(`deploy/backup.sh`) ve cron örnekleri · `check --deploy`
+(`deploy/backup.sh`, veritabanı + yüklenen dosyalar) ve cron örnekleri · tek komutla dağıtım (`make deploy`) ·
+`check --deploy`
 uyarısız · Docker (çok aşamalı, root olmayan kullanıcı) + compose (web / worker / db / Caddy) · GitHub Actions CI ·
 tek kaynak `AGENTS.md` (+ `CLAUDE.md`).
 
@@ -88,7 +90,7 @@ Docker imajı: yaklaşık 430 MB (tüm modüller açık; payın çoğu newspaper
 - `scripts/test_matrix.py`: 9 seçenek kombinasyonunu üretir; `tr,en` (Türkçe kökte) ve tek dil de bunlara dahil.
   Her birinde vendor sha256, ruff, `makemigrations --check`, pytest ve Tailwind derlemesi çalışır.
   Ardından projenin gerçek ayarlarıyla her dilde sayfa açılır. Postgres kombinasyonları gerçek Postgres 18'e karşı test edilir.
-- Tüm modüller açık projede 122 test (Postgres'te; index kullanımı `EXPLAIN` ile doğrulanır).
+- Tüm modüller açık projede 135 test (Postgres'te; index kullanımı `EXPLAIN` ile doğrulanır).
 - `docker compose up` ile doğrulananlar: healthz, migration'lar, worker, brotli + `immutable` önbellekli statik dosyalar.
 
 ```bash

@@ -11,6 +11,7 @@ dosyaya gidip kalıbı oradan alın.
 | Çeviriye hazır şablon ve Python metni, çevrilmiş URL | `apps/pages/templates/pages/home.html`, `apps/pages/urls.py`, `apps/inquiries/forms.py` |
 | İstek dışında (worker/e-posta) doğru dil | `apps/inquiries/tasks.py` (`translation.override`) |
 | Rate limit | `apps/core/ratelimit.py`, kullanım: `apps/inquiries/views.py` |
+| Dosya yükleme + yetkili indirme | `apps/core/uploads.py`, `apps/inquiries/models.py` (alan), `apps/inquiries/views.py` (`attachment`) |
 | Toast bildirimi | view'da `messages.success(...)`; mekanizma: `apps/core/middleware.py` |
 | Alpine bileşeni (CSP uyumlu) | `apps/core/static/core/js/app.js` (tema, toast) |
 | Modal, sekme | `apps/pages/templates/pages/ui_kit.html` (DEBUG'da `/dev/ui-kit/`) |

@@ -77,6 +77,9 @@ services:
       - "443:443"
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Yüklenen dosyalar (yalnızca public/ sunulur), salt okunur. Caddy'nin kendi verisi /data'da,
+      # bu yüzden ayrı bir yola bağlanır.
+      - appdata:/srv/app:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:

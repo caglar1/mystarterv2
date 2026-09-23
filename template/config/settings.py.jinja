@@ -257,6 +257,8 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+# Yüklenen dosyalar: `public/` herkese açık (canlıda Caddy sunar), `private/` yalnızca korumalı
+# view üzerinden verilir (bkz. apps/core/uploads.py). Varsayılan `private/`.
 MEDIA_URL = "media/"
 MEDIA_ROOT = Path(env("MEDIA_ROOT", str(BASE_DIR / "media")))
 
@@ -469,6 +471,22 @@ SECURE_CSP = {
     "form-action": [CSP.SELF],
     "frame-ancestors": [CSP.NONE],
 }
+
+[%- if use_sentry %]
+
+# ---------------------------------------------------------------------------
+# Hata izleme (Sentry). DSN yoksa başlatılmaz; bkz. apps/core/observability.py
+# ---------------------------------------------------------------------------
+from apps.core.observability import configure_sentry  # noqa: E402
+
+SENTRY_DSN = env("SENTRY_DSN")
+SENTRY_ENABLED = configure_sentry(
+    SENTRY_DSN,
+    environment=env("SENTRY_ENVIRONMENT", "development" if DEBUG else "production"),
+    release=env("SENTRY_RELEASE"),
+    traces_sample_rate=float(env("SENTRY_TRACES_SAMPLE_RATE", "0")),
+)
+[%- endif %]
 
 # ---------------------------------------------------------------------------
 # Loglama (stdout; Docker/systemd toplar)

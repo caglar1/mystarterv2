@@ -46,6 +46,14 @@ def test_robots_txt_blocks_account_pages_in_every_language_and_hides_admin(clien
     assert settings.ADMIN_URL.strip("/") not in body
 
 
+def test_caddy_serves_only_public_media():
+    """Yüklenen gizli dosyalar (ör. teklif ekleri) web sunucusundan doğrudan indirilememeli."""
+    caddyfile = (BASE_DIR / "deploy" / "Caddyfile").read_text()
+    assert "handle_path /media/public/*" in caddyfile
+    assert "/media/private" not in caddyfile
+    assert "X-Content-Type-Options nosniff" in caddyfile
+
+
 def test_permissions_policy_header(client):
     policy = client.get("/robots.txt")["Permissions-Policy"]
     assert "camera=()" in policy and "microphone=()" in policy

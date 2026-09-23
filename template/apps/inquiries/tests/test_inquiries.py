@@ -1,5 +1,7 @@
 import pytest
 from django.core import mail, signing
+from django.core.files.storage import default_storage
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
 from apps.inquiries.models import Inquiry
@@ -34,6 +36,61 @@ def test_htmx_submit_saves_and_sends_emails(client, settings):
     assert inquiry.consent_at is not None
     recipients = sorted(address for message in mail.outbox for address in message.to)
     assert recipients == ["ayse@example.com", "ekip@example.com"]
+
+
+PDF = b"%PDF-1.7\n" + b"0" * 200
+
+
+def pdf_upload(name: str = "teklif.pdf", content: bytes = PDF) -> SimpleUploadedFile:
+    return SimpleUploadedFile(name, content, content_type="application/pdf")
+
+
+@pytest.mark.django_db
+def test_submit_with_attachment(client):
+    response = client.post(URL, payload(attachment=pdf_upload()), **HTMX)
+    assert response.status_code == 200
+    inquiry = Inquiry.objects.get()
+    # Dosya adı kullanıcıdan gelmez ve herkese açık olmayan klasöre yazılır
+    assert inquiry.attachment.name.startswith("private/inquiries/")
+    assert "teklif" not in inquiry.attachment.name
+    assert inquiry.attachment.read() == PDF
+
+
+@pytest.mark.django_db
+def test_submit_rejects_disguised_attachment(client):
+    response = client.post(URL, payload(attachment=pdf_upload(content=b"#!/bin/sh")), **HTMX)
+    assert response.status_code == 422
+    assert not Inquiry.objects.exists()
+
+
+@pytest.mark.django_db
+def test_attachment_download_is_staff_only(client, django_user_model):
+    client.post(URL, payload(attachment=pdf_upload()), **HTMX)
+    inquiry = Inquiry.objects.get()
+    url = reverse("inquiries:attachment", args=[inquiry.pk])
+
+    assert client.get(url).status_code == 302  # anonim: yönetim girişine
+
+    user = django_user_model.objects.create_user("uye", password="x" * 12)
+    client.force_login(user)
+    assert client.get(url).status_code == 302  # giriş yapmış ama yetkisiz
+
+    staff = django_user_model.objects.create_user("yonetici", password="x" * 12, is_staff=True)
+    client.force_login(staff)
+    response = client.get(url)
+    assert response.status_code == 200
+    assert "attachment;" in response["Content-Disposition"]
+    assert b"".join(response.streaming_content) == PDF
+
+
+@pytest.mark.django_db
+def test_attachment_is_deleted_with_the_inquiry(client):
+    client.post(URL, payload(attachment=pdf_upload()), **HTMX)
+    inquiry = Inquiry.objects.get()
+    name = inquiry.attachment.name
+    assert default_storage.exists(name)
+    inquiry.delete()
+    assert not default_storage.exists(name)  # KVKK: kayıt silinince dosya da gider
 
 
 @pytest.mark.django_db

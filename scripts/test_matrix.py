@@ -22,10 +22,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-OFF = {"use_maps": False, "use_llm": False, "use_news": False, "use_kanban": False, "use_ui_kit": False}
+OFF = {
+    "use_maps": False,
+    "use_llm": False,
+    "use_news": False,
+    "use_kanban": False,
+    "use_ui_kit": False,
+    "use_sentry": False,  # varsayılan açık; kapalı yol da sınansın
+}
 COMBOS: dict[str, dict] = {
     "minimal-sqlite": {**OFF, "database": "sqlite"},
     "full-postgres": {
+        "use_sentry": True,
         "use_maps": True,
         "use_llm": True,
         "use_news": True,

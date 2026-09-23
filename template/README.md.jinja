@@ -5,6 +5,27 @@
 Starterpack v2 ile üretildi: Django 6.1 + htmx 2 + Alpine.js (CSP) +
 Tailwind 4 / DaisyUI 5. Yapay zeka ajanları ve yeni geliştiriciler için: **[AGENTS.md](AGENTS.md)**.
 
+## İlk 30 dakika
+
+Yeni projede sırayla:
+
+- [ ] `make setup` ve `make dev` — <http://127.0.0.1:8000> açılıyor mu.
+- [ ] `.env`: `NOTIFICATION_EMAILS` ve `ADMINS` gerçek adres olsun (teklif bildirimi ve hata e-postaları),
+      `DEFAULT_FROM_EMAIL` kendi alan adınız, `ADMIN_URL` tahmin edilmesi zor bir değer.
+- [ ] `make superuser` ile yönetici hesabı; yönetim paneline girip talep kaydını görün.
+- [ ] Marka: renkler `assets/css/app.css` (tema değişkenleri), ikon/logo `uv run python scripts/make_icons.py`.
+- [ ] Metinler: `apps/pages/templates/pages/` sayfaları; değiştirdikten sonra `make messages` ve çeviriler.
+- [ ] **KVKK metni** `apps/pages/templates/pages/privacy.html` — şablon metni kendi metninizle değiştirin.
+- [ ] İhtiyacınız olmayan modülleri kapatın / açın: `uvx copier update --trust`.
+[%- if use_sentry %]
+- [ ] Hata izleme: Sentry projesi açıp `.env`'e `SENTRY_DSN` yazın (boşken Sentry hiç başlatılmaz).
+[%- endif %]
+- [ ] Canlı sunucu: depoyu klonlayın, `.env` doldurun, `docker compose --profile https up -d --build`,
+      DNS'i sunucuya yöneltin.
+- [ ] `.env`'e `DEPLOY_HOST` / `DEPLOY_PATH` yazın; sonraki güncellemeler `make deploy` ile.
+- [ ] Yedeklemeyi cron'a ekleyin (`deploy/crontab.example`) ve yedekleri **sunucu dışına** kopyalayın.
+- [ ] `make check` yeşil mi; depoyu GitHub'a koyduysanız Actions sekmesinde CI çalışıyor mu.
+
 ## Geliştirme
 
 Gereken tek araç [uv](https://docs.astral.sh/uv/) (Python'u da o kurar). Node.js gerekmez.
@@ -47,6 +68,15 @@ docker compose --profile https up -d --build   # Caddy ile otomatik HTTPS
 docker compose exec web python manage.py createsuperuser
 ```
 
+Sonraki güncellemeler için geliştirme makinenizden:
+
+```bash
+make deploy     # sunucuda: git pull -> yedek -> imaj -> servisler -> sağlık kontrolü
+```
+
+`.env` içinde `DEPLOY_HOST=kullanici@sunucu` ve `DEPLOY_PATH=/srv/[[ project_slug ]]` tanımlı olmalı; sunucuda
+projenin git deposu bulunmalı. Geri almak için sunucuda `git checkout <eski-commit> && sh deploy/deploy.sh`.
+
 - Sağlık kontrolü: `/healthz` · Loglar: `docker compose logs -f web worker`
 - Periyodik işler (yedek, oturum temizliği, senkronizasyon): `deploy/crontab.example`
 - Yayından önce: `docker compose exec web python manage.py check --deploy`
@@ -58,6 +88,7 @@ docker compose exec web python manage.py createsuperuser
 sh deploy/backup.sh              # ./backups altına yedek alır, 14 günden eskileri siler
 ```
 
+Yedek, veritabanının yanında yüklenen dosyaları da (`media-<tarih>.tar.gz`) alır.
 Yedekleri **sunucu dışına** da kopyalayın (S3/R2, başka bir sunucu). Geri yükleme:
 
 [% if database == 'postgres' -%]
@@ -80,6 +111,17 @@ ticari kullanım ücretli), `carto` (ücretsiz `CARTO_API_KEY` gerekir, ayda 5M 
 ör. Cloudflare R2 — trafiği yüksek projelerde en ucuzu). Overpass senkronizasyonu için `OVERPASS_USER_AGENT`
 içinde gerçek bir iletişim adresi olmalı.
 [%- endif %]
+
+## Dosya yükleme
+
+`MEDIA_ROOT` altında iki klasör vardır:
+
+- `public/` — herkese açık dosyalar; canlıda Caddy `/media/public/...` adresinden sunar.
+- `private/` — yalnızca yetki kontrolü yapan bir view üzerinden iner; web sunucusu doğrudan sunmaz.
+  Teklif formuna eklenen dosyalar buradadır (`apps/inquiries/views.py:attachment`, yalnızca yöneticiler).
+
+Yeni bir yükleme alanı eklerken `apps/core/uploads.py` içindeki `UploadPath` ve `UploadValidator`
+kullanılır: dosya adı UUID ile yeniden yazılır, boyut/uzantı ve dosyanın ilk baytları doğrulanır.
 
 ## Şablon güncellemeleri
 

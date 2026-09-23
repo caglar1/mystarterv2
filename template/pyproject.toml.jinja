@@ -14,6 +14,9 @@ dependencies = [
     "lucide>=1.1",
     "python-dotenv>=1.1",
     "whitenoise[brotli]>=6.12",
+[%- if use_sentry %]
+    "sentry-sdk>=2.70",
+[%- endif %]
 [%- if database == 'postgres' %]
     "psycopg[binary]>=3.3",
 [%- endif %]

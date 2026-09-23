@@ -40,4 +40,13 @@ messages: ## Çeviri dosyalarını güncelle ve derle (GNU gettext gerekir)
 superuser: ## Yönetici hesabı oluştur
 	$(MANAGE) createsuperuser
 
-.PHONY: help setup dev css test lint format check messages superuser
+# .env'den okunur; ortamdan da verilebilir: make deploy DEPLOY_HOST=kullanici@sunucu
+DEPLOY_HOST ?= $(shell [ -f .env ] && sed -n 's/^DEPLOY_HOST=//p' .env)
+DEPLOY_PATH ?= $(shell [ -f .env ] && sed -n 's/^DEPLOY_PATH=//p' .env)
+
+deploy: ## Canlıya al (sunucuda: git pull + yedek + compose + sağlık kontrolü)
+	@test -n "$(DEPLOY_HOST)" -a -n "$(DEPLOY_PATH)" || \
+		{ echo ".env içinde DEPLOY_HOST=kullanici@sunucu ve DEPLOY_PATH=/srv/proje tanımlayın."; exit 1; }
+	ssh $(DEPLOY_HOST) "cd $(DEPLOY_PATH) && sh deploy/deploy.sh"
+
+.PHONY: help setup dev css test lint format check messages superuser deploy

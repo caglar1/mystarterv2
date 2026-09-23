@@ -7,4 +7,5 @@ app_name = "inquiries"
 
 urlpatterns = [
     path(_("send/"), views.submit, name="submit"),
+    path(_("attachment/<int:pk>/"), views.attachment, name="attachment"),
 ]

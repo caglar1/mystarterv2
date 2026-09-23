@@ -15,6 +15,9 @@ Bu dosya yapay zeka kodlama ajanları (Claude Code, Cursor, Copilot, Codex...) v
 | Veritabanı | [% if database == 'postgres' %]PostgreSQL (canlı), SQLite (geliştirme)[% else %]SQLite (WAL); istenirse PostgreSQL[% endif %] |
 | Arka plan işleri | `django.tasks` + `django-tasks-db` (`manage.py db_worker`), Celery/Redis yok |
 | Sunucu | gunicorn gthread + WhiteNoise (brotli, hash'li dosyalar), Docker + Caddy |
+[%- if use_sentry %]
+| Hata izleme | Sentry (`SENTRY_DSN` boşsa kapalı) — `apps/core/observability.py` |
+[%- endif %]
 [%- if use_maps %]
 | Harita | Leaflet 1.9 + Overpass (OSM) senkronizasyonu — `apps/places` |
 [%- endif %]
@@ -37,7 +40,8 @@ make check      # ruff + pytest + makemigrations --check  ← her değişiklikte
 uv run python manage.py sync <iş>      # senkronizasyon işini hemen çalıştır (liste: `sync`)
 uv run python scripts/vendor.py check  # vendor JS/CSS dosyalarının sha256 doğrulaması
 make messages   # yeni/değişen metinleri .po dosyalarına ekle ve derle (GNU gettext gerekir)
-sh deploy/backup.sh                    # canlı sunucuda veritabanı yedeği (cron: deploy/crontab.example)
+sh deploy/backup.sh                    # canlı sunucuda veritabanı + dosya yedeği (cron: deploy/crontab.example)
+make deploy     # canlıya al (sunucuda git pull + yedek + compose + sağlık kontrolü)
 ```
 
 ## Dizinler
@@ -73,6 +77,9 @@ static/css/app.css derlenmiş çıktı (git'e girmez)
    Periyodik işler için `apps.core.sync.register_job()` + `manage.py sync <iş>` (cron).
 9. **Dış HTTP her zaman `httpx` ile, timeout'lu ve iletişim bilgili User-Agent ile.** Testlerde `httpx.MockTransport`.
    Kişisel veriyi (konum, TC, e-posta) GET parametresiyle taşıma: erişim loglarına düşer, POST kullan.
+   **Yüklenen dosyalar** `apps/core/uploads.py` ile: `UploadPath` (ad UUID olur) + `UploadValidator`
+   (boyut, uzantı, ilk baytlar). Varsayılan hedef `private/` ve indirme yetkili bir view'dan; `public/`
+   yalnızca gerçekten herkese açık dosyalar için.
 10. **Sayfaya özel JS/CSS sadece o sayfada** yüklenir: `{% block extra_js %}` / `{% block extra_head %}`.
 11. **Yeni vendor dosyası** `apps/<app>/vendor.json`'a eklenir, `python scripts/vendor.py lock` ile indirilir. CDN'den `<script>` ekleme.
 12. **Her özellik testiyle gelir** (pytest-django, `apps/<app>/tests/`). Bitti demeden önce `make check`.

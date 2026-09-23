@@ -24,6 +24,8 @@ _exclude:
   - "[% if not use_news %]apps/news[% endif %]"
   - "[% if not use_kanban %]apps/kanban[% endif %]"
   - "[% if not use_ui_kit %]apps/pages/templates/pages/ui_kit.html[% endif %]"
+  - "[% if not use_sentry %]apps/core/observability.py[% endif %]"
+  - "[% if not use_sentry %]apps/core/tests/test_observability.py[% endif %]"
   - "__pycache__"
   - "*.py[co]"
   - ".DS_Store"
@@ -126,6 +128,14 @@ use_ui_kit:
   help: "/dev/ui-kit/ bileşen vitrini (yalnızca DEBUG modunda açılır)"
   default: true
 
+use_sentry:
+  type: bool
+  help: >-
+    Hata izleme (Sentry). SENTRY_DSN verilmedikçe hiçbir şey başlatılmaz ve dışarıya veri gitmez;
+    açıkken kullanıcı bilgisi ve form içerikleri gönderilmez. Kapalıyken 500 hataları yalnızca
+    ADMINS adreslerine e-postayla bildirilir.
+  default: true
+
 # .env dosyasını rastgele SECRET_KEY ile oluşturur; uv kuruluysa uv.lock üretir.
 # İlk kurulumda git deposu açılır ve ilk commit atılır (`copier update` yalnızca git'teki projelerde çalışır).
 # `update` sırasında atlanır: Copier eski/yeni sürümleri geçici klasörlerde kendi git'iyle karşılaştırır.
@@ -146,5 +156,7 @@ _message_after_copy: |
     cd [[ _copier_conf.dst_path ]]
     make setup     # bağımlılıklar, Tailwind CLI, vendor doğrulama, migrate, demo veri
     make dev       # runserver + tailwind --watch + görev worker'ı
+
+  Sonraki adımlar: README.md içindeki "İlk 30 dakika" listesi.
 
   Yapay zeka ajanları için: AGENTS.md

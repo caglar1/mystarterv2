@@ -27,5 +27,14 @@ with open('/tmp/backup.sqlite3', 'rb') as handle:
 docker compose exec -T web rm -f /tmp/backup.sqlite3
 mv "$FILE.tmp" "$FILE"
 [%- endif %]
+# Yüklenen dosyalar (varsa): veritabanı kaydı ile dosyalar birlikte geri yüklenebilsin.
+if docker compose exec -T web sh -c '[ -d /data/media ] && [ -n "$(ls -A /data/media 2>/dev/null)" ]'; then
+    MEDIA="backups/media-$STAMP.tar.gz"
+    docker compose exec -T web tar -czf - -C /data media > "$MEDIA.tmp"
+    mv "$MEDIA.tmp" "$MEDIA"
+    echo "$MEDIA"
+fi
+
 find backups -name 'db-*' -type f -mtime +"$KEEP_DAYS" -delete
+find backups -name 'media-*' -type f -mtime +"$KEEP_DAYS" -delete
 echo "$FILE"

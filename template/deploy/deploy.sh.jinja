@@ -1,0 +1,34 @@
+#!/bin/sh
+# Canlıya alma. SUNUCUDA, proje dizininde çalışır:  sh deploy/deploy.sh
+# Yerelden tek komut:  make deploy   (.env'deki DEPLOY_HOST / DEPLOY_PATH kullanılır)
+#
+# Sırası: değişiklikleri çek -> yedek al -> imajı derle -> servisleri güncelle -> sağlığı doğrula.
+# Migration'lar web servisinin entrypoint'inde çalışır (RUN_MIGRATIONS=1).
+set -eu
+cd "$(dirname "$0")/.."
+
+echo "==> Değişiklikler çekiliyor"
+git pull --ff-only
+
+echo "==> Dağıtım öncesi yedek"
+sh deploy/backup.sh
+
+echo "==> İmaj derleniyor"
+docker compose build
+
+echo "==> Servisler güncelleniyor"
+docker compose up -d
+
+echo "==> Sağlık kontrolü"
+i=0
+until docker compose exec -T web python docker/healthcheck.py; do
+    i=$((i + 1))
+    if [ "$i" -ge 30 ]; then
+        echo "HATA: uygulama sağlıklı yanıt vermedi. Loglar: docker compose logs --tail=50 web" >&2
+        exit 1
+    fi
+    sleep 2
+done
+
+docker image prune -f >/dev/null
+echo "==> Tamam: $(git rev-parse --short HEAD) ($(git log -1 --format=%s))"

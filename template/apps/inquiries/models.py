@@ -1,6 +1,13 @@
 from django.conf import settings
 from django.db import models
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
+
+from apps.core.uploads import UploadPath, UploadValidator
+
+# Herkese açık formdan gelen dosyalar: küçük, tanıdık türler ve yalnızca yetkiliye açık klasör.
+ATTACHMENT_MAX_MB = 5
+ATTACHMENT_EXTENSIONS = ("pdf", "jpg", "jpeg", "png", "docx")
 
 
 def default_language() -> str:
@@ -20,6 +27,13 @@ class Inquiry(models.Model):
     message = models.TextField(_("message"))
     # Form hangi dilde doldurulduysa e-postalar o dilde gönderilir.
     language = models.CharField(_("language"), max_length=10, default=default_language)
+    attachment = models.FileField(
+        _("attachment"),
+        upload_to=UploadPath("private/inquiries"),
+        validators=[UploadValidator(ATTACHMENT_MAX_MB, ATTACHMENT_EXTENSIONS)],
+        max_length=255,
+        blank=True,
+    )
     consent_at = models.DateTimeField(_("consent given at"))
     status = models.CharField(
         _("status"), max_length=20, choices=Status.choices, default=Status.NEW, db_index=True
@@ -34,3 +48,10 @@ class Inquiry(models.Model):
 
     def __str__(self):
         return f"{self.full_name} <{self.email}>"
+
+
+@receiver(models.signals.post_delete, sender=Inquiry)
+def delete_attachment(sender, instance, **kwargs) -> None:
+    """Kayıt silinince eki de diskten sil (KVKK: veri tek yerde kalmasın)."""
+    if instance.attachment:
+        instance.attachment.delete(save=False)

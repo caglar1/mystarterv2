@@ -9,7 +9,8 @@
       </div>
     {% else %}
       <h2 class="card-title">{% lucide "send" size=20 class="text-primary" %} {% translate "Quick quote request" %}</h2>
-      <form method="post" action="{% url 'inquiries:submit' %}"
+      {# enctype: dosya eki için gerekli; htmx de bu niteliğe bakarak çoklu parça gönderir #}
+      <form method="post" action="{% url 'inquiries:submit' %}" enctype="multipart/form-data"
             hx-post="{% url 'inquiries:submit' %}" hx-target="#inquiry-form" hx-swap="outerHTML" hx-disabled-elt="find button"
             class="grid gap-3" novalidate>
         {% csrf_token %}

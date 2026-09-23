@@ -2,7 +2,25 @@
 # DNS'te [[ domain ]] bu sunucuyu göstermeli. .env: ALLOWED_HOSTS=[[ domain ]], CSRF_TRUSTED_ORIGINS=https://[[ domain ]]
 [[ domain ]] {
 	encode zstd gzip
-	reverse_proxy web:8000
+
+	# Yüklenen dosyalardan yalnızca `public/` sunulur. `private/` (ör. teklif ekleri) buradan
+	# erişilemez; onları yetki kontrolü yapan Django view'ı verir.
+	handle_path /media/public/* {
+		root * /srv/app/media/public
+		file_server
+		header Cache-Control "public, max-age=604800"
+		header X-Content-Type-Options nosniff
+		# Yüklenen dosya tarayıcıda çalıştırılmasın (ör. SVG/HTML), indirilsin.
+		header Content-Disposition attachment
+	}
+
+	handle {
+		# Yükleme sınırı: model doğrulaması 5 MB; buradan biraz yukarısı en baştan reddedilir.
+		request_body {
+			max_size 6MB
+		}
+		reverse_proxy web:8000
+	}
 }
 
 www.[[ domain ]] {
