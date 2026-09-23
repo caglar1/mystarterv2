@@ -21,7 +21,8 @@ jobs:
       TEST_DATABASE_URL: postgres://postgres:test@localhost:5432/postgres
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      # Bu eylem v10 gibi kısa majör etiket yayınlamıyor; tam sürüm yazılmalı.
+      - uses: astral-sh/setup-uv@v10.2.0
       - run: uv python install 3.13
       - name: Tüm seçenek kombinasyonlarını üret ve test et
         run: uv run --no-project --with copier python scripts/test_matrix.py --css

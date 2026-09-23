@@ -1,5 +1,12 @@
 # Değişiklik günlüğü
 
+## 2.3.1 — 2026-09-23
+
+- **CI:** `astral-sh/setup-uv@v10` diye bir etiket yok (bu eylem `v10` gibi kısa majör etiket yayınlamıyor),
+  bu yüzden hem şablonun hem de üretilen projelerin CI'ı "Set up job" adımında düşüyordu (2.1.1'den beri).
+  Tam sürüme sabitlendi: `astral-sh/setup-uv@v10.2.0`. Mevcut projeler `copier update` ile alır ya da
+  `.github/workflows/ci.yml`'da aynı satırı düzeltir.
+
 ## 2.3.0 — 2026-09-23
 
 Yapay zeka ajanları için korkuluklar: stack genişletme onayı artık yalnızca talimat değil.

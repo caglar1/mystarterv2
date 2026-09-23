@@ -24,7 +24,8 @@ jobs:
 [%- endif %]
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      # Bu eylem v10 gibi kısa majör etiket yayınlamıyor; tam sürüm yazılmalı.
+      - uses: astral-sh/setup-uv@v10.2.0
       - run: uv sync --frozen
       - name: Vendor dosyaları (sha256)
         run: uv run python scripts/vendor.py check
