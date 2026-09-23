@@ -80,7 +80,12 @@ projenin git deposu bulunmalı. Geri almak için sunucuda `git checkout <eski-co
 - Sağlık kontrolü: `/healthz` · Loglar: `docker compose logs -f web worker`
 - Periyodik işler (yedek, oturum temizliği, senkronizasyon): `deploy/crontab.example`
 - Yayından önce: `docker compose exec web python manage.py check --deploy`
+[%- if use_sentry %]
+- Canlıdaki 500 hataları: `SENTRY_DSN` doluysa Sentry'ye gider; boşsa `.env`'deki `ADMINS` adreslerine
+  e-postayla bildirilir (`EMAIL_PROVIDER` ayarlı olmalı). İkisi birden gönderilmez.
+[%- else %]
 - Canlıdaki 500 hataları `.env`'deki `ADMINS` adreslerine e-postayla gider (`EMAIL_PROVIDER` ayarlı olmalı).
+[%- endif %]
 
 ### Yedekleme
 

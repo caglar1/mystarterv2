@@ -11,7 +11,8 @@ Dosya yükleme, hata izleme, dağıtım komutu.
   Yedek betiği artık yüklenen dosyaları da arşivliyor.
 - **Sentry (yeni soru `use_sentry`, varsayılan açık):** `SENTRY_DSN` boşsa hiç başlatılmaz.
   Açıkken kullanıcı bilgisi ve form içerikleri gönderilmez, performans izleme kapalı gelir.
-  500 hatalarının e-postası olduğu gibi kalıyor.
+  Sentry çalışırken 500 hatalarının e-postası otomatik kapanır (aynı hata iki kez bildirilmesin);
+  DSN yoksa e-posta tek uyarı kanalı olarak devrede kalır.
 - **`make deploy`:** sunucuda `git pull` → yedek → imaj derleme → servis güncelleme → sağlık kontrolü;
   `.env`'deki `DEPLOY_HOST` / `DEPLOY_PATH` ile çalışır. Geri alma README'de.
 - **Üretilen README'de "İlk 30 dakika" listesi**; kurulum sonrası mesaj bu listeye yönlendiriyor.

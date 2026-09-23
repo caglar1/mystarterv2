@@ -34,7 +34,8 @@ Tek ön koşul [uv](https://docs.astral.sh/uv/) (`brew install uv`); Python 3.13
 
 **Her projede:** özel User modeli ve giriş/şifre sıfırlama · KVKK onaylı teklif formu (honeypot + zaman
 damgası + rate limit, e-postalar arka plan görevinde, doğrulanmış dosya eki yalnızca yöneticiye açık) · htmx yanıtlarında otomatik toast · açık/koyu tema ·
-PWA manifest ve ikonlar · OG/Twitter meta · sitemap/robots · `/healthz` · sıkı CSP (nonce) · `Permissions-Policy` · canlıda 500 hatalarının e-postası · yedekleme betiği
+PWA manifest ve ikonlar · OG/Twitter meta · sitemap/robots · `/healthz` · sıkı CSP (nonce) · `Permissions-Policy` · canlıda 500 hataları için Sentry ya da e-posta
+(hangisi yapılandırıldıysa) · yedekleme betiği
 (`deploy/backup.sh`, veritabanı + yüklenen dosyalar) ve cron örnekleri · tek komutla dağıtım (`make deploy`) ·
 `check --deploy`
 uyarısız · Docker (çok aşamalı, root olmayan kullanıcı) + compose (web / worker / db / Caddy) · GitHub Actions CI ·
@@ -90,7 +91,7 @@ Docker imajı: yaklaşık 430 MB (tüm modüller açık; payın çoğu newspaper
 - `scripts/test_matrix.py`: 9 seçenek kombinasyonunu üretir; `tr,en` (Türkçe kökte) ve tek dil de bunlara dahil.
   Her birinde vendor sha256, ruff, `makemigrations --check`, pytest ve Tailwind derlemesi çalışır.
   Ardından projenin gerçek ayarlarıyla her dilde sayfa açılır. Postgres kombinasyonları gerçek Postgres 18'e karşı test edilir.
-- Tüm modüller açık projede 135 test (Postgres'te; index kullanımı `EXPLAIN` ile doğrulanır).
+- Tüm modüller açık projede 136 test (Postgres'te; index kullanımı `EXPLAIN` ile doğrulanır).
 - `docker compose up` ile doğrulananlar: healthz, migration'lar, worker, brotli + `immutable` önbellekli statik dosyalar.
 
 ```bash

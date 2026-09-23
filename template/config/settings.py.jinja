@@ -514,7 +514,13 @@ LOGGING = {
     "loggers": {
         "django": {"handlers": ["console"], "level": env("DJANGO_LOG_LEVEL", "INFO"), "propagate": False},
         # Yalnızca istek hataları e-postalanır (django.security'deki DisallowedHost gürültüsü değil).
-        "django.request": {"handlers": ["mail_admins"], "level": "ERROR", "propagate": True},
+        # [% if use_sentry %]Sentry çalışıyorsa e-posta kapanır (aynı hata iki kez bildirilmesin);
+        # DSN yoksa e-posta tek uyarı kanalıdır.[% else %]Hata izleme servisi yok; e-posta tek uyarı kanalı.[% endif %]
+        "django.request": {
+            "handlers": [% if use_sentry %][] if SENTRY_ENABLED else ["mail_admins"][% else %]["mail_admins"][% endif %],
+            "level": "ERROR",
+            "propagate": True,
+        },
         # Dış HTTP istemcileri her istekte INFO log basar; yalnızca uyarılar görünsün.
         "httpx": {"level": "WARNING"},
         "newspaper": {"level": "WARNING"},
